@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6211" systemVersion="14A298i" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="vXZ-lx-hvc">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="8191" systemVersion="14F27" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="1t8-oC-G3i">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6204"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="8154"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
-        <!--View Controller-->
+        <!--EasySpotlight-->
         <scene sceneID="ufC-wZ-h7g">
             <objects>
-                <viewController id="vXZ-lx-hvc" customClass="ViewController" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="vXZ-lx-hvc" customClass="ViewController" customModule="EasySpotlight_Example" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="jyV-Pf-zRb"/>
                         <viewControllerLayoutGuide type="bottom" id="2fi-mo-0CV"/>
@@ -15,11 +16,87 @@
                     <view key="view" contentMode="scaleToFill" id="kh9-bI-dsS">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="4ba-hp-tX7">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="556"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <connections>
+                                    <outlet property="dataSource" destination="vXZ-lx-hvc" id="WYC-TQ-QaW"/>
+                                    <outlet property="delegate" destination="vXZ-lx-hvc" id="xDk-mv-72V"/>
+                                </connections>
+                            </tableView>
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Kex-CF-deu">
+                                <rect key="frame" x="0.0" y="556" width="600" height="44"/>
+                                <items>
+                                    <barButtonItem title="Remove All Spotlight" id="IP8-N3-lwu">
+                                        <connections>
+                                            <action selector="removeAllElements:" destination="vXZ-lx-hvc" id="LwM-C1-Bvk"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem systemItem="flexibleSpace" id="2gE-Pi-SZW"/>
+                                    <barButtonItem title="Add All to Spotlight" id="cer-eD-eIB">
+                                        <connections>
+                                            <action selector="addAllElements:" destination="vXZ-lx-hvc" id="yLK-fx-HfE"/>
+                                        </connections>
+                                    </barButtonItem>
+                                </items>
+                            </toolbar>
+                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="4ba-hp-tX7" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="1dF-aN-nvH"/>
+                            <constraint firstAttribute="trailing" secondItem="4ba-hp-tX7" secondAttribute="trailing" id="2Eo-We-0uW"/>
+                            <constraint firstItem="Kex-CF-deu" firstAttribute="top" secondItem="4ba-hp-tX7" secondAttribute="bottom" id="45z-mq-Gy7"/>
+                            <constraint firstItem="4ba-hp-tX7" firstAttribute="top" secondItem="jyV-Pf-zRb" secondAttribute="bottom" id="9d3-4M-bX7"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="4ba-hp-tX7" secondAttribute="trailing" id="Myc-Le-267"/>
+                            <constraint firstItem="4ba-hp-tX7" firstAttribute="top" secondItem="jyV-Pf-zRb" secondAttribute="bottom" constant="-64" id="Vl2-Mr-wcs"/>
+                            <constraint firstItem="Kex-CF-deu" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leadingMargin" constant="-20" id="YbG-7S-89F"/>
+                            <constraint firstItem="4ba-hp-tX7" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leadingMargin" id="kK6-SE-aeG"/>
+                            <constraint firstItem="2fi-mo-0CV" firstAttribute="top" secondItem="Kex-CF-deu" secondAttribute="bottom" id="mO5-qA-ZSI"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="Kex-CF-deu" secondAttribute="trailing" constant="-20" id="vbP-So-qrz"/>
+                            <constraint firstItem="Kex-CF-deu" firstAttribute="top" secondItem="4ba-hp-tX7" secondAttribute="bottom" id="zM4-3u-N4h"/>
+                        </constraints>
+                        <variation key="default">
+                            <mask key="constraints">
+                                <exclude reference="9d3-4M-bX7"/>
+                                <exclude reference="Myc-Le-267"/>
+                                <exclude reference="kK6-SE-aeG"/>
+                                <exclude reference="zM4-3u-N4h"/>
+                            </mask>
+                        </variation>
                     </view>
+                    <navigationItem key="navigationItem" title="EasySpotlight" id="RFh-6m-igz">
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="kCq-Bc-S6e">
+                            <connections>
+                                <action selector="addNewElement:" destination="vXZ-lx-hvc" id="GdV-sr-x3r"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="tableView" destination="4ba-hp-tX7" id="huk-XL-UXk"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="988" y="-389"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="pHV-cR-YQ1">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="1t8-oC-G3i" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="YOi-2F-gun">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="vXZ-lx-hvc" kind="relationship" relationship="rootViewController" id="039-kN-JuT"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="AfZ-dZ-gyQ" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="256" y="-389"/>
         </scene>
     </scenes>
 </document>

@@ -1,0 +1,34 @@
+PODS:
+  - EasySpotlight (0.1.0)
+  - Nimble (2.0.0-rc.3)
+  - Quick (0.6.0)
+
+DEPENDENCIES:
+  - EasySpotlight (from `../`)
+  - Nimble (from `https://github.com/Quick/Nimble`, branch `swift-2.0`)
+  - Quick (from `https://github.com/Quick/Quick`, branch `swift-2.0`)
+
+EXTERNAL SOURCES:
+  EasySpotlight:
+    :path: "../"
+  Nimble:
+    :branch: swift-2.0
+    :git: https://github.com/Quick/Nimble
+  Quick:
+    :branch: swift-2.0
+    :git: https://github.com/Quick/Quick
+
+CHECKOUT OPTIONS:
+  Nimble:
+    :commit: 91f3921fbfdae1b02def17b27267a13f4606ec03
+    :git: https://github.com/Quick/Nimble
+  Quick:
+    :commit: ac5eadd202dd67741628f80fb96e8c57388d954d
+    :git: https://github.com/Quick/Quick
+
+SPEC CHECKSUMS:
+  EasySpotlight: 02ed46fc17b86991a7aa21699b38dc7dcf0051fe
+  Nimble: 2f64d173ad23dc39f10110840a1ed15f29ef75e8
+  Quick: aaa961333f0bec39bfefa4b759128e4eb39f0d0e
+
+COCOAPODS: 0.38.0
