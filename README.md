@@ -74,6 +74,9 @@ SimpleStruct.removeAllFromSpotlightIndex()
 
 If you want to further configure the `CSSearchableItem` and `CSSearchbleAttributeItemSet` properties you can implement the `configureSeachableItem` method in the protocol.
 
+## TODO
+Implement way to easily handle when user opens app from a core spotlight search.
+
 ## Feedback
 New feature ideas, suggestions, or any general feedback is greatly appreciated.
 
