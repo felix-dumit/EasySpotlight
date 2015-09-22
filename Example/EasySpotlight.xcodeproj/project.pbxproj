@@ -14,6 +14,7 @@
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		607FACEC1AFB9204008FA782 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACEB1AFB9204008FA782 /* Tests.swift */; };
 		6F68D305CF067256782892CA /* Pods_EasySpotlight_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 469989FB03648059EA1E1E55 /* Pods_EasySpotlight_Example.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		D5CF45D71BB2037400A8E6CC /* SimpleRealmClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5CF45D61BB2037400A8E6CC /* SimpleRealmClass.swift */; settings = {ASSET_TAGS = (); }; };
 		D5D83A531BA277CE00171595 /* SimpleStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D83A521BA277CE00171595 /* SimpleStruct.swift */; settings = {ASSET_TAGS = (); }; };
 		E18E70AD7F2DF5FBD2131B72 /* Pods_EasySpotlight_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7734F894D6D8D75A5D23DD29 /* Pods_EasySpotlight_Tests.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 /* End PBXBuildFile section */
@@ -48,6 +49,7 @@
 		7E596DC037A0B3AE0EB49E1B /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		A979F062293EA6607D69495B /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		C355538071D0A17E4962C1AA /* Pods-EasySpotlight_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EasySpotlight_Example.debug.xcconfig"; path = "Pods/Target Support Files/Pods-EasySpotlight_Example/Pods-EasySpotlight_Example.debug.xcconfig"; sourceTree = "<group>"; };
+		D5CF45D61BB2037400A8E6CC /* SimpleRealmClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SimpleRealmClass.swift; sourceTree = "<group>"; };
 		D5D83A521BA277CE00171595 /* SimpleStruct.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SimpleStruct.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -109,6 +111,7 @@
 				607FACD51AFB9204008FA782 /* AppDelegate.swift */,
 				607FACD71AFB9204008FA782 /* ViewController.swift */,
 				D5D83A521BA277CE00171595 /* SimpleStruct.swift */,
+				D5CF45D61BB2037400A8E6CC /* SimpleRealmClass.swift */,
 				607FACD91AFB9204008FA782 /* Main.storyboard */,
 				607FACDC1AFB9204008FA782 /* Images.xcassets */,
 				607FACDE1AFB9204008FA782 /* LaunchScreen.xib */,
@@ -364,6 +367,7 @@
 			files = (
 				607FACD81AFB9204008FA782 /* ViewController.swift in Sources */,
 				D5D83A531BA277CE00171595 /* SimpleStruct.swift in Sources */,
+				D5CF45D71BB2037400A8E6CC /* SimpleRealmClass.swift in Sources */,
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

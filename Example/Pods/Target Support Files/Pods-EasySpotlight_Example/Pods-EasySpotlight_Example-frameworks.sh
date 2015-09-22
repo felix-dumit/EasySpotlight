@@ -53,7 +53,11 @@ code_sign_if_enabled() {
 
 if [[ "$CONFIGURATION" == "Debug" ]]; then
   install_framework 'Pods-EasySpotlight_Example/EasySpotlight.framework'
+  install_framework 'Pods-EasySpotlight_Example/Realm.framework'
+  install_framework 'Pods-EasySpotlight_Example/RealmSwift.framework'
 fi
 if [[ "$CONFIGURATION" == "Release" ]]; then
   install_framework 'Pods-EasySpotlight_Example/EasySpotlight.framework'
+  install_framework 'Pods-EasySpotlight_Example/Realm.framework'
+  install_framework 'Pods-EasySpotlight_Example/RealmSwift.framework'
 fi

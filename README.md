@@ -20,7 +20,7 @@ it, simply add the following line to your Podfile:
 pod "EasySpotlight"
 ```
 
-## Usage 
+## Saving content to Spotlight
 
 To use simply create a struct or class that implements the `SpotlightConvertable` protocol, and you will get the methods defined in `SpotlightIndexable` for free.
 Both protocols are copied **verbatum** below.
@@ -74,8 +74,40 @@ SimpleStruct.removeAllFromSpotlightIndex()
 
 If you want to further configure the `CSSearchableItem` and `CSSearchbleAttributeItemSet` properties you can implement the `configureSeachableItem` method in the protocol.
 
-## TODO
-Implement way to easily handle when user opens app from a core spotlight search.
+##Retrieving content
+
+In order to easily handle when the app is opened via a spotlight search, you must implement the `SpotlightRetrievable` protocol: 
+
+```swift 
+public protocol SpotlightRetrievable:SpotlightConvertable {
+    static func itemWithIdentifier(identifier: String) -> Self?
+}
+```
+
+Now all you have to do is in `application:didFinishLaunchingWithOptions:` register a handler for that type:
+
+```swift
+EasySpotlight.registerIndexableHandler(SimpleStruct.self) { item in
+   // handle when item is opened from spotlight
+   assert(item is SimpleStruct)
+   print("started with: \(item)")
+}
+```
+
+Now all that is left is to implement function called when the app opens from a spotlight: 
+
+```swift
+func application(application: UIApplication, continueUserActivity userActivity: NSUserActivity, restorationHandler: ([AnyObject]?) -> Void) -> Bool {
+     return EasySpotlight.handleActivity(userActivity) || handleOtherUserActivities(userActivity)
+}
+```
+
+## Usage
+
+See the included example application for a sample that indexes and retrieves objects from `Realm`.
+
+## Todo
+Find a way to add tests.
 
 ## Feedback
 New feature ideas, suggestions, or any general feedback is greatly appreciated.

@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import EasySpotlight
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -16,6 +17,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
+        
+        EasySpotlight.registerIndexableHandler(SimpleStruct.self) { bobber in
+            // handle when item is opened from spotlight
+            print("started with struct: \(bobber.identifier)")
+        }
+        
+        EasySpotlight.registerIndexableHandler(SimpleRealmClass.self) { obj in
+            print("started with object: \(obj)")
+            
+            if let nav = application.keyWindow?.rootViewController as? UINavigationController, let vc = nav.topViewController as? ViewController {
+                if let idx = vc.items?.indexOf(obj) {
+                    let ip = NSIndexPath(forRow: idx, inSection: 0)
+                    vc.tableView.selectRowAtIndexPath(ip, animated: true, scrollPosition: .Top)
+                }
+            }
+            
+        }
+        
+        SimpleStruct(title: "Struct Item", contentDescription: "this is a struct", identifier: "simple_struct").addToSpotlightIndex()
+        
         return true
     }
 
@@ -39,6 +60,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillTerminate(application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+    }
+    
+    func application(application: UIApplication, continueUserActivity userActivity: NSUserActivity, restorationHandler: ([AnyObject]?) -> Void) -> Bool {
+        return EasySpotlight.handleActivity(userActivity)
     }
 
 

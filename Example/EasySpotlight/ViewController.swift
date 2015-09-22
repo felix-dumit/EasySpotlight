@@ -7,17 +7,23 @@
 //
 
 import UIKit
+import RealmSwift
 
 class ViewController: UIViewController {
 
-    var items:[SimpleStruct] = []
+    var items:Results<SimpleRealmClass>?
     
     @IBOutlet weak var tableView: UITableView!
+    
+    func reloadItems() {
+        items = try? Realm().objects(SimpleRealmClass)
+        tableView.reloadData()
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        tableView.reloadData()
+        reloadItems()
     }
     
     //MARK: Outlets
@@ -28,10 +34,15 @@ class ViewController: UIViewController {
         let action = UIAlertAction(title: "OK", style: .Default){ _ in
             
             if let txt = alert.textFields?[0].text {
-                let item = SimpleStruct(title:txt, identifier:txt)
-                self.items.append(item)
+
+                let item = SimpleRealmClass(name: txt, longDescription: "item with name \(txt)")
+                let realm = try! Realm()
+                try! realm.write {
+                    realm.add(item)
+                }
+                
                 item.addToSpotlightIndex()
-                self.tableView.reloadData()
+                self.reloadItems()
             }
         }
         
@@ -43,26 +54,55 @@ class ViewController: UIViewController {
     }
     
     @IBAction func removeAllElements(sender: UIBarButtonItem) {
-        SimpleStruct.removeAllFromSpotlightIndex()
+        SimpleRealmClass.removeAllFromSpotlightIndex()
         //or items.removeFromSpotlightIndex()
     }
 
     @IBAction func addAllElements(sender: UIBarButtonItem) {
-        items.addToSpotlightIndex()
+        items?.addToSpotlightIndex()
     }
 }
 
 extension ViewController:UITableViewDataSource {
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return items.count
+        return (items?.count ?? 0)
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: .Default, reuseIdentifier: "cellOk")
      
-        cell.textLabel?.text = items[indexPath.row].title
+        cell.textLabel?.text = items?[indexPath.row].name
         
         return cell
     }
+    
+    func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        return true
+    }
+    
+    func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+        guard editingStyle == .Delete else { return }
+        guard let item = items?[indexPath.row] else { return }
+        
+        item.removeFromSpotlightIndex { error in
+            print("got error: \(error)")
+        }
+        
+        let realm = try! Realm()
+        try! realm.write {
+            realm.delete(item)
+        }
+        
+        tableView.beginUpdates()
+        tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
+        tableView.endUpdates()
+        
+    }
 }
 
+
+extension ViewController:UITableViewDelegate {
+    func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle {
+        return .Delete
+    }
+}

@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "3A156233E8A4442B21611B86"
+               BlueprintIdentifier = "411A1CFDB867E194B77F9F0D"
                BuildableName = "EasySpotlight.framework"
                BlueprintName = "EasySpotlight"
                ReferencedContainer = "container:Pods.xcodeproj">

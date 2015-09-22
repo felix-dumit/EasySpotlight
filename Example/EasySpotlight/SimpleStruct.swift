@@ -11,5 +11,15 @@ import EasySpotlight
 
 struct SimpleStruct:SpotlightConvertable {
     var title:String? = nil
+    var contentDescription:String? = nil
     var identifier:String
+}
+
+extension SimpleStruct:SpotlightRetrievable {
+
+    static func itemWithIdentifier(identifier: String) -> SimpleStruct? {
+        //query your DB or network
+        return SimpleStruct(title: "item_\(identifier)", contentDescription: "cool", identifier: identifier)
+    }
+
 }

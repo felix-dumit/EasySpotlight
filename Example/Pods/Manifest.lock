@@ -2,11 +2,18 @@ PODS:
   - EasySpotlight (0.1.0)
   - Nimble (2.0.0-rc.3)
   - Quick (0.6.0)
+  - Realm (0.95.0):
+    - Realm/Headers (= 0.95.0)
+  - Realm/Headers (0.95.0)
+  - RealmSwift (0.95.0):
+    - Realm (= 0.95.0)
 
 DEPENDENCIES:
   - EasySpotlight (from `../`)
   - Nimble (from `https://github.com/Quick/Nimble`, branch `swift-2.0`)
   - Quick (from `https://github.com/Quick/Quick`, branch `swift-2.0`)
+  - Realm (from `https://github.com/realm/realm-cocoa`, branch `swift-2.0`)
+  - RealmSwift (from `https://github.com/realm/realm-cocoa`, branch `swift-2.0`)
 
 EXTERNAL SOURCES:
   EasySpotlight:
@@ -17,18 +24,32 @@ EXTERNAL SOURCES:
   Quick:
     :branch: swift-2.0
     :git: https://github.com/Quick/Quick
+  Realm:
+    :branch: swift-2.0
+    :git: https://github.com/realm/realm-cocoa
+  RealmSwift:
+    :branch: swift-2.0
+    :git: https://github.com/realm/realm-cocoa
 
 CHECKOUT OPTIONS:
   Nimble:
-    :commit: 91f3921fbfdae1b02def17b27267a13f4606ec03
+    :commit: a87c41424b2b8bc7821cf9e0352f87f53daf5263
     :git: https://github.com/Quick/Nimble
   Quick:
-    :commit: ac5eadd202dd67741628f80fb96e8c57388d954d
+    :commit: bfba21156d7b50d250f32424d0280511435206e6
     :git: https://github.com/Quick/Quick
+  Realm:
+    :commit: ecead360b6b5e827d1eb1a4aaa0960062fefa2c8
+    :git: https://github.com/realm/realm-cocoa
+  RealmSwift:
+    :commit: ecead360b6b5e827d1eb1a4aaa0960062fefa2c8
+    :git: https://github.com/realm/realm-cocoa
 
 SPEC CHECKSUMS:
   EasySpotlight: 02ed46fc17b86991a7aa21699b38dc7dcf0051fe
   Nimble: 2f64d173ad23dc39f10110840a1ed15f29ef75e8
   Quick: aaa961333f0bec39bfefa4b759128e4eb39f0d0e
+  Realm: 1c28007bd496af94dba8c76d50719164e706a521
+  RealmSwift: 9864524dd99c2cb7b4643c29513ef8447fe63724
 
-COCOAPODS: 0.38.0
+COCOAPODS: 0.38.2
