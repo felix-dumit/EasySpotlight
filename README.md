@@ -10,7 +10,7 @@
 To run the example project, clone the repo, and run `pod install` from the Example directory first.
 
 ## Requirements
-
+`CoreSpotlight` is only available in **iOS 9.0** or later 
 ## Installation
 
 EasySpotlight is available through [CocoaPods](http://cocoapods.org). To install
