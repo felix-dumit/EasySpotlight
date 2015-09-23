@@ -84,7 +84,7 @@ public protocol SpotlightRetrievable:SpotlightConvertable {
 }
 ```
 
-Now all you have to do is in `application:didFinishLaunchingWithOptions:` register a handler for that type:
+Now you have to register a handler for that type in `application:didFinishLaunchingWithOptions:`:
 
 ```swift
 EasySpotlight.registerIndexableHandler(SimpleStruct.self) { item in
@@ -94,7 +94,7 @@ EasySpotlight.registerIndexableHandler(SimpleStruct.self) { item in
 }
 ```
 
-Now all that is left is to implement function called when the app opens from a spotlight: 
+Now all that is left is to implement the function called when the app opens from a spotlight: 
 
 ```swift
 func application(application: UIApplication, continueUserActivity userActivity: NSUserActivity, restorationHandler: ([AnyObject]?) -> Void) -> Bool {
