@@ -1,6 +1,6 @@
 # EasySpotlight
 
-[![CI Status](http://img.shields.io/travis/felix-dumit/EasySpotlight.svg?style=flat)](https://travis-ci.org/Felix Dumit/EasySpotlight)
+[![CI Status](http://img.shields.io/travis/felix-dumit/EasySpotlight.svg?style=flat)](https://travis-ci.org/felix-dumit/EasySpotlight)
 [![Version](https://img.shields.io/cocoapods/v/EasySpotlight.svg?style=flat)](http://cocoapods.org/pods/EasySpotlight)
 [![License](https://img.shields.io/cocoapods/l/EasySpotlight.svg?style=flat)](http://cocoapods.org/pods/EasySpotlight)
 [![Platform](https://img.shields.io/cocoapods/p/EasySpotlight.svg?style=flat)](http://cocoapods.org/pods/EasySpotlight)
