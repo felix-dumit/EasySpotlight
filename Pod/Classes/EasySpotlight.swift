@@ -32,9 +32,8 @@ public struct EasySpotlight {
         guard let (objType, block) = typeDict[ids.domain] else { return false }
         
         let item = objType.itemWithIdentifier(ids.identifier)
-            
-        block(value: item)
         
+        block(value: item)
         return true
     }
     

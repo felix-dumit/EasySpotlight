@@ -62,8 +62,7 @@ public protocol SpotlightConvertable:SpotlightIndexable {
 */
 public protocol SpotlightRetrievable:SpotlightConvertable {
     /**
-    Function required for retrieving object from a given unique identifier.
-    Will be called in a background thread.
+    Function required for retrieving back the object from a given unique identifier.
     
     - parameter identifier: unique idenfitier of type to be fetched
     
