@@ -26,7 +26,11 @@ public extension SpotlightConvertable {
     
     static var domainIdentifier:String { return "\(Self.self)"}
     
-    private func indexableItem() -> CSSearchableItem {
+    internal var uniqueIdentifier:String {
+        return EasySpotlight.compositeIdentifier(identifier, domain: Self.domainIdentifier)
+    }
+    
+    internal func indexableItem() -> CSSearchableItem {
         let set = CSSearchableItemAttributeSet(itemContentType: itemType)
         set.title = title
         set.contentDescription = contentDescription
@@ -34,9 +38,7 @@ public extension SpotlightConvertable {
             set.thumbnailData = UIImageJPEGRepresentation(img, 0.9)
         }
         
-        let id = EasySpotlight.compositeIdentifier(identifier, domain: Self.domainIdentifier)
-        
-        let item = CSSearchableItem(uniqueIdentifier: id, domainIdentifier: Self.domainIdentifier, attributeSet: set)
+        let item = CSSearchableItem(uniqueIdentifier: uniqueIdentifier, domainIdentifier: Self.domainIdentifier, attributeSet: set)
         
         configureSearchableItem(item)
         
@@ -71,7 +73,7 @@ public extension SpotlightConvertable/*:SpotlightIndexable*/ {
     - parameter completion: block called when indexing finishes
     */
     static func removeAllFromSpotlightIndex(completion:SpotlightCompletion = nil) {
-        CSSearchableIndex.defaultSearchableIndex().deleteSearchableItemsWithDomainIdentifiers([domainIdentifier], completionHandler: completion)
+        EasySpotlight.searchableIndex.deleteSearchableItemsWithDomainIdentifiers([domainIdentifier], completionHandler: completion)
     }
 }
 
@@ -85,7 +87,7 @@ public extension CollectionType/*:SpotlightIndexable*/ where Generator.Element:S
     */
     func addToSpotlightIndex(completion:SpotlightCompletion = nil){
         let items = self.map{ $0.indexableItem() }
-        CSSearchableIndex.defaultSearchableIndex().indexSearchableItems(items, completionHandler: completion)
+        EasySpotlight.searchableIndex.indexSearchableItems(items, completionHandler: completion)
     }
     
     /**
@@ -94,8 +96,8 @@ public extension CollectionType/*:SpotlightIndexable*/ where Generator.Element:S
     - parameter completion: block called when indexing finishes
     */
     func removeFromSpotlightIndex(completion:SpotlightCompletion = nil) {
-        let ids = self.map { $0.identifier }
-        CSSearchableIndex.defaultSearchableIndex().deleteSearchableItemsWithIdentifiers(ids, completionHandler: completion)
+        let ids = self.map { $0.uniqueIdentifier }
+        EasySpotlight.searchableIndex.deleteSearchableItemsWithIdentifiers(ids, completionHandler: completion)
     }
     
     /**
@@ -104,6 +106,6 @@ public extension CollectionType/*:SpotlightIndexable*/ where Generator.Element:S
     - parameter completion: block called when indexing finishes
     */
     static func removeAllFromSpotlightIndex(completion:SpotlightCompletion = nil) {
-        CSSearchableIndex.defaultSearchableIndex().deleteAllSearchableItemsWithCompletionHandler(completion)
+        EasySpotlight.searchableIndex.deleteAllSearchableItemsWithCompletionHandler(completion)
     }
 }

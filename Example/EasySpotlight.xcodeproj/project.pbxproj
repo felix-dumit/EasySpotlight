@@ -14,6 +14,9 @@
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		607FACEC1AFB9204008FA782 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACEB1AFB9204008FA782 /* Tests.swift */; };
 		6F68D305CF067256782892CA /* Pods_EasySpotlight_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 469989FB03648059EA1E1E55 /* Pods_EasySpotlight_Example.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		D5614AC01BD1778100268AFA /* SimpleStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D83A521BA277CE00171595 /* SimpleStruct.swift */; settings = {ASSET_TAGS = (); }; };
+		D5614AC11BD1778400268AFA /* SimpleRealmClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5CF45D61BB2037400A8E6CC /* SimpleRealmClass.swift */; settings = {ASSET_TAGS = (); }; };
+		D5614AC41BD18E1A00268AFA /* MockSearchableIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5614AC21BD1793B00268AFA /* MockSearchableIndex.swift */; settings = {ASSET_TAGS = (); }; };
 		D5CF45D71BB2037400A8E6CC /* SimpleRealmClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5CF45D61BB2037400A8E6CC /* SimpleRealmClass.swift */; settings = {ASSET_TAGS = (); }; };
 		D5D83A531BA277CE00171595 /* SimpleStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D83A521BA277CE00171595 /* SimpleStruct.swift */; settings = {ASSET_TAGS = (); }; };
 		E18E70AD7F2DF5FBD2131B72 /* Pods_EasySpotlight_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7734F894D6D8D75A5D23DD29 /* Pods_EasySpotlight_Tests.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
@@ -49,6 +52,7 @@
 		7E596DC037A0B3AE0EB49E1B /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		A979F062293EA6607D69495B /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		C355538071D0A17E4962C1AA /* Pods-EasySpotlight_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EasySpotlight_Example.debug.xcconfig"; path = "Pods/Target Support Files/Pods-EasySpotlight_Example/Pods-EasySpotlight_Example.debug.xcconfig"; sourceTree = "<group>"; };
+		D5614AC21BD1793B00268AFA /* MockSearchableIndex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockSearchableIndex.swift; sourceTree = "<group>"; };
 		D5CF45D61BB2037400A8E6CC /* SimpleRealmClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SimpleRealmClass.swift; sourceTree = "<group>"; };
 		D5D83A521BA277CE00171595 /* SimpleStruct.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SimpleStruct.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -132,6 +136,7 @@
 		607FACE81AFB9204008FA782 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				D5614AC21BD1793B00268AFA /* MockSearchableIndex.swift */,
 				607FACEB1AFB9204008FA782 /* Tests.swift */,
 				607FACE91AFB9204008FA782 /* Supporting Files */,
 			);
@@ -376,6 +381,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D5614AC41BD18E1A00268AFA /* MockSearchableIndex.swift in Sources */,
+				D5614AC11BD1778400268AFA /* SimpleRealmClass.swift in Sources */,
+				D5614AC01BD1778100268AFA /* SimpleStruct.swift in Sources */,
 				607FACEC1AFB9204008FA782 /* Tests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -427,6 +435,7 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -472,7 +481,8 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
@@ -497,6 +507,7 @@
 			baseConfigurationReference = C355538071D0A17E4962C1AA /* Pods-EasySpotlight_Example.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = EasySpotlight/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MODULE_NAME = ExampleApp;
@@ -510,6 +521,7 @@
 			baseConfigurationReference = 397EC3F9D928FCC4CC5D7FFB /* Pods-EasySpotlight_Example.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				INFOPLIST_FILE = EasySpotlight/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MODULE_NAME = ExampleApp;
@@ -523,6 +535,7 @@
 			baseConfigurationReference = 5CFBB2D4E66AB95C0CEF3B32 /* Pods-EasySpotlight_Tests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -544,6 +557,7 @@
 			baseConfigurationReference = 68EA33198B63C8F6B1A6B5AC /* Pods-EasySpotlight_Tests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",

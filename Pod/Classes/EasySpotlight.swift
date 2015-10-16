@@ -66,5 +66,6 @@ public struct EasySpotlight {
     
     private typealias EasySpotlightRegister = (SpotlightRetrievable.Type, GenericCallbackType)
     private static var typeDict:[String:EasySpotlightRegister] = [:]
+    public static var searchableIndex = CSSearchableIndex.defaultSearchableIndex()
 }
 
