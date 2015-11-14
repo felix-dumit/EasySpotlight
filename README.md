@@ -6,9 +6,9 @@
 [![License](https://img.shields.io/cocoapods/l/EasySpotlight.svg?style=flat)](http://cocoapods.org/pods/EasySpotlight)
 [![Platform](https://img.shields.io/cocoapods/p/EasySpotlight.svg?style=flat)](http://cocoapods.org/pods/EasySpotlight)
 
-## Usage
+## Intro
 
-To run the example project, clone the repo, and run `pod install` from the Example directory first.
+EasySpotlight makes it easy to index contento to CoreSpotlight and handle app launches from Spotlight.
 
 ## Requirements
 `CoreSpotlight` is only available in **iOS 9.0** or later 
@@ -48,7 +48,7 @@ public protocol SpotlightConvertable:SpotlightIndexable {
     var identifier:String {get}
     
     //optional
-     var itemType:String {get}
+    var itemType:String {get}
     var thumbnailImage:UIImage? {get}
     func configureSearchableItem(item:CSSearchableItem)
 }
@@ -70,7 +70,7 @@ You can now use all of the following methods:
 let x = SimpleStruct(title:"Bob", identifier:"identifier")
 
 x.addToSpotlightIndex() { error in 
-	//
+	handleError(error)
 }
 x.removeFromSpotlightIndex()
 SimpleStruct.removeAllFromSpotlightIndex()
@@ -113,7 +113,7 @@ func application(application: UIApplication, continueUserActivity userActivity: 
 See the included example application for a sample that indexes and retrieves objects from `Realm`.
 
 ## Todo
-Find a way to add tests.
+Verify tests are passing on Travis once they support iOS9.
 
 ## Feedback
 New feature ideas, suggestions, or any general feedback is greatly appreciated.
