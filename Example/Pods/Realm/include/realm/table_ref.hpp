@@ -29,7 +29,8 @@ namespace realm {
 
 
 class Table;
-template<class> class BasicTable;
+template<class>
+class BasicTable;
 
 
 /// A reference-counting "smart pointer" for referring to table
@@ -131,132 +132,141 @@ template<class> class BasicTable;
 ///
 /// \sa Table
 /// \sa TableRef
-template<class T> class BasicTableRef: util::bind_ptr<T> {
+template<class T>
+class BasicTableRef: util::bind_ptr<T> {
 public:
-    REALM_CONSTEXPR BasicTableRef() REALM_NOEXCEPT {}
-    ~BasicTableRef() REALM_NOEXCEPT {}
-
-#ifdef REALM_HAVE_CXX11_RVALUE_REFERENCE
+    constexpr BasicTableRef() noexcept {}
+    ~BasicTableRef() noexcept {}
 
     // Copy construct
-    BasicTableRef(const BasicTableRef& r) REALM_NOEXCEPT: util::bind_ptr<T>(r) {}
-    template<class U> BasicTableRef(const BasicTableRef<U>& r) REALM_NOEXCEPT:
+    BasicTableRef(const BasicTableRef& r) noexcept: util::bind_ptr<T>(r) {}
+    template<class U>
+    BasicTableRef(const BasicTableRef<U>& r) noexcept:
         util::bind_ptr<T>(r) {}
 
     // Copy assign
-    BasicTableRef& operator=(const BasicTableRef&) REALM_NOEXCEPT;
-    template<class U> BasicTableRef& operator=(const BasicTableRef<U>&) REALM_NOEXCEPT;
+    BasicTableRef& operator=(const BasicTableRef&) noexcept;
+    template<class U>
+    BasicTableRef& operator=(const BasicTableRef<U>&) noexcept;
 
     // Move construct
-    BasicTableRef(BasicTableRef&& r) REALM_NOEXCEPT: util::bind_ptr<T>(std::move(r)) {}
-    template<class U> BasicTableRef(BasicTableRef<U>&& r) REALM_NOEXCEPT:
+    BasicTableRef(BasicTableRef&& r) noexcept: util::bind_ptr<T>(std::move(r)) {}
+    template<class U>
+    BasicTableRef(BasicTableRef<U>&& r) noexcept:
         util::bind_ptr<T>(std::move(r)) {}
 
     // Move assign
-    BasicTableRef& operator=(BasicTableRef&&) REALM_NOEXCEPT;
-    template<class U> BasicTableRef& operator=(BasicTableRef<U>&&) REALM_NOEXCEPT;
-
-#else // !REALM_HAVE_CXX11_RVALUE_REFERENCE
-
-    // Copy construct
-    BasicTableRef(const BasicTableRef& r) REALM_NOEXCEPT: util::bind_ptr<T>(r) {}
-    template<class U> BasicTableRef(BasicTableRef<U> r) REALM_NOEXCEPT:
-        util::bind_ptr<T>(move(r)) {}
-
-    // Copy assign
-    BasicTableRef& operator=(BasicTableRef) REALM_NOEXCEPT;
-    template<class U> BasicTableRef& operator=(BasicTableRef<U>) REALM_NOEXCEPT;
-
-#endif // !REALM_HAVE_CXX11_RVALUE_REFERENCE
+    BasicTableRef& operator=(BasicTableRef&&) noexcept;
+    template<class U>
+    BasicTableRef& operator=(BasicTableRef<U>&&) noexcept;
 
     // Replacement for std::move() in C++03
-    friend BasicTableRef move(BasicTableRef& r) REALM_NOEXCEPT
+    friend BasicTableRef move(BasicTableRef& r) noexcept
     {
         return BasicTableRef(&r, move_tag());
     }
 
     //@{
     /// Comparison
-    template<class U> bool operator==(const BasicTableRef<U>&) const REALM_NOEXCEPT;
-    template<class U> bool operator==(U*) const REALM_NOEXCEPT;
-    template<class U> bool operator!=(const BasicTableRef<U>&) const REALM_NOEXCEPT;
-    template<class U> bool operator!=(U*) const REALM_NOEXCEPT;
-    template<class U> bool operator<(const BasicTableRef<U>&) const REALM_NOEXCEPT;
-    template<class U> bool operator<(U*) const REALM_NOEXCEPT;
-    template<class U> bool operator>(const BasicTableRef<U>&) const REALM_NOEXCEPT;
-    template<class U> bool operator>(U*) const REALM_NOEXCEPT;
-    template<class U> bool operator<=(const BasicTableRef<U>&) const REALM_NOEXCEPT;
-    template<class U> bool operator<=(U*) const REALM_NOEXCEPT;
-    template<class U> bool operator>=(const BasicTableRef<U>&) const REALM_NOEXCEPT;
-    template<class U> bool operator>=(U*) const REALM_NOEXCEPT;
+    template<class U>
+    bool operator==(const BasicTableRef<U>&) const noexcept;
+
+    template<class U>
+    bool operator==(U*) const noexcept;
+
+    template<class U>
+    bool operator!=(const BasicTableRef<U>&) const noexcept;
+
+    template<class U>
+    bool operator!=(U*) const noexcept;
+
+    template<class U>
+    bool operator<(const BasicTableRef<U>&) const noexcept;
+
+    template<class U>
+    bool operator<(U*) const noexcept;
+
+    template<class U>
+    bool operator>(const BasicTableRef<U>&) const noexcept;
+
+    template<class U>
+    bool operator>(U*) const noexcept;
+
+    template<class U>
+    bool operator<=(const BasicTableRef<U>&) const noexcept;
+
+    template<class U>
+    bool operator<=(U*) const noexcept;
+
+    template<class U>
+    bool operator>=(const BasicTableRef<U>&) const noexcept;
+
+    template<class U>
+    bool operator>=(U*) const noexcept;
     //@}
 
     // Dereference
 #ifdef __clang__
     // Clang has a bug that causes it to effectively ignore the 'using' declaration.
-    T& operator*() const REALM_NOEXCEPT { return util::bind_ptr<T>::operator*(); }
+    T& operator*() const noexcept { return util::bind_ptr<T>::operator*(); }
 #else
     using util::bind_ptr<T>::operator*;
 #endif
     using util::bind_ptr<T>::operator->;
 
-#ifdef REALM_HAVE_CXX11_EXPLICIT_CONV_OPERATORS
     using util::bind_ptr<T>::operator bool;
-#else
-#  ifdef __clang__
-    // Clang 3.0 and 3.1 has a bug that causes it to effectively
-    // ignore the 'using' declaration.
-    typedef typename util::bind_ptr<T>::unspecified_bool_type unspecified_bool_type;
-    operator unspecified_bool_type() const REALM_NOEXCEPT
-    {
-        return util::bind_ptr<T>::operator unspecified_bool_type();
-    }
-#  else
-    using util::bind_ptr<T>::operator typename util::bind_ptr<T>::unspecified_bool_type;
-#  endif
-#endif
 
-    T* get() const REALM_NOEXCEPT { return util::bind_ptr<T>::get(); }
-    void reset() REALM_NOEXCEPT { util::bind_ptr<T>::reset(); }
-    void reset(T* t) REALM_NOEXCEPT { util::bind_ptr<T>::reset(t); }
+    T* get() const noexcept { return util::bind_ptr<T>::get(); }
+    void reset() noexcept { util::bind_ptr<T>::reset(); }
+    void reset(T* t) noexcept { util::bind_ptr<T>::reset(t); }
 
-    void swap(BasicTableRef& r) REALM_NOEXCEPT { this->util::bind_ptr<T>::swap(r); }
-    friend void swap(BasicTableRef& a, BasicTableRef& b) REALM_NOEXCEPT { a.swap(b); }
+    void swap(BasicTableRef& r) noexcept { this->util::bind_ptr<T>::swap(r); }
+    friend void swap(BasicTableRef& a, BasicTableRef& b) noexcept { a.swap(b); }
 
     template<class U>
-    friend BasicTableRef<U> unchecked_cast(BasicTableRef<Table>) REALM_NOEXCEPT;
+    friend BasicTableRef<U> unchecked_cast(BasicTableRef<Table>) noexcept;
+
     template<class U>
-    friend BasicTableRef<const U> unchecked_cast(BasicTableRef<const Table>) REALM_NOEXCEPT;
+    friend BasicTableRef<const U> unchecked_cast(BasicTableRef<const Table>) noexcept;
 
 private:
-    template<class> struct GetRowAccType { typedef void type; };
-    template<class Spec> struct GetRowAccType<BasicTable<Spec>> {
+    template<class>
+    struct GetRowAccType { typedef void type; };
+
+    template<class Spec>
+    struct GetRowAccType<BasicTable<Spec>> {
         typedef typename BasicTable<Spec>::RowAccessor type;
     };
-    template<class Spec> struct GetRowAccType<const BasicTable<Spec>> {
+    template<class Spec>
+    struct GetRowAccType<const BasicTable<Spec>> {
         typedef typename BasicTable<Spec>::ConstRowAccessor type;
     };
     typedef typename GetRowAccType<T>::type RowAccessor;
 
 public:
     /// Same as 'table[i]' where 'table' is the referenced table.
-    RowAccessor operator[](std::size_t i) const REALM_NOEXCEPT { return (*this->get())[i]; }
+    RowAccessor operator[](size_t i) const noexcept { return (*this->get())[i]; }
 
 private:
-    friend class SubtableColumnParent;
+    friend class SubtableColumnBase;
     friend class Table;
     friend class Group;
-    template<class> friend class BasicTable;
-    template<class> friend class BasicTableRef;
 
-    explicit BasicTableRef(T* t) REALM_NOEXCEPT: util::bind_ptr<T>(t) {}
+    template<class>
+    friend class BasicTable;
+
+    template<class>
+    friend class BasicTableRef;
+
+    explicit BasicTableRef(T* t) noexcept: util::bind_ptr<T>(t) {}
 
     typedef typename util::bind_ptr<T>::move_tag move_tag;
-    BasicTableRef(BasicTableRef* r, move_tag) REALM_NOEXCEPT:
+    BasicTableRef(BasicTableRef* r, move_tag) noexcept:
         util::bind_ptr<T>(r, move_tag()) {}
 
     typedef typename util::bind_ptr<T>::casting_move_tag casting_move_tag;
-    template<class U> BasicTableRef(BasicTableRef<U>* r, casting_move_tag) REALM_NOEXCEPT:
+    template<class U>
+    BasicTableRef(BasicTableRef<U>* r, casting_move_tag) noexcept:
         util::bind_ptr<T>(r, casting_move_tag()) {}
 };
 
@@ -272,12 +282,14 @@ inline std::basic_ostream<C,T>& operator<<(std::basic_ostream<C,T>& out, const B
     return out;
 }
 
-template<class T> inline BasicTableRef<T> unchecked_cast(TableRef t) REALM_NOEXCEPT
+template<class T>
+inline BasicTableRef<T> unchecked_cast(TableRef t) noexcept
 {
     return BasicTableRef<T>(&t, typename BasicTableRef<T>::casting_move_tag());
 }
 
-template<class T> inline BasicTableRef<const T> unchecked_cast(ConstTableRef t) REALM_NOEXCEPT
+template<class T>
+inline BasicTableRef<const T> unchecked_cast(ConstTableRef t) noexcept
 {
     return BasicTableRef<const T>(&t, typename BasicTableRef<T>::casting_move_tag());
 }
@@ -285,12 +297,18 @@ template<class T> inline BasicTableRef<const T> unchecked_cast(ConstTableRef t) 
 
 //@{
 /// Comparison
-template<class T, class U> bool operator==(T*, const BasicTableRef<U>&) REALM_NOEXCEPT;
-template<class T, class U> bool operator!=(T*, const BasicTableRef<U>&) REALM_NOEXCEPT;
-template<class T, class U> bool operator<(T*, const BasicTableRef<U>&) REALM_NOEXCEPT;
-template<class T, class U> bool operator>(T*, const BasicTableRef<U>&) REALM_NOEXCEPT;
-template<class T, class U> bool operator<=(T*, const BasicTableRef<U>&) REALM_NOEXCEPT;
-template<class T, class U> bool operator>=(T*, const BasicTableRef<U>&) REALM_NOEXCEPT;
+template<class T, class U>
+bool operator==(T*, const BasicTableRef<U>&) noexcept;
+template<class T, class U>
+bool operator!=(T*, const BasicTableRef<U>&) noexcept;
+template<class T, class U>
+bool operator<(T*, const BasicTableRef<U>&) noexcept;
+template<class T, class U>
+bool operator>(T*, const BasicTableRef<U>&) noexcept;
+template<class T, class U>
+bool operator<=(T*, const BasicTableRef<U>&) noexcept;
+template<class T, class U>
+bool operator>=(T*, const BasicTableRef<U>&) noexcept;
 //@}
 
 
@@ -299,146 +317,152 @@ template<class T, class U> bool operator>=(T*, const BasicTableRef<U>&) REALM_NO
 
 // Implementation:
 
-#ifdef REALM_HAVE_CXX11_RVALUE_REFERENCE
-
 template<class T>
-inline BasicTableRef<T>& BasicTableRef<T>::operator=(const BasicTableRef& r) REALM_NOEXCEPT
-{
-    this->util::bind_ptr<T>::operator=(r);
-    return *this;
-}
-
-template<class T> template<class U>
-inline BasicTableRef<T>& BasicTableRef<T>::operator=(const BasicTableRef<U>& r) REALM_NOEXCEPT
+inline BasicTableRef<T>& BasicTableRef<T>::operator=(const BasicTableRef& r) noexcept
 {
     this->util::bind_ptr<T>::operator=(r);
     return *this;
 }
 
 template<class T>
-inline BasicTableRef<T>& BasicTableRef<T>::operator=(BasicTableRef&& r) REALM_NOEXCEPT
+template<class U>
+inline BasicTableRef<T>& BasicTableRef<T>::operator=(const BasicTableRef<U>& r) noexcept
 {
-    this->util::bind_ptr<T>::operator=(std::move(r));
+    this->util::bind_ptr<T>::operator=(r);
     return *this;
 }
-
-template<class T> template<class U>
-inline BasicTableRef<T>& BasicTableRef<T>::operator=(BasicTableRef<U>&& r) REALM_NOEXCEPT
-{
-    this->util::bind_ptr<T>::operator=(std::move(r));
-    return *this;
-}
-
-#else // !REALM_HAVE_CXX11_RVALUE_REFERENCE
 
 template<class T>
-inline BasicTableRef<T>& BasicTableRef<T>::operator=(BasicTableRef r) REALM_NOEXCEPT
+inline BasicTableRef<T>& BasicTableRef<T>::operator=(BasicTableRef&& r) noexcept
 {
-    this->util::bind_ptr<T>::operator=(move(static_cast<util::bind_ptr<T>&>(r)));
+    this->util::bind_ptr<T>::operator=(std::move(r));
     return *this;
 }
 
-template<class T> template<class U>
-inline BasicTableRef<T>& BasicTableRef<T>::operator=(BasicTableRef<U> r) REALM_NOEXCEPT
+template<class T>
+template<class U>
+inline BasicTableRef<T>& BasicTableRef<T>::operator=(BasicTableRef<U>&& r) noexcept
 {
-    this->util::bind_ptr<T>::operator=(move(static_cast<util::bind_ptr<U>&>(r)));
+    this->util::bind_ptr<T>::operator=(std::move(r));
     return *this;
 }
 
-#endif // !REALM_HAVE_CXX11_RVALUE_REFERENCE
-
-template<class T> template<class U>
-bool BasicTableRef<T>::operator==(const BasicTableRef<U>& p) const REALM_NOEXCEPT
+template<class T>
+template<class U>
+bool BasicTableRef<T>::operator==(const BasicTableRef<U>& p) const noexcept
 {
     return get() == p.get();
 }
 
-template<class T> template<class U> bool BasicTableRef<T>::operator==(U* p) const REALM_NOEXCEPT
+template<class T>
+template<class U>
+bool BasicTableRef<T>::operator==(U* p) const noexcept
 {
     return get() == p;
 }
 
-template<class T> template<class U>
-bool BasicTableRef<T>::operator!=(const BasicTableRef<U>& p) const REALM_NOEXCEPT
+template<class T>
+template<class U>
+bool BasicTableRef<T>::operator!=(const BasicTableRef<U>& p) const noexcept
 {
     return get() != p.get();
 }
 
-template<class T> template<class U> bool BasicTableRef<T>::operator!=(U* p) const REALM_NOEXCEPT
+template<class T>
+template<class U>
+bool BasicTableRef<T>::operator!=(U* p) const noexcept
 {
     return get() != p;
 }
 
-template<class T> template<class U>
-bool BasicTableRef<T>::operator<(const BasicTableRef<U>& p) const REALM_NOEXCEPT
+template<class T>
+template<class U>
+bool BasicTableRef<T>::operator<(const BasicTableRef<U>& p) const noexcept
 {
     return get() < p.get();
 }
 
-template<class T> template<class U> bool BasicTableRef<T>::operator<(U* p) const REALM_NOEXCEPT
+template<class T>
+template<class U>
+bool BasicTableRef<T>::operator<(U* p) const noexcept
 {
     return get() < p;
 }
 
-template<class T> template<class U>
-bool BasicTableRef<T>::operator>(const BasicTableRef<U>& p) const REALM_NOEXCEPT
+template<class T>
+template<class U>
+bool BasicTableRef<T>::operator>(const BasicTableRef<U>& p) const noexcept
 {
     return get() > p.get();
 }
 
-template<class T> template<class U> bool BasicTableRef<T>::operator>(U* p) const REALM_NOEXCEPT
+template<class T>
+template<class U>
+bool BasicTableRef<T>::operator>(U* p) const noexcept
 {
     return get() > p;
 }
 
-template<class T> template<class U>
-bool BasicTableRef<T>::operator<=(const BasicTableRef<U>& p) const REALM_NOEXCEPT
+template<class T>
+template<class U>
+bool BasicTableRef<T>::operator<=(const BasicTableRef<U>& p) const noexcept
 {
     return get() <= p.get();
 }
 
-template<class T> template<class U> bool BasicTableRef<T>::operator<=(U* p) const REALM_NOEXCEPT
+template<class T>
+template<class U>
+bool BasicTableRef<T>::operator<=(U* p) const noexcept
 {
     return get() <= p;
 }
 
-template<class T> template<class U>
-bool BasicTableRef<T>::operator>=(const BasicTableRef<U>& p) const REALM_NOEXCEPT
+template<class T>
+template<class U>
+bool BasicTableRef<T>::operator>=(const BasicTableRef<U>& p) const noexcept
 {
     return get() >= p.get();
 }
 
-template<class T> template<class U> bool BasicTableRef<T>::operator>=(U* p) const REALM_NOEXCEPT
+template<class T>
+template<class U>
+bool BasicTableRef<T>::operator>=(U* p) const noexcept
 {
     return get() >= p;
 }
 
-template<class T, class U> bool operator==(T* a, const BasicTableRef<U>& b) REALM_NOEXCEPT
+template<class T, class U>
+bool operator==(T* a, const BasicTableRef<U>& b) noexcept
 {
     return b == a;
 }
 
-template<class T, class U> bool operator!=(T* a, const BasicTableRef<U>& b) REALM_NOEXCEPT
+template<class T, class U>
+bool operator!=(T* a, const BasicTableRef<U>& b) noexcept
 {
     return b != a;
 }
 
-template<class T, class U> bool operator<(T* a, const BasicTableRef<U>& b) REALM_NOEXCEPT
+template<class T, class U>
+bool operator<(T* a, const BasicTableRef<U>& b) noexcept
 {
     return b > a;
 }
 
-template<class T, class U> bool operator>(T* a, const BasicTableRef<U>& b) REALM_NOEXCEPT
+template<class T, class U>
+bool operator>(T* a, const BasicTableRef<U>& b) noexcept
 {
     return b < a;
 }
 
-template<class T, class U> bool operator<=(T* a, const BasicTableRef<U>& b) REALM_NOEXCEPT
+template<class T, class U>
+bool operator<=(T* a, const BasicTableRef<U>& b) noexcept
 {
     return b >= a;
 }
 
-template<class T, class U> bool operator>=(T* a, const BasicTableRef<U>& b) REALM_NOEXCEPT
+template<class T, class U>
+bool operator>=(T* a, const BasicTableRef<U>& b) noexcept
 {
     return b <= a;
 }

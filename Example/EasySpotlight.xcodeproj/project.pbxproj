@@ -13,13 +13,13 @@
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		607FACEC1AFB9204008FA782 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACEB1AFB9204008FA782 /* Tests.swift */; };
-		6F68D305CF067256782892CA /* Pods_EasySpotlight_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 469989FB03648059EA1E1E55 /* Pods_EasySpotlight_Example.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
-		D5614AC01BD1778100268AFA /* SimpleStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D83A521BA277CE00171595 /* SimpleStruct.swift */; settings = {ASSET_TAGS = (); }; };
-		D5614AC11BD1778400268AFA /* SimpleRealmClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5CF45D61BB2037400A8E6CC /* SimpleRealmClass.swift */; settings = {ASSET_TAGS = (); }; };
-		D5614AC41BD18E1A00268AFA /* MockSearchableIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5614AC21BD1793B00268AFA /* MockSearchableIndex.swift */; settings = {ASSET_TAGS = (); }; };
-		D5CF45D71BB2037400A8E6CC /* SimpleRealmClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5CF45D61BB2037400A8E6CC /* SimpleRealmClass.swift */; settings = {ASSET_TAGS = (); }; };
-		D5D83A531BA277CE00171595 /* SimpleStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D83A521BA277CE00171595 /* SimpleStruct.swift */; settings = {ASSET_TAGS = (); }; };
-		E18E70AD7F2DF5FBD2131B72 /* Pods_EasySpotlight_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7734F894D6D8D75A5D23DD29 /* Pods_EasySpotlight_Tests.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		6F68D305CF067256782892CA /* Pods_EasySpotlight_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 469989FB03648059EA1E1E55 /* Pods_EasySpotlight_Example.framework */; };
+		D5614AC01BD1778100268AFA /* SimpleStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D83A521BA277CE00171595 /* SimpleStruct.swift */; };
+		D5614AC11BD1778400268AFA /* SimpleRealmClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5CF45D61BB2037400A8E6CC /* SimpleRealmClass.swift */; };
+		D5614AC41BD18E1A00268AFA /* MockSearchableIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5614AC21BD1793B00268AFA /* MockSearchableIndex.swift */; };
+		D5CF45D71BB2037400A8E6CC /* SimpleRealmClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5CF45D61BB2037400A8E6CC /* SimpleRealmClass.swift */; };
+		D5D83A531BA277CE00171595 /* SimpleStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D83A521BA277CE00171595 /* SimpleStruct.swift */; };
+		E18E70AD7F2DF5FBD2131B72 /* Pods_EasySpotlight_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7734F894D6D8D75A5D23DD29 /* Pods_EasySpotlight_Tests.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */

@@ -20,8 +20,11 @@
 #ifndef REALM_GROUP_SHARED_HPP
 #define REALM_GROUP_SHARED_HPP
 
-#include <limits>
+#ifdef REALM_DEBUG
+    #include <time.h> // usleep()
+#endif
 
+#include <limits>
 #include <realm/util/features.h>
 #include <realm/util/thread.hpp>
 #include <realm/util/platform_specific_condvar.hpp>
@@ -134,11 +137,17 @@ public:
         durability_Async    ///< Not yet supported on windows.
     };
 
-    /// Equivalent to calling `open(file, no_create, durability,
-    /// encryption_key)` on a default constructed instance.
+    /// \brief Same as calling the corrsponding version of open() on a instance
+    /// constructed in the unattached state.
     explicit SharedGroup(const std::string& file, bool no_create = false,
                          DurabilityLevel durability = durability_Full,
-                         const char* encryption_key = 0);
+                         const char* encryption_key = nullptr, bool allow_file_format_upgrade = true);
+
+    /// \brief Same as calling the corrsponding version of open() on a instance
+    /// constructed in the unattached state.
+    explicit SharedGroup(Replication& repl,
+                         DurabilityLevel durability = durability_Full,
+                         const char* encryption_key = nullptr, bool allow_file_format_upgrade = true);
 
     struct unattached_tag {};
 
@@ -148,62 +157,67 @@ public:
     /// attached state by calling is_attached(). Calling any other
     /// function (except the destructor) while in the unattached state
     /// has undefined behavior.
-    SharedGroup(unattached_tag) REALM_NOEXCEPT;
+    SharedGroup(unattached_tag) noexcept;
 
-    // close any open database, returning to the unattached state.
-    void close() REALM_NOEXCEPT;
+    ~SharedGroup() noexcept;
 
-    ~SharedGroup() REALM_NOEXCEPT;
-
-    /// Attach this SharedGroup instance to the specified database
-    /// file.
+    /// Attach this SharedGroup instance to the specified database file.
     ///
-    /// If the database file does not already exist, it will be
-    /// created (unless \a no_create is set to true.) When multiple
-    /// threads are involved, it is safe to let the first thread, that
-    /// gets to it, create the file.
+    /// If the database file does not already exist, it will be created (unless
+    /// \a no_create is set to true.) When multiple threads are involved, it is
+    /// safe to let the first thread, that gets to it, create the file.
     ///
-    /// While at least one instance of SharedGroup exists for a
-    /// specific database file, a "lock" file will be present too. The
-    /// lock file will be placed in the same directory as the database
-    /// file, and its name will be derived by appending ".lock" to the
-    /// name of the database file.
+    /// While at least one instance of SharedGroup exists for a specific
+    /// database file, a "lock" file will be present too. The lock file will be
+    /// placed in the same directory as the database file, and its name will be
+    /// derived by appending ".lock" to the name of the database file.
     ///
-    /// When multiple SharedGroup instances refer to the same file,
-    /// they must specify the same durability level, otherwise an
-    /// exception will be thrown.
+    /// When multiple SharedGroup instances refer to the same file, they must
+    /// specify the same durability level, otherwise an exception will be
+    /// thrown.
     ///
-    /// Calling open() on a SharedGroup instance that is already in
-    /// the attached state has undefined behavior.
+    /// If \a allow_file_format_ugrade is set to `true`, this function will
+    /// automatically upgrade the file format used in the specified Realm file
+    /// if necessary (and if it is possible). In order to prevent this, set \a
+    /// allow_upgrade to `false`.
+    ///
+    /// If \a allow_upgrade is set to `false`, only two outcomes are possible:
+    ///
+    /// - the specified Realm file is already using the latest file format, and
+    ///   can be used, or
+    ///
+    /// - the specified Realm file uses a deprecated file format, resulting a
+    ///   the throwing of FileFormatUpgradeRequired.
+    ///
+    /// Calling open() on a SharedGroup instance that is already in the attached
+    /// state has undefined behavior.
     ///
     /// \param file Filesystem path to a Realm database file.
     ///
-    /// \throw util::File::AccessError If the file could not be
-    /// opened. If the reason corresponds to one of the exception
-    /// types that are derived from util::File::AccessError, the
-    /// derived exception type is thrown. Note that InvalidDatabase is
-    /// among these derived exception types.
+    /// \throw util::File::AccessError If the file could not be opened. If the
+    /// reason corresponds to one of the exception types that are derived from
+    /// util::File::AccessError, the derived exception type is thrown. Note that
+    /// InvalidDatabase is among these derived exception types.
+    ///
+    /// \throw FileFormatUpgradeRequired only if \a allow_upgrade is `false`
+    ///        and an upgrade is required.
     void open(const std::string& file, bool no_create = false,
               DurabilityLevel = durability_Full,
-              const char* encryption_key = 0);
+              const char* encryption_key = nullptr, bool allow_file_format_upgrade = true);
 
-    /// Equivalent to calling `open(repl, durability, encryption_key)` on a
-    /// default constructed instance.
-    explicit SharedGroup(Replication& repl,
-                         DurabilityLevel durability = durability_Full,
-                         const char* encryption_key = 0);
-
-    /// Open this group in replication mode. The specified Replication
-    /// instance must remain in exixtence for as long as the
-    /// SharedGroup.
+    /// Open this group in replication mode. The specified Replication instance
+    /// must remain in exixtence for as long as the SharedGroup.
     void open(Replication&, DurabilityLevel = durability_Full,
-              const char* encryption_key = 0);
+              const char* encryption_key = nullptr, bool allow_file_format_upgrade = true);
+
+    /// Close any open database, returning to the unattached state.
+    void close() noexcept;
 
     /// A SharedGroup may be created in the unattached state, and then
     /// later attached to a file with a call to open(). Calling any
     /// function other than open(), is_attached(), and ~SharedGroup()
     /// on an unattached instance results in undefined behavior.
-    bool is_attached() const REALM_NOEXCEPT;
+    bool is_attached() const noexcept;
 
     /// Reserve disk space now to avoid allocation errors at a later
     /// point in time, and to minimize on-disk fragmentation. In some
@@ -224,7 +238,7 @@ public:
     ///
     /// It is an error to call this function on an unattached shared
     /// group. Doing so will result in undefined behavior.
-    void reserve(std::size_t size_in_bytes);
+    void reserve(size_t size_in_bytes);
 
     /// Querying for changes:
     ///
@@ -239,7 +253,7 @@ public:
     /// Has db been changed ?
     bool has_changed();
 
-#ifndef __APPLE__
+#if !REALM_PLATFORM_APPLE
     /// The calling thread goes to sleep until the database is changed, or
     /// until wait_for_change_release() is called. After a call to wait_for_change_release()
     /// further calls to wait_for_change() will return immediately. To restore
@@ -252,22 +266,19 @@ public:
 
     /// re-enable waiting for change
     void enable_wait_for_change();
-#endif
+#endif // !REALM_PLATFORM_APPLE
     // Transactions:
 
     struct VersionID {
         uint_fast64_t version;
         uint_fast32_t index;
-        VersionID(const VersionID& v)
-        {
-            version = v.version;
-            index = v.index;
-        }
-        VersionID(uint_fast64_t version = 0, uint_fast32_t index = 0)
+
+        explicit VersionID(uint_fast64_t version = 0, uint_fast32_t index = 0)
         {
             this->version = version;
             this->index = index;
         }
+
         bool operator==(const VersionID& other) { return version == other.version; }
         bool operator!=(const VersionID& other) { return version != other.version; }
         bool operator<(const VersionID& other) { return version < other.version; }
@@ -276,7 +287,7 @@ public:
         bool operator>=(const VersionID& other) { return version >= other.version; }
     };
 
-    using version_type = uint_fast64_t;
+    using version_type = History::version_type;
 
     /// Thrown by begin_read() if the specified version does not correspond to a
     /// bound (or tethered) snapshot.
@@ -356,10 +367,10 @@ public:
     /// not correspond to a bound (or tethered) snapshot.
 
     const Group& begin_read(VersionID version = VersionID());
-    void end_read() REALM_NOEXCEPT;
+    void end_read() noexcept;
     Group& begin_write();
     version_type commit();
-    void rollback() REALM_NOEXCEPT;
+    void rollback() noexcept;
 
     //@}
 
@@ -456,7 +467,8 @@ public:
     /// of all other accessors (if any) being created as part of the import.
 
     /// Type used to support handover of accessors between shared groups.
-    template<typename T> struct Handover;
+    template<typename T>
+    struct Handover;
 
     /// thread-safe/const export (mode is Stay or Copy)
     /// during export, the following operations on the shared group is locked:
@@ -491,8 +503,8 @@ private:
         uint_fast32_t   m_reader_idx;
         ref_type        m_top_ref;
         size_t          m_file_size;
-        // FIXME: Bad initialization as std::size_t is not necessarily equal to uint_fast64_t.
-        ReadLockInfo() : m_version(std::numeric_limits<std::size_t>::max()),
+        // FIXME: Bad initialization as size_t is not necessarily equal to uint_fast64_t.
+        ReadLockInfo() : m_version(std::numeric_limits<size_t>::max()),
                          m_reader_idx(0), m_top_ref(0), m_file_size(0) {};
     };
     class ReadLockUnlockGuard;
@@ -522,19 +534,21 @@ private:
     util::PlatformSpecificCondVar m_new_commit_available;
 #endif
 
-    void open(const std::string& file, bool no_create, DurabilityLevel,
-              bool is_backend, const char* encryption_key);
+    void do_open_1(const std::string& file, bool no_create, DurabilityLevel, bool is_backend,
+                   const char* encryption_key, bool allow_file_format_upgrade);
+    void do_open_2(const std::string& file, bool no_create, DurabilityLevel, bool is_backend,
+                   const char* encryption_key);
 
     // Ring buffer managment
-    bool        ringbuf_is_empty() const REALM_NOEXCEPT;
-    std::size_t ringbuf_size() const REALM_NOEXCEPT;
-    std::size_t ringbuf_capacity() const REALM_NOEXCEPT;
-    bool        ringbuf_is_first(std::size_t ndx) const REALM_NOEXCEPT;
-    void        ringbuf_remove_first() REALM_NOEXCEPT;
-    std::size_t ringbuf_find(uint64_t version) const REALM_NOEXCEPT;
-    ReadCount&  ringbuf_get(std::size_t ndx) REALM_NOEXCEPT;
-    ReadCount&  ringbuf_get_first() REALM_NOEXCEPT;
-    ReadCount&  ringbuf_get_last() REALM_NOEXCEPT;
+    bool        ringbuf_is_empty() const noexcept;
+    size_t ringbuf_size() const noexcept;
+    size_t ringbuf_capacity() const noexcept;
+    bool        ringbuf_is_first(size_t ndx) const noexcept;
+    void        ringbuf_remove_first() noexcept;
+    size_t ringbuf_find(uint64_t version) const noexcept;
+    ReadCount&  ringbuf_get(size_t ndx) noexcept;
+    ReadCount&  ringbuf_get_first() noexcept;
+    ReadCount&  ringbuf_get_last() noexcept;
     void        ringbuf_put(const ReadCount& v);
     void        ringbuf_expand();
 
@@ -553,13 +567,13 @@ private:
 
     // Release a specific readlock. The readlock info MUST have been obtained by a
     // call to grab_latest_readlock() or grab_specific_readlock().
-    void release_readlock(ReadLockInfo& readlock) REALM_NOEXCEPT;
+    void release_readlock(ReadLockInfo& readlock) noexcept;
 
     void do_begin_read(VersionID);
-    void do_end_read() REALM_NOEXCEPT;
+    void do_end_read() noexcept;
     void do_begin_write();
     version_type do_commit();
-    void do_end_write() REALM_NOEXCEPT;
+    void do_end_write() noexcept;
 
 public:
     // return the current version of the database - note, this is not necessarily
@@ -577,19 +591,25 @@ private:
 
     void do_async_commits();
 
-    void upgrade_file_format();
+    void upgrade_file_format(bool allow_file_format_upgrade);
 
     //@{
     /// See LangBindHelper.
-    template<class O> void advance_read(History&, O* observer, VersionID);
-    template<class O> void promote_to_write(History&, O* observer);
+    template<class O>
+    void advance_read(History&, O* observer, VersionID);
+
+    template<class O>
+    void promote_to_write(History&, O* observer);
     void commit_and_continue_as_read();
-    template<class O> void rollback_and_continue_as_read(History&, O* observer);
+    template<class O>
+    void rollback_and_continue_as_read(History&, O* observer);
     //@}
 
     // Advance the readlock to the given version and return the transaction logs
     // between the old version and the given version, or nullptr if none.
     std::unique_ptr<BinaryData[]> advance_readlock(History&, VersionID specific_version);
+
+    int get_file_format() const noexcept;
 
     friend class _impl::SharedGroupFriend;
 };
@@ -604,17 +624,17 @@ public:
         m_shared_group.begin_read(); // Throws
     }
 
-    ~ReadTransaction() REALM_NOEXCEPT
+    ~ReadTransaction() noexcept
     {
         m_shared_group.end_read();
     }
 
-    bool has_table(StringData name) const REALM_NOEXCEPT
+    bool has_table(StringData name) const noexcept
     {
         return get_group().has_table(name);
     }
 
-    ConstTableRef get_table(std::size_t table_ndx) const
+    ConstTableRef get_table(size_t table_ndx) const
     {
         return get_group().get_table(table_ndx); // Throws
     }
@@ -624,12 +644,13 @@ public:
         return get_group().get_table(name); // Throws
     }
 
-    template<class T> BasicTableRef<const T> get_table(StringData name) const
+    template<class T>
+    BasicTableRef<const T> get_table(StringData name) const
     {
         return get_group().get_table<T>(name); // Throws
     }
 
-    const Group& get_group() const REALM_NOEXCEPT;
+    const Group& get_group() const noexcept;
 
 private:
     SharedGroup& m_shared_group;
@@ -644,18 +665,18 @@ public:
         m_shared_group->begin_write(); // Throws
     }
 
-    ~WriteTransaction() REALM_NOEXCEPT
+    ~WriteTransaction() noexcept
     {
         if (m_shared_group)
             m_shared_group->rollback();
     }
 
-    bool has_table(StringData name) const REALM_NOEXCEPT
+    bool has_table(StringData name) const noexcept
     {
         return get_group().has_table(name);
     }
 
-    TableRef get_table(std::size_t table_ndx) const
+    TableRef get_table(size_t table_ndx) const
     {
         return get_group().get_table(table_ndx); // Throws
     }
@@ -670,12 +691,13 @@ public:
         return get_group().add_table(name, require_unique_name); // Throws
     }
 
-    TableRef get_or_add_table(StringData name, bool* was_added = 0) const
+    TableRef get_or_add_table(StringData name, bool* was_added = nullptr) const
     {
         return get_group().get_or_add_table(name, was_added); // Throws
     }
 
-    template<class T> BasicTableRef<T> get_table(StringData name) const
+    template<class T>
+    BasicTableRef<T> get_table(StringData name) const
     {
         return get_group().get_table<T>(name); // Throws
     }
@@ -686,12 +708,13 @@ public:
         return get_group().add_table<T>(name, require_unique_name); // Throws
     }
 
-    template<class T> BasicTableRef<T> get_or_add_table(StringData name, bool* was_added = 0) const
+    template<class T>
+    BasicTableRef<T> get_or_add_table(StringData name, bool* was_added = nullptr) const
     {
         return get_group().get_or_add_table<T>(name, was_added); // Throws
     }
 
-    Group& get_group() const REALM_NOEXCEPT;
+    Group& get_group() const noexcept;
 
     SharedGroup::version_type commit()
     {
@@ -701,7 +724,7 @@ public:
         return new_version;
     }
 
-    void rollback() REALM_NOEXCEPT
+    void rollback() noexcept
     {
         REALM_ASSERT(m_shared_group);
         m_shared_group->rollback();
@@ -722,53 +745,71 @@ private:
 struct SharedGroup::BadVersion: std::exception {};
 
 inline SharedGroup::SharedGroup(const std::string& file, bool no_create,
-                                DurabilityLevel durability, const char* encryption_key):
+                                DurabilityLevel durability, const char* encryption_key,
+                                bool allow_file_format_upgrade):
     m_group(Group::shared_tag())
 {
-    open(file, no_create, durability, encryption_key); // Throws
-
-    upgrade_file_format(); // Throws
+    open(file, no_create, durability, encryption_key, allow_file_format_upgrade); // Throws
 }
 
-inline SharedGroup::SharedGroup(unattached_tag) REALM_NOEXCEPT:
+inline SharedGroup::SharedGroup(unattached_tag) noexcept:
     m_group(Group::shared_tag())
 {
 }
 
 inline SharedGroup::SharedGroup(Replication& repl, DurabilityLevel durability,
-                                const char* encryption_key):
+                                const char* encryption_key, bool allow_file_format_upgrade):
     m_group(Group::shared_tag())
 {
-    open(repl, durability, encryption_key); // Throws
-
-    upgrade_file_format(); // Throws
+    open(repl, durability, encryption_key, allow_file_format_upgrade); // Throws
 }
 
 inline void SharedGroup::open(const std::string& path, bool no_create_file,
-                              DurabilityLevel durability, const char* encryption_key)
+                              DurabilityLevel durability, const char* encryption_key,
+                              bool allow_file_format_upgrade)
 {
+    // Exception safety: Since open() is called from constructors, if it throws,
+    // it must leave the file closed.
+
     bool is_backend = false;
-    open(path, no_create_file, durability, is_backend, encryption_key); // Throws
+    do_open_1(path, no_create_file, durability, is_backend, encryption_key,
+              allow_file_format_upgrade); // Throws
 }
 
-inline bool SharedGroup::is_attached() const REALM_NOEXCEPT
+inline void SharedGroup::open(Replication& repl, DurabilityLevel durability,
+                              const char* encryption_key, bool allow_file_format_upgrade)
+{
+    // Exception safety: Since open() is called from constructors, if it throws,
+    // it must leave the file closed.
+
+    REALM_ASSERT(!is_attached());
+    std::string file = repl.get_database_path();
+    bool no_create   = false;
+    bool is_backend  = false;
+    typedef _impl::GroupFriend gf;
+    gf::set_replication(m_group, &repl);
+    do_open_1(file, no_create, durability, is_backend, encryption_key,
+              allow_file_format_upgrade); // Throws
+}
+
+inline bool SharedGroup::is_attached() const noexcept
 {
     return m_file_map.is_attached();
 }
 
 class SharedGroup::ReadLockUnlockGuard {
 public:
-    ReadLockUnlockGuard(SharedGroup& shared_group, ReadLockInfo& read_lock) REALM_NOEXCEPT:
+    ReadLockUnlockGuard(SharedGroup& shared_group, ReadLockInfo& read_lock) noexcept:
         m_shared_group(shared_group),
         m_read_lock(&read_lock)
     {
     }
-    ~ReadLockUnlockGuard() REALM_NOEXCEPT
+    ~ReadLockUnlockGuard() noexcept
     {
         if (m_read_lock)
             m_shared_group.release_readlock(*m_read_lock);
     }
-    void release() REALM_NOEXCEPT
+    void release() noexcept
     {
         m_read_lock = 0;
     }
@@ -778,7 +819,8 @@ private:
 };
 
 
-template<typename T> struct SharedGroup::Handover {
+template<typename T>
+struct SharedGroup::Handover {
     std::unique_ptr<typename T::Handover_patch> patch;
     std::unique_ptr<T> clone;
     VersionID version;
@@ -793,7 +835,7 @@ std::unique_ptr<SharedGroup::Handover<T>> SharedGroup::export_for_handover(const
     std::unique_ptr<Handover<T>> result(new Handover<T>());
     // Implementation note:
     // often, the return value from clone will be T*, BUT it may be ptr to some base of T
-    // instead, so we must cast it to T*. This is alway safe, because no matter the type, 
+    // instead, so we must cast it to T*. This is alway safe, because no matter the type,
     // clone() will clone the actual accessor instance, and hence return an instance of the
     // same type.
     result->clone.reset(dynamic_cast<T*>(accessor.clone_for_handover(result->patch, mode).release()));
@@ -860,17 +902,27 @@ inline void SharedGroup::advance_read(History& history, O* observer, VersionID v
     const BinaryData* changesets_end = changesets_begin + num_changesets;
 
     if (observer) {
-        _impl::TransactLogParser parser;
-        _impl::MultiLogNoCopyInputStream in(changesets_begin, changesets_end);
-        parser.parse(in, *observer); // Throws
-        observer->parse_complete(); // Throws
+        try {
+            _impl::TransactLogParser parser;
+            _impl::MultiLogNoCopyInputStream in(changesets_begin, changesets_end);
+            parser.parse(in, *observer); // Throws
+            observer->parse_complete(); // Throws
+        }
+        catch (...) {
+            release_readlock(m_readlock);
+            m_readlock = old_readlock;
+            rlug.release();
+            throw;
+        }
     }
+
     _impl::MultiLogNoCopyInputStream in(changesets_begin, changesets_end);
     using gf = _impl::GroupFriend;
     gf::advance_transact(m_group, m_readlock.m_top_ref, m_readlock.m_file_size, in); // Throws
 }
 
-template<class O> inline void SharedGroup::promote_to_write(History& history, O* observer)
+template<class O>
+inline void SharedGroup::promote_to_write(History& history, O* observer)
 {
     if (m_transact_stage != transact_Reading)
         throw LogicError(LogicError::wrong_transact_state);
@@ -963,25 +1015,54 @@ inline void SharedGroup::rollback_and_continue_as_read(History& history, O* obse
     m_transact_stage = transact_Reading;
 }
 
-inline void SharedGroup::upgrade_file_format()
+inline void SharedGroup::upgrade_file_format(bool allow_file_format_upgrade)
 {
-    // FIXME: ExceptionSafety: This function does not appear to be exception
-    // safe. For example, it can leak read locks.
+    // In a multithreaded scenario multiple threads may set upgrade = true, but
+    // that is ok, because the condition is later rechecked in a fully reliable
+    // way inside a transaction.
 
-    // Upgrade file format from 2 to 3 (no-op if already 3). In a multithreaded scenario multiple threads may set
-    // upgrade = true, but that is ok, because the calls to m_group.upgrade_file_format() is serialized, and that
-    // call returns immediately if it finds that the upgrade is already complete.
-    begin_read();
-    bool upgrade = m_group.get_file_format() < default_file_format_version;
-    end_read();
+    // Please revisit upgrade logic when library_file_format is bumped beyond 3
+    REALM_ASSERT(SlabAlloc::library_file_format == 3);
 
-    // Only create write transaction if needed; that's why we test whether to upgrade or not in a separate read
-    // transaction. Else unit tests would fail.
+    // First a non-threadsafe but fast check
+    int file_format = m_group.get_file_format();
+    REALM_ASSERT(file_format <= SlabAlloc::library_file_format);
+    bool upgrade = (file_format < SlabAlloc::library_file_format);
     if (upgrade) {
-        begin_write();
-        m_group.upgrade_file_format();
-        commit();
+
+#ifdef REALM_DEBUG
+        // Sleep 0.2 seconds to create a simple thread-barrier for the two threads in the
+        // TEST(Upgrade_Database_2_3_Writes_New_File_Format_new) unit test. See the unit test for details.
+#ifdef _WIN32
+        _sleep(200);
+#else
+        // sleep() takes seconds and usleep() is deprecated, so use nanosleep()
+        timespec ts;
+        ts.tv_sec = 0;
+        ts.tv_nsec = 200000000;
+        nanosleep(&ts, 0);
+#endif
+#endif
+
+        // Exception safety: It is important that m_group.set_file_format() is
+        // called only when the upgrade operation has completed successfully,
+        // otherwise then next call to SharedGroup::open() will see the wrong
+        // value.
+
+        WriteTransaction wt(*this);
+        if (m_group.get_committed_file_format() != SlabAlloc::library_file_format) {
+            if (!allow_file_format_upgrade)
+                throw FileFormatUpgradeRequired();
+            m_group.upgrade_file_format(); // Throws
+            commit(); // Throws
+            m_group.set_file_format(SlabAlloc::library_file_format);
+        }
     }
+}
+
+inline int SharedGroup::get_file_format() const noexcept
+{
+    return m_group.get_file_format();
 }
 
 
@@ -989,7 +1070,7 @@ inline void SharedGroup::upgrade_file_format()
 // not all of the non-public parts of the SharedGroup class.
 class _impl::SharedGroupFriend {
 public:
-    static Group& get_group(SharedGroup& sg) REALM_NOEXCEPT
+    static Group& get_group(SharedGroup& sg) noexcept
     {
         return sg.m_group;
     }
@@ -1000,7 +1081,8 @@ public:
         sg.advance_read(hist, obs, ver); // Throws
     }
 
-    template<class O> static void promote_to_write(SharedGroup& sg, History& hist, O* obs)
+    template<class O>
+    static void promote_to_write(SharedGroup& sg, History& hist, O* obs)
     {
         sg.promote_to_write(hist, obs); // Throws
     }
@@ -1021,18 +1103,25 @@ public:
         bool no_create = true;
         SharedGroup::DurabilityLevel durability = SharedGroup::durability_Async;
         bool is_backend = true;
-        const char* encryption_key = 0;
-        sg.open(file, no_create, durability, is_backend, encryption_key); // Throws
+        const char* encryption_key = nullptr;
+        bool allow_file_format_upgrade = false;
+        sg.do_open_1(file, no_create, durability, is_backend, encryption_key,
+                     allow_file_format_upgrade); // Throws
+    }
+
+    static int get_file_format(const SharedGroup& sg) noexcept
+    {
+        return sg.get_file_format();
     }
 };
 
-inline const Group& ReadTransaction::get_group() const REALM_NOEXCEPT
+inline const Group& ReadTransaction::get_group() const noexcept
 {
     using sgf = _impl::SharedGroupFriend;
     return sgf::get_group(m_shared_group);
 }
 
-inline Group& WriteTransaction::get_group() const REALM_NOEXCEPT
+inline Group& WriteTransaction::get_group() const noexcept
 {
     REALM_ASSERT(m_shared_group);
     using sgf = _impl::SharedGroupFriend;

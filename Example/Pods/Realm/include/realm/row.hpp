@@ -30,7 +30,8 @@
 
 namespace realm {
 
-template<class> class BasicRow;
+template<class>
+class BasicRow;
 
 
 /// This class is a "mixin" and contains the common set of functions for several
@@ -54,12 +55,13 @@ template<class> class BasicRow;
 /// `const Table`).
 ///
 /// \tparam R A specific row accessor class (BasicRow or BasicRowExpr) providing
-/// members `T* impl_get_table() const`, `std::size_t impl_get_row_ndx()
+/// members `T* impl_get_table() const`, `size_t impl_get_row_ndx()
 /// const`, and `void impl_detach()`. Neither are allowed to throw.
 ///
 /// \sa Table
 /// \sa BasicRow
-template<class T, class R> class RowFuncs {
+template<class T, class R>
+class RowFuncs {
 public:
     typedef T table_type;
 
@@ -70,39 +72,42 @@ public:
     typedef util::bind_ptr<const L> ConstLinkViewRef;
     typedef util::bind_ptr<L> LinkViewRef; // Same as ConstLinkViewRef if `T` is 'const'
 
-    int_fast64_t get_int(std::size_t col_ndx) const REALM_NOEXCEPT;
-    bool get_bool(std::size_t col_ndx) const REALM_NOEXCEPT;
-    float get_float(std::size_t col_ndx) const REALM_NOEXCEPT;
-    double get_double(std::size_t col_ndx) const REALM_NOEXCEPT;
-    StringData get_string(std::size_t col_ndx) const REALM_NOEXCEPT;
-    BinaryData get_binary(std::size_t col_ndx) const REALM_NOEXCEPT;
-    DateTime get_datetime(std::size_t col_ndx) const REALM_NOEXCEPT;
-    ConstTableRef get_subtable(std::size_t col_ndx) const;
-    TableRef get_subtable(std::size_t col_ndx);
-    std::size_t get_subtable_size(std::size_t col_ndx) const REALM_NOEXCEPT;
-    std::size_t get_link(std::size_t col_ndx) const REALM_NOEXCEPT;
-    bool is_null_link(std::size_t col_ndx) const REALM_NOEXCEPT;
-    bool is_null(std::size_t col_ndx) const REALM_NOEXCEPT;
-    ConstLinkViewRef get_linklist(std::size_t col_ndx) const;
-    LinkViewRef get_linklist(std::size_t col_ndx);
-    bool linklist_is_empty(std::size_t col_ndx) const REALM_NOEXCEPT;
-    std::size_t get_link_count(std::size_t col_ndx) const REALM_NOEXCEPT;
-    Mixed get_mixed(std::size_t col_ndx) const REALM_NOEXCEPT;
-    DataType get_mixed_type(std::size_t col_ndx) const REALM_NOEXCEPT;
+    int_fast64_t get_int(size_t col_ndx) const noexcept;
+    bool get_bool(size_t col_ndx) const noexcept;
+    float get_float(size_t col_ndx) const noexcept;
+    double get_double(size_t col_ndx) const noexcept;
+    StringData get_string(size_t col_ndx) const noexcept;
+    BinaryData get_binary(size_t col_ndx) const noexcept;
+    DateTime get_datetime(size_t col_ndx) const noexcept;
+    ConstTableRef get_subtable(size_t col_ndx) const;
+    TableRef get_subtable(size_t col_ndx);
+    size_t get_subtable_size(size_t col_ndx) const noexcept;
+    size_t get_link(size_t col_ndx) const noexcept;
+    bool is_null_link(size_t col_ndx) const noexcept;
+    bool is_null(size_t col_ndx) const noexcept;
+    ConstLinkViewRef get_linklist(size_t col_ndx) const;
+    LinkViewRef get_linklist(size_t col_ndx);
+    bool linklist_is_empty(size_t col_ndx) const noexcept;
+    size_t get_link_count(size_t col_ndx) const noexcept;
+    Mixed get_mixed(size_t col_ndx) const noexcept;
+    DataType get_mixed_type(size_t col_ndx) const noexcept;
 
-    void set_int(std::size_t col_ndx, int_fast64_t value);
-    void set_bool(std::size_t col_ndx, bool value);
-    void set_float(std::size_t col_ndx, float value);
-    void set_double(std::size_t col_ndx, double value);
-    void set_string(std::size_t col_ndx, StringData value);
-    void set_binary(std::size_t col_ndx, BinaryData value);
-    void set_datetime(std::size_t col_ndx, DateTime value);
-    void set_subtable(std::size_t col_ndx, const Table* value);
-    void set_link(std::size_t col_ndx, std::size_t value);
-    void nullify_link(std::size_t col_ndx);
-    void set_mixed(std::size_t col_ndx, Mixed value);
-    void set_mixed_subtable(std::size_t col_ndx, const Table* value);
-    void set_null(std::size_t col_ndx);
+    void set_int(size_t col_ndx, int_fast64_t value);
+    void set_bool(size_t col_ndx, bool value);
+    void set_float(size_t col_ndx, float value);
+    void set_double(size_t col_ndx, double value);
+    void set_string(size_t col_ndx, StringData value);
+    void set_binary(size_t col_ndx, BinaryData value);
+    void set_datetime(size_t col_ndx, DateTime value);
+    void set_subtable(size_t col_ndx, const Table* value);
+    void set_link(size_t col_ndx, size_t value);
+    void nullify_link(size_t col_ndx);
+    void set_mixed(size_t col_ndx, Mixed value);
+    void set_mixed_subtable(size_t col_ndx, const Table* value);
+    void set_null(size_t col_ndx);
+
+    void insert_substring(size_t col_ndx, size_t pos, StringData);
+    void remove_substring(size_t col_ndx, size_t pos, size_t size);
 
     //@{
     /// Note that these operations will cause the row accessor to be detached.
@@ -110,15 +115,15 @@ public:
     void move_last_over();
     //@}
 
-    std::size_t get_backlink_count(const Table& src_table,
-                                   std::size_t src_col_ndx) const REALM_NOEXCEPT;
-    std::size_t get_backlink(const Table& src_table, std::size_t src_col_ndx,
-                             std::size_t backlink_ndx) const REALM_NOEXCEPT;
+    size_t get_backlink_count(const Table& src_table,
+                                   size_t src_col_ndx) const noexcept;
+    size_t get_backlink(const Table& src_table, size_t src_col_ndx,
+                             size_t backlink_ndx) const noexcept;
 
-    std::size_t get_column_count() const REALM_NOEXCEPT;
-    DataType get_column_type(std::size_t col_ndx) const REALM_NOEXCEPT;
-    StringData get_column_name(std::size_t col_ndx) const REALM_NOEXCEPT;
-    std::size_t get_column_index(StringData name) const REALM_NOEXCEPT;
+    size_t get_column_count() const noexcept;
+    DataType get_column_type(size_t col_ndx) const noexcept;
+    StringData get_column_name(size_t col_ndx) const noexcept;
+    size_t get_column_index(StringData name) const noexcept;
 
     /// Returns true if, and only if this accessor is currently attached to a
     /// row.
@@ -137,32 +142,27 @@ public:
     /// A row accessor becomes detached if the underlying row is removed, if the
     /// associated table accessor becomes detached, or if the detach() method is
     /// called. A row accessor does not become detached for any other reason.
-    bool is_attached() const REALM_NOEXCEPT;
+    bool is_attached() const noexcept;
 
     /// Detach this accessor from the row it was attached to. This function has
     /// no effect if the accessor was already detached (idempotency).
-    void detach() REALM_NOEXCEPT;
+    void detach() noexcept;
 
     /// The table containing the row to which this accessor is currently
     /// bound. For a detached accessor, the returned value is null.
-    const table_type* get_table() const REALM_NOEXCEPT;
-    table_type* get_table() REALM_NOEXCEPT;
+    const table_type* get_table() const noexcept;
+    table_type* get_table() noexcept;
 
     /// The index of the row to which this accessor is currently bound. For a
     /// detached accessor, the returned value is unspecified.
-    std::size_t get_index() const REALM_NOEXCEPT;
+    size_t get_index() const noexcept;
 
-#ifdef REALM_HAVE_CXX11_EXPLICIT_CONV_OPERATORS
-    explicit operator bool() const REALM_NOEXCEPT;
-#else
-    typedef bool (RowFuncs::*unspecified_bool_type)() const;
-    operator unspecified_bool_type() const REALM_NOEXCEPT;
-#endif
+    explicit operator bool() const noexcept;
 
 private:
-    const T* table() const REALM_NOEXCEPT;
-    T* table() REALM_NOEXCEPT;
-    std::size_t row_ndx() const REALM_NOEXCEPT;
+    const T* table() const noexcept;
+    T* table() noexcept;
+    size_t row_ndx() const noexcept;
 };
 
 
@@ -178,20 +178,22 @@ private:
 /// row insertions and row removals like real row accessors are.
 ///
 /// \sa BasicRow
-template<class T> class BasicRowExpr:
+template<class T>
+class BasicRowExpr:
         public RowFuncs<T, BasicRowExpr<T>> {
 public:
-    template<class U> BasicRowExpr(const BasicRowExpr<U>&) REALM_NOEXCEPT;
+    template<class U>
+    BasicRowExpr(const BasicRowExpr<U>&) noexcept;
 
 private:
     T* m_table; // nullptr if detached.
-    std::size_t m_row_ndx; // Undefined if detached.
+    size_t m_row_ndx; // Undefined if detached.
 
-    BasicRowExpr(T*, std::size_t row_ndx) REALM_NOEXCEPT;
+    BasicRowExpr(T*, size_t row_ndx) noexcept;
 
-    T* impl_get_table() const REALM_NOEXCEPT;
-    std::size_t impl_get_row_ndx() const REALM_NOEXCEPT;
-    void impl_detach() REALM_NOEXCEPT;
+    T* impl_get_table() const noexcept;
+    size_t impl_get_row_ndx() const noexcept;
+    void impl_detach() noexcept;
 
     // Make impl_get_table(), impl_get_row_ndx(), and impl_detach() accessible
     // from RowFuncs.
@@ -199,13 +201,15 @@ private:
 
     // Make m_table and m_col_ndx accessible from BasicRowExpr(const
     // BasicRowExpr<U>&) for any U.
-    template<class> friend class BasicRowExpr;
+    template<class>
+    friend class BasicRowExpr;
 
     // Make m_table and m_col_ndx accessible from
     // BasicRow::BaicRow(BasicRowExpr<U>) for any U.
-    template<class> friend class BasicRow;
+    template<class>
+    friend class BasicRow;
 
-    // Make BasicRowExpr(T*, std::size_t) accessible from Table.
+    // Make BasicRowExpr(T*, size_t) accessible from Table.
     friend class Table;
 };
 
@@ -215,11 +219,11 @@ class Group;
 class RowBase {
 protected:
     TableRef m_table; // nullptr if detached.
-    std::size_t m_row_ndx; // Undefined if detached.
+    size_t m_row_ndx; // Undefined if detached.
 
-    void attach(Table*, std::size_t row_ndx) REALM_NOEXCEPT;
-    void reattach(Table*, std::size_t row_ndx) REALM_NOEXCEPT;
-    void impl_detach() REALM_NOEXCEPT;
+    void attach(Table*, size_t row_ndx) noexcept;
+    void reattach(Table*, size_t row_ndx) noexcept;
+    void impl_detach() noexcept;
     RowBase() { };
 
     typedef RowBase_Handover_patch Handover_patch;
@@ -261,26 +265,37 @@ private:
 ///     row.set_string(0, "foo");   // Update the string in the 1st column
 ///
 ///     Table* t = row.get_table();      // The parent table
-///     std::size_t i = row.get_index(); // The current row index
+///     size_t i = row.get_index(); // The current row index
 ///
 /// \sa RowFuncs
-template<class T> class BasicRow:
+template<class T>
+class BasicRow:
         private RowBase,
         public RowFuncs<T, BasicRow<T>> {
 public:
-    BasicRow() REALM_NOEXCEPT;
+    BasicRow() noexcept;
 
-    template<class U> BasicRow(BasicRowExpr<U>) REALM_NOEXCEPT;
-    template<class U> BasicRow(const BasicRow<U>&) REALM_NOEXCEPT;
-    template<class U> BasicRow& operator=(BasicRowExpr<U>) REALM_NOEXCEPT;
-    template<class U> BasicRow& operator=(BasicRow<U>) REALM_NOEXCEPT;
-    BasicRow& operator=(const BasicRow<T>&) REALM_NOEXCEPT;
+    template<class U>
+    BasicRow(BasicRowExpr<U>) noexcept;
 
-    ~BasicRow() REALM_NOEXCEPT;
+    BasicRow(const BasicRow<T>&) noexcept;
+
+    template<class U>
+    BasicRow(const BasicRow<U>&) noexcept;
+
+    template<class U>
+    BasicRow& operator=(BasicRowExpr<U>) noexcept;
+
+    template<class U>
+    BasicRow& operator=(BasicRow<U>) noexcept;
+
+    BasicRow& operator=(const BasicRow<T>&) noexcept;
+
+    ~BasicRow() noexcept;
 
 private:
-    T* impl_get_table() const REALM_NOEXCEPT;
-    std::size_t impl_get_row_ndx() const REALM_NOEXCEPT;
+    T* impl_get_table() const noexcept;
+    size_t impl_get_row_ndx() const noexcept;
 
     // Make impl_get_table(), impl_get_row_ndx(), and impl_detach() accessible
     // from RowFuncs.
@@ -288,7 +303,8 @@ private:
 
     // Make m_table and m_col_ndx accessible from BasicRow(const BasicRow<U>&)
     // for any U.
-    template<class> friend class BasicRow;
+    template<class>
+    friend class BasicRow;
 
     std::unique_ptr<BasicRow<T>> clone_for_handover(std::unique_ptr<Handover_patch>& patch) const
     {
@@ -324,359 +340,388 @@ typedef BasicRow<const Table> ConstRow;
 // Implementation
 
 template<class T, class R>
-inline int_fast64_t RowFuncs<T,R>::get_int(std::size_t col_ndx) const REALM_NOEXCEPT
+inline int_fast64_t RowFuncs<T,R>::get_int(size_t col_ndx) const noexcept
 {
     return table()->get_int(col_ndx, row_ndx());
 }
 
 template<class T, class R>
-inline bool RowFuncs<T,R>::get_bool(std::size_t col_ndx) const REALM_NOEXCEPT
+inline bool RowFuncs<T,R>::get_bool(size_t col_ndx) const noexcept
 {
     return table()->get_bool(col_ndx, row_ndx());
 }
 
 template<class T, class R>
-inline float RowFuncs<T,R>::get_float(std::size_t col_ndx) const REALM_NOEXCEPT
+inline float RowFuncs<T,R>::get_float(size_t col_ndx) const noexcept
 {
     return table()->get_float(col_ndx, row_ndx());
 }
 
 template<class T, class R>
-inline double RowFuncs<T,R>::get_double(std::size_t col_ndx) const REALM_NOEXCEPT
+inline double RowFuncs<T,R>::get_double(size_t col_ndx) const noexcept
 {
     return table()->get_double(col_ndx, row_ndx());
 }
 
 template<class T, class R>
-inline StringData RowFuncs<T,R>::get_string(std::size_t col_ndx) const REALM_NOEXCEPT
+inline StringData RowFuncs<T,R>::get_string(size_t col_ndx) const noexcept
 {
     return table()->get_string(col_ndx, row_ndx());
 }
 
 template<class T, class R>
-inline BinaryData RowFuncs<T,R>::get_binary(std::size_t col_ndx) const REALM_NOEXCEPT
+inline BinaryData RowFuncs<T,R>::get_binary(size_t col_ndx) const noexcept
 {
     return table()->get_binary(col_ndx, row_ndx());
 }
 
 template<class T, class R>
-inline DateTime RowFuncs<T,R>::get_datetime(std::size_t col_ndx) const REALM_NOEXCEPT
+inline DateTime RowFuncs<T,R>::get_datetime(size_t col_ndx) const noexcept
 {
     return table()->get_datetime(col_ndx, row_ndx());
 }
 
 template<class T, class R>
-inline typename RowFuncs<T,R>::ConstTableRef RowFuncs<T,R>::get_subtable(std::size_t col_ndx) const
+inline typename RowFuncs<T,R>::ConstTableRef RowFuncs<T,R>::get_subtable(size_t col_ndx) const
 {
     return table()->get_subtable(col_ndx, row_ndx()); // Throws
 }
 
 template<class T, class R>
-inline typename RowFuncs<T,R>::TableRef RowFuncs<T,R>::get_subtable(std::size_t col_ndx)
+inline typename RowFuncs<T,R>::TableRef RowFuncs<T,R>::get_subtable(size_t col_ndx)
 {
     return table()->get_subtable(col_ndx, row_ndx()); // Throws
 }
 
 template<class T, class R>
-inline std::size_t RowFuncs<T,R>::get_subtable_size(std::size_t col_ndx) const REALM_NOEXCEPT
+inline size_t RowFuncs<T,R>::get_subtable_size(size_t col_ndx) const noexcept
 {
     return table()->get_subtable_size(col_ndx, row_ndx());
 }
 
 template<class T, class R>
-inline std::size_t RowFuncs<T,R>::get_link(std::size_t col_ndx) const REALM_NOEXCEPT
+inline size_t RowFuncs<T,R>::get_link(size_t col_ndx) const noexcept
 {
     return table()->get_link(col_ndx, row_ndx());
 }
 
 template<class T, class R>
-inline bool RowFuncs<T,R>::is_null_link(std::size_t col_ndx) const REALM_NOEXCEPT
+inline bool RowFuncs<T,R>::is_null_link(size_t col_ndx) const noexcept
 {
     return table()->is_null_link(col_ndx, row_ndx());
 }
 
 template<class T, class R>
-inline bool RowFuncs<T,R>::is_null(std::size_t col_ndx) const REALM_NOEXCEPT
+inline bool RowFuncs<T,R>::is_null(size_t col_ndx) const noexcept
 {
     return table()->is_null(col_ndx, row_ndx());
 }
 
-template<class T, class R> inline typename RowFuncs<T,R>::ConstLinkViewRef
-RowFuncs<T,R>::get_linklist(std::size_t col_ndx) const
+template<class T, class R>
+inline typename RowFuncs<T,R>::ConstLinkViewRef
+RowFuncs<T,R>::get_linklist(size_t col_ndx) const
 {
     return table()->get_linklist(col_ndx, row_ndx()); // Throws
 }
 
 template<class T, class R>
-inline typename RowFuncs<T,R>::LinkViewRef RowFuncs<T,R>::get_linklist(std::size_t col_ndx)
+inline typename RowFuncs<T,R>::LinkViewRef RowFuncs<T,R>::get_linklist(size_t col_ndx)
 {
     return table()->get_linklist(col_ndx, row_ndx()); // Throws
 }
 
 template<class T, class R>
-inline bool RowFuncs<T,R>::linklist_is_empty(std::size_t col_ndx) const REALM_NOEXCEPT
+inline bool RowFuncs<T,R>::linklist_is_empty(size_t col_ndx) const noexcept
 {
     return table()->linklist_is_empty(col_ndx, row_ndx());
 }
 
 template<class T, class R>
-inline std::size_t RowFuncs<T,R>::get_link_count(std::size_t col_ndx) const REALM_NOEXCEPT
+inline size_t RowFuncs<T,R>::get_link_count(size_t col_ndx) const noexcept
 {
     return table()->get_link_count(col_ndx, row_ndx());
 }
 
 template<class T, class R>
-inline Mixed RowFuncs<T,R>::get_mixed(std::size_t col_ndx) const REALM_NOEXCEPT
+inline Mixed RowFuncs<T,R>::get_mixed(size_t col_ndx) const noexcept
 {
     return table()->get_mixed(col_ndx, row_ndx());
 }
 
 template<class T, class R>
-inline DataType RowFuncs<T,R>::get_mixed_type(std::size_t col_ndx) const REALM_NOEXCEPT
+inline DataType RowFuncs<T,R>::get_mixed_type(size_t col_ndx) const noexcept
 {
     return table()->get_mixed_type(col_ndx, row_ndx());
 }
 
 template<class T, class R>
-inline void RowFuncs<T,R>::set_int(std::size_t col_ndx, int_fast64_t value)
+inline void RowFuncs<T,R>::set_int(size_t col_ndx, int_fast64_t value)
 {
     table()->set_int(col_ndx, row_ndx(), value); // Throws
 }
 
 template<class T, class R>
-inline void RowFuncs<T,R>::set_bool(std::size_t col_ndx, bool value)
+inline void RowFuncs<T,R>::set_bool(size_t col_ndx, bool value)
 {
     table()->set_bool(col_ndx, row_ndx(), value); // Throws
 }
 
 template<class T, class R>
-inline void RowFuncs<T,R>::set_float(std::size_t col_ndx, float value)
+inline void RowFuncs<T,R>::set_float(size_t col_ndx, float value)
 {
     table()->set_float(col_ndx, row_ndx(), value); // Throws
 }
 
 template<class T, class R>
-inline void RowFuncs<T,R>::set_double(std::size_t col_ndx, double value)
+inline void RowFuncs<T,R>::set_double(size_t col_ndx, double value)
 {
     table()->set_double(col_ndx, row_ndx(), value); // Throws
 }
 
 template<class T, class R>
-inline void RowFuncs<T,R>::set_string(std::size_t col_ndx, StringData value)
+inline void RowFuncs<T,R>::set_string(size_t col_ndx, StringData value)
 {
     table()->set_string(col_ndx, row_ndx(), value); // Throws
 }
 
 template<class T, class R>
-inline void RowFuncs<T,R>::set_binary(std::size_t col_ndx, BinaryData value)
+inline void RowFuncs<T,R>::set_binary(size_t col_ndx, BinaryData value)
 {
     table()->set_binary(col_ndx, row_ndx(), value); // Throws
 }
 
 template<class T, class R>
-inline void RowFuncs<T,R>::set_datetime(std::size_t col_ndx, DateTime value)
+inline void RowFuncs<T,R>::set_datetime(size_t col_ndx, DateTime value)
 {
     table()->set_datetime(col_ndx, row_ndx(), value); // Throws
 }
 
 template<class T, class R>
-inline void RowFuncs<T,R>::set_subtable(std::size_t col_ndx, const Table* value)
+inline void RowFuncs<T,R>::set_subtable(size_t col_ndx, const Table* value)
 {
     table()->set_subtable(col_ndx, row_ndx(), value); // Throws
 }
 
 template<class T, class R>
-inline void RowFuncs<T,R>::set_link(std::size_t col_ndx, std::size_t value)
+inline void RowFuncs<T,R>::set_link(size_t col_ndx, size_t value)
 {
     table()->set_link(col_ndx, row_ndx(), value); // Throws
 }
 
 template<class T, class R>
-inline void RowFuncs<T,R>::nullify_link(std::size_t col_ndx)
+inline void RowFuncs<T,R>::nullify_link(size_t col_ndx)
 {
     table()->nullify_link(col_ndx, row_ndx()); // Throws
 }
 
 template<class T, class R>
-inline void RowFuncs<T,R>::set_mixed(std::size_t col_ndx, Mixed value)
+inline void RowFuncs<T,R>::set_mixed(size_t col_ndx, Mixed value)
 {
     table()->set_mixed(col_ndx, row_ndx(), value); // Throws
 }
 
 template<class T, class R>
-inline void RowFuncs<T,R>::set_mixed_subtable(std::size_t col_ndx, const Table* value)
+inline void RowFuncs<T,R>::set_mixed_subtable(size_t col_ndx, const Table* value)
 {
     table()->set_mixed_subtable(col_ndx, row_ndx(), value); // Throws
 }
 
 template<class T, class R>
-inline void RowFuncs<T,R>::set_null(std::size_t col_ndx)
+inline void RowFuncs<T,R>::set_null(size_t col_ndx)
 {
     table()->set_null(col_ndx, row_ndx()); // Throws
 }
 
-template<class T, class R> inline void RowFuncs<T,R>::remove()
+template<class T, class R>
+inline void RowFuncs<T,R>::insert_substring(size_t col_ndx, size_t pos, StringData value)
+{
+    table()->insert_substring(col_ndx, row_ndx(), pos, value); // Throws
+}
+
+template<class T, class R>
+inline void RowFuncs<T,R>::remove_substring(size_t col_ndx, size_t pos, size_t size)
+{
+    table()->remove_substring(col_ndx, row_ndx(), pos, size); // Throws
+}
+
+template<class T, class R>
+inline void RowFuncs<T,R>::remove()
 {
     table()->remove(row_ndx()); // Throws
 }
 
-template<class T, class R> inline void RowFuncs<T,R>::move_last_over()
+template<class T, class R>
+inline void RowFuncs<T,R>::move_last_over()
 {
     table()->move_last_over(row_ndx()); // Throws
 }
 
-template<class T, class R> inline std::size_t
-RowFuncs<T,R>::get_backlink_count(const Table& src_table, std::size_t src_col_ndx) const
-    REALM_NOEXCEPT
+template<class T, class R>
+inline size_t RowFuncs<T,R>::get_backlink_count(const Table& src_table, size_t src_col_ndx) const noexcept
 {
     return table()->get_backlink_count(row_ndx(), src_table, src_col_ndx);
 }
 
 template<class T, class R>
-inline std::size_t RowFuncs<T,R>::get_backlink(const Table& src_table, std::size_t src_col_ndx,
-                                               std::size_t backlink_ndx) const REALM_NOEXCEPT
+inline size_t RowFuncs<T,R>::get_backlink(const Table& src_table, size_t src_col_ndx,
+                                          size_t backlink_ndx) const noexcept
 {
     return table()->get_backlink(row_ndx(), src_table, src_col_ndx, backlink_ndx);
 }
 
 template<class T, class R>
-inline std::size_t RowFuncs<T,R>::get_column_count() const REALM_NOEXCEPT
+inline size_t RowFuncs<T,R>::get_column_count() const noexcept
 {
     return table()->get_column_count();
 }
 
 template<class T, class R>
-inline DataType RowFuncs<T,R>::get_column_type(std::size_t col_ndx) const REALM_NOEXCEPT
+inline DataType RowFuncs<T,R>::get_column_type(size_t col_ndx) const noexcept
 {
     return table()->get_column_type(col_ndx);
 }
 
 template<class T, class R>
-inline StringData RowFuncs<T,R>::get_column_name(std::size_t col_ndx) const REALM_NOEXCEPT
+inline StringData RowFuncs<T,R>::get_column_name(size_t col_ndx) const noexcept
 {
     return table()->get_column_name(col_ndx);
 }
 
 template<class T, class R>
-inline std::size_t RowFuncs<T,R>::get_column_index(StringData name) const REALM_NOEXCEPT
+inline size_t RowFuncs<T,R>::get_column_index(StringData name) const noexcept
 {
     return table()->get_column_index(name);
 }
 
-template<class T, class R> inline bool RowFuncs<T,R>::is_attached() const REALM_NOEXCEPT
+template<class T, class R>
+inline bool RowFuncs<T,R>::is_attached() const noexcept
 {
     return static_cast<const R*>(this)->impl_get_table();
 }
 
-template<class T, class R> inline void RowFuncs<T,R>::detach() REALM_NOEXCEPT
+template<class T, class R>
+inline void RowFuncs<T,R>::detach() noexcept
 {
     static_cast<R*>(this)->impl_detach();
 }
 
-template<class T, class R> inline const T* RowFuncs<T,R>::get_table() const REALM_NOEXCEPT
+template<class T, class R>
+inline const T* RowFuncs<T,R>::get_table() const noexcept
 {
     return table();
 }
 
-template<class T, class R> inline T* RowFuncs<T,R>::get_table() REALM_NOEXCEPT
+template<class T, class R>
+inline T* RowFuncs<T,R>::get_table() noexcept
 {
     return table();
 }
 
-template<class T, class R> inline std::size_t RowFuncs<T,R>::get_index() const REALM_NOEXCEPT
+template<class T, class R>
+inline size_t RowFuncs<T,R>::get_index() const noexcept
 {
     return row_ndx();
 }
 
-#ifdef REALM_HAVE_CXX11_EXPLICIT_CONV_OPERATORS
-
-template<class T, class R> inline RowFuncs<T,R>::operator bool() const REALM_NOEXCEPT
+template<class T, class R>
+inline RowFuncs<T,R>::operator bool() const noexcept
 {
     return is_attached();
 }
 
-#else // REALM_HAVE_CXX11_EXPLICIT_CONV_OPERATORS
-
 template<class T, class R>
-inline RowFuncs<T,R>::operator unspecified_bool_type() const REALM_NOEXCEPT
-{
-    return is_attached() ? &RowFuncs::is_attached : 0;
-}
-
-#endif // REALM_HAVE_CXX11_EXPLICIT_CONV_OPERATORS
-
-template<class T, class R> inline const T* RowFuncs<T,R>::table() const REALM_NOEXCEPT
+inline const T* RowFuncs<T,R>::table() const noexcept
 {
     return static_cast<const R*>(this)->impl_get_table();
 }
 
-template<class T, class R> inline T* RowFuncs<T,R>::table() REALM_NOEXCEPT
+template<class T, class R>
+inline T* RowFuncs<T,R>::table() noexcept
 {
     return static_cast<R*>(this)->impl_get_table();
 }
 
-template<class T, class R> inline std::size_t RowFuncs<T,R>::row_ndx() const REALM_NOEXCEPT
+template<class T, class R>
+inline size_t RowFuncs<T,R>::row_ndx() const noexcept
 {
     return static_cast<const R*>(this)->impl_get_row_ndx();
 }
 
 
-template<class T> template<class U>
-inline BasicRowExpr<T>::BasicRowExpr(const BasicRowExpr<U>& expr) REALM_NOEXCEPT:
+template<class T>
+template<class U>
+inline BasicRowExpr<T>::BasicRowExpr(const BasicRowExpr<U>& expr) noexcept:
     m_table(expr.m_table),
     m_row_ndx(expr.m_row_ndx)
 {
 }
 
 template<class T>
-inline BasicRowExpr<T>::BasicRowExpr(T* table, std::size_t row_ndx) REALM_NOEXCEPT:
+inline BasicRowExpr<T>::BasicRowExpr(T* table, size_t row_ndx) noexcept:
     m_table(table),
     m_row_ndx(row_ndx)
 {
 }
 
-template<class T> inline T* BasicRowExpr<T>::impl_get_table() const REALM_NOEXCEPT
+template<class T>
+inline T* BasicRowExpr<T>::impl_get_table() const noexcept
 {
     return m_table;
 }
 
-template<class T> inline std::size_t BasicRowExpr<T>::impl_get_row_ndx() const REALM_NOEXCEPT
+template<class T>
+inline size_t BasicRowExpr<T>::impl_get_row_ndx() const noexcept
 {
     return m_row_ndx;
 }
 
-template<class T> inline void BasicRowExpr<T>::impl_detach() REALM_NOEXCEPT
+template<class T>
+inline void BasicRowExpr<T>::impl_detach() noexcept
 {
     m_table = nullptr;
 }
 
 
-template<class T> inline BasicRow<T>::BasicRow() REALM_NOEXCEPT
+template<class T>
+inline BasicRow<T>::BasicRow() noexcept
 {
 }
 
-template<class T> template<class U> inline BasicRow<T>::BasicRow(BasicRowExpr<U> expr) REALM_NOEXCEPT
+template<class T>
+inline BasicRow<T>::BasicRow(const BasicRow<T>& row) noexcept:
+    RowBase(row)
+{
+    attach(const_cast<Table*>(row.m_table.get()), row.m_row_ndx);
+}
+
+template<class T>
+template<class U>
+inline BasicRow<T>::BasicRow(BasicRowExpr<U> expr) noexcept
 {
     T* table = expr.m_table; // Check that pointer types are compatible
     attach(const_cast<Table*>(table), expr.m_row_ndx);
 }
 
-template<class T> template<class U> inline BasicRow<T>::BasicRow(const BasicRow<U>& row) REALM_NOEXCEPT
+template<class T>
+template<class U>
+inline BasicRow<T>::BasicRow(const BasicRow<U>& row) noexcept
 {
     T* table = row.m_table.get(); // Check that pointer types are compatible
     attach(const_cast<Table*>(table), row.m_row_ndx);
 }
 
-template<class T> template<class U>
-inline BasicRow<T>& BasicRow<T>::operator=(BasicRowExpr<U> expr) REALM_NOEXCEPT
+template<class T>
+template<class U>
+inline BasicRow<T>& BasicRow<T>::operator=(BasicRowExpr<U> expr) noexcept
 {
     T* table = expr.m_table; // Check that pointer types are compatible
     reattach(const_cast<Table*>(table), expr.m_row_ndx);
     return *this;
 }
 
-template<class T> template<class U>
-inline BasicRow<T>& BasicRow<T>::operator=(BasicRow<U> row) REALM_NOEXCEPT
+template<class T>
+template<class U>
+inline BasicRow<T>& BasicRow<T>::operator=(BasicRow<U> row) noexcept
 {
     T* table = row.m_table.get(); // Check that pointer types are compatible
     reattach(const_cast<Table*>(table), row.m_row_ndx);
@@ -684,23 +729,26 @@ inline BasicRow<T>& BasicRow<T>::operator=(BasicRow<U> row) REALM_NOEXCEPT
 }
 
 template<class T>
-inline BasicRow<T>& BasicRow<T>::operator=(const BasicRow<T>& row) REALM_NOEXCEPT
+inline BasicRow<T>& BasicRow<T>::operator=(const BasicRow<T>& row) noexcept
 {
     reattach(const_cast<Table*>(row.m_table.get()), row.m_row_ndx);
     return *this;
 }
 
-template<class T> inline BasicRow<T>::~BasicRow() REALM_NOEXCEPT
+template<class T>
+inline BasicRow<T>::~BasicRow() noexcept
 {
     RowBase::impl_detach();
 }
 
-template<class T> inline T* BasicRow<T>::impl_get_table() const REALM_NOEXCEPT
+template<class T>
+inline T* BasicRow<T>::impl_get_table() const noexcept
 {
     return m_table.get();
 }
 
-template<class T> inline std::size_t BasicRow<T>::impl_get_row_ndx() const REALM_NOEXCEPT
+template<class T>
+inline size_t BasicRow<T>::impl_get_row_ndx() const noexcept
 {
     return m_row_ndx;
 }

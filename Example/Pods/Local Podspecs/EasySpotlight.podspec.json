@@ -1,6 +1,6 @@
 {
   "name": "EasySpotlight",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "summary": "Easy way to add content to core spotlight",
   "description": "Easily index your classes and structs to CoreSpotlight by adopting to this simple protocol.",
   "homepage": "https://github.com/felix-dumit/EasySpotlight",
@@ -10,7 +10,7 @@
   },
   "source": {
     "git": "https://github.com/felix-dumit/EasySpotlight.git",
-    "tag": "0.2.1"
+    "tag": "0.2.2"
   },
   "platforms": {
     "ios": "9.0"

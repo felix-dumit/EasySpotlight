@@ -65,7 +65,8 @@ typedef bool(*StringCompareCallback)(const char* string1, const char* string2);
 extern signed char sse_support;
 extern signed char avx_support;
 
-template<int version> REALM_FORCEINLINE bool sseavx()
+template<int version>
+REALM_FORCEINLINE bool sseavx()
 {
 /*
     Return wether or not SSE 3.0 (if version = 30) or 4.2 (for version = 42) is supported. Return value
@@ -86,7 +87,8 @@ template<int version> REALM_FORCEINLINE bool sseavx()
     We runtime-initialize sse_support in a constructor of a static variable which is not guaranteed to be called
     prior to cpu_sse(). So we compile-time initialize sse_support to -2 as fallback.
 */
-    REALM_STATIC_ASSERT(version == 1 || version == 2 || version == 30 || version == 42, "Only version == 1 (AVX), 2 (AVX2), 30 (SSE 3) and 42 (SSE 4.2) are supported for detection");
+    static_assert(version == 1 || version == 2 || version == 30 || version == 42,
+                  "Only version == 1 (AVX), 2 (AVX2), 30 (SSE 3) and 42 (SSE 4.2) are supported for detection");
 #ifdef REALM_COMPILER_SSE
     if (version == 30)
         return (sse_support >= 0);
@@ -124,18 +126,45 @@ int fast_popcount32(int32_t x);
 int fast_popcount64(int64_t x);
 uint64_t fastrand(uint64_t max = 0xffffffffffffffffULL);
 
+// log2 - returns -1 if x==0, otherwise log2(x)
+inline int log2(size_t x) {
+    if (x == 0)
+        return -1;
+#if defined(__GNUC__)
+#   ifdef REALM_PTR_64
+    return 63 - __builtin_clzll(x); // returns int
+#   else
+    return 31 - __builtin_clz(x); // returns int
+#   endif
+#elif defined(_WIN32)
+    unsigned long index = 0;
+#   ifdef REALM_PTR_64
+    unsigned char c = _BitScanReverse64(&index, x); // outputs unsigned long
+#   else
+    unsigned char c = _BitScanReverse(&index, x); // outputs unsigned long
+#   endif
+    return static_cast<int>(index);
+#else // not __GNUC__ and not _WIN32
+    int r = 0;
+    while (x >>= 1) {
+        r++;
+    }
+    return r;
+#endif
+}
+
 // Implementation:
 
 // Safe cast from 64 to 32 bits on 32 bit architecture. Differs from to_ref() by not testing alignment and REF-bitflag.
-inline std::size_t to_size_t(int_fast64_t v) REALM_NOEXCEPT
+inline size_t to_size_t(int_fast64_t v) noexcept
 {
-    REALM_ASSERT_DEBUG(!util::int_cast_has_overflow<std::size_t>(v));
-    return std::size_t(v);
+    REALM_ASSERT_DEBUG(!util::int_cast_has_overflow<size_t>(v));
+    return size_t(v);
 }
 
 
 template<typename ReturnType, typename OriginalType>
-ReturnType type_punning(OriginalType variable) REALM_NOEXCEPT
+ReturnType type_punning(OriginalType variable) noexcept
 {
     union Both {
         OriginalType in;
@@ -162,7 +191,7 @@ enum IndexMethod {
 
 
 // Use safe_equal() instead of std::equal() when comparing sequences which can have a 0 elements.
-template <class InputIterator1, class InputIterator2>
+template<class InputIterator1, class InputIterator2>
 bool safe_equal(InputIterator1 first1, InputIterator1 last1, InputIterator2 first2)
 {
 #if defined(_MSC_VER) && defined(_DEBUG)
@@ -178,7 +207,8 @@ bool safe_equal(InputIterator1 first1, InputIterator1 last1, InputIterator2 firs
 }
 
 
-template<class T> struct Wrap {
+template<class T>
+struct Wrap {
     Wrap(const T& v): m_value(v) {}
     operator T() const { return m_value; }
 private:
@@ -188,7 +218,7 @@ private:
 // PlacementDelete is intended for use with std::unique_ptr when it holds an object allocated with
 // placement new. It simply calls the object's destructor without freeing the memory.
 struct PlacementDelete {
-    template <class T>
+    template<class T>
     void operator()(T* v) const
     {
         v->~T();

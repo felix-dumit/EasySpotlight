@@ -8,7 +8,7 @@
 
 namespace realm {
 
-const std::size_t detached_ref = std::size_t(-1);
+const size_t detached_ref = size_t(-1);
 
 // This class is for common functionality of ListView and LinkView which inherit from it. Currently it only
 // supports sorting.
@@ -60,7 +60,8 @@ public:
     struct Sorter
     {
         Sorter(){}
-        Sorter(std::vector<size_t> columns, std::vector<bool> ascending) : m_column_indexes(columns), m_ascending(ascending) {}
+        Sorter(const std::vector<size_t>& columns, const std::vector<bool>& ascending)
+            : m_column_indexes(columns), m_ascending(ascending) {}
         bool operator()(size_t i, size_t j) const
         {
             for (size_t t = 0; t < m_columns.size(); t++) {

@@ -92,7 +92,7 @@ namespace realm {
 // receiving group. Normally, the thread associated with the sourcing SharedGroup will be
 // responsible for the export operation, while the thread associated with the receiving
 // SharedGroup will do the import operation. This is different for "stealing" - see below.
-// See group_shared.hpp for more details on handover. 
+// See group_shared.hpp for more details on handover.
 //
 // 2b. Stealing
 // This is a special variant of handover, where the sourcing thread/shared group has its
@@ -108,7 +108,7 @@ namespace realm {
 //
 // 3. Iterating a view and changing data
 // The third use case (and a motivator behind the imperative view) is when you want
-// to make changes to the database in accordance with a query result. Imagine you want to 
+// to make changes to the database in accordance with a query result. Imagine you want to
 // find all employees with a salary below a limit and raise their salaries to the limit (pseudocode):
 //
 //    promote_to_write();
@@ -177,37 +177,42 @@ public:
 //    enum mode { mode_Reflective, mode_Imperative };
 //    void set_operating_mode(mode);
 //    mode get_operating_mode();
-    bool is_empty() const REALM_NOEXCEPT;
-    bool is_attached() const REALM_NOEXCEPT;
-    bool is_row_attached(std::size_t row_ndx) const REALM_NOEXCEPT;
-    std::size_t size() const REALM_NOEXCEPT;
-    std::size_t num_attached_rows() const REALM_NOEXCEPT;
+    bool is_empty() const noexcept;
+    bool is_attached() const noexcept;
+    bool is_row_attached(size_t row_ndx) const noexcept;
+    size_t size() const noexcept;
+    size_t num_attached_rows() const noexcept;
+
+    // Get the query used to create this TableView
+    // The query will have a null source table if this tv was not created from
+    // a query
+    const Query& get_query() const noexcept;
 
     // Column information
     const ColumnBase& get_column_base(size_t index) const;
 
-    size_t      get_column_count() const REALM_NOEXCEPT;
-    StringData  get_column_name(size_t column_ndx) const REALM_NOEXCEPT;
+    size_t      get_column_count() const noexcept;
+    StringData  get_column_name(size_t column_ndx) const noexcept;
     size_t      get_column_index(StringData name) const;
-    DataType    get_column_type(size_t column_ndx) const REALM_NOEXCEPT;
+    DataType    get_column_type(size_t column_ndx) const noexcept;
 
     // Getting values
-    int64_t     get_int(size_t column_ndx, size_t row_ndx) const REALM_NOEXCEPT;
-    bool        get_bool(size_t column_ndx, size_t row_ndx) const REALM_NOEXCEPT;
-    DateTime    get_datetime(size_t column_ndx, size_t row_ndx) const REALM_NOEXCEPT;
-    float       get_float(size_t column_ndx, size_t row_ndx) const REALM_NOEXCEPT;
-    double      get_double(size_t column_ndx, size_t row_ndx) const REALM_NOEXCEPT;
-    StringData  get_string(size_t column_ndx, size_t row_ndx) const REALM_NOEXCEPT;
-    BinaryData  get_binary(size_t column_ndx, size_t row_ndx) const REALM_NOEXCEPT;
-    Mixed       get_mixed(size_t column_ndx, size_t row_ndx) const REALM_NOEXCEPT;
-    DataType    get_mixed_type(size_t column_ndx, size_t row_ndx) const REALM_NOEXCEPT;
-    std::size_t get_link(std::size_t column_ndx, std::size_t row_ndx) const REALM_NOEXCEPT;
+    int64_t     get_int(size_t column_ndx, size_t row_ndx) const noexcept;
+    bool        get_bool(size_t column_ndx, size_t row_ndx) const noexcept;
+    DateTime    get_datetime(size_t column_ndx, size_t row_ndx) const noexcept;
+    float       get_float(size_t column_ndx, size_t row_ndx) const noexcept;
+    double      get_double(size_t column_ndx, size_t row_ndx) const noexcept;
+    StringData  get_string(size_t column_ndx, size_t row_ndx) const noexcept;
+    BinaryData  get_binary(size_t column_ndx, size_t row_ndx) const noexcept;
+    Mixed       get_mixed(size_t column_ndx, size_t row_ndx) const noexcept;
+    DataType    get_mixed_type(size_t column_ndx, size_t row_ndx) const noexcept;
+    size_t get_link(size_t column_ndx, size_t row_ndx) const noexcept;
 
     // Links
-    bool is_null_link(std::size_t column_ndx, std::size_t row_ndx) const REALM_NOEXCEPT;
+    bool is_null_link(size_t column_ndx, size_t row_ndx) const noexcept;
 
     // Subtables
-    size_t get_subtable_size(size_t column_ndx, size_t row_ndx) const REALM_NOEXCEPT;
+    size_t get_subtable_size(size_t column_ndx, size_t row_ndx) const noexcept;
 
     // Searching (Int and String)
     size_t find_first_int(size_t column_ndx, int64_t value) const;
@@ -221,30 +226,30 @@ public:
     // Aggregate functions. count_target is ignored by all <int
     // function> except Count. Hack because of bug in optional
     // arguments in clang and vs2010 (fixed in 2012)
-    template <int function, typename T, typename R, class ColType>
+    template<int function, typename T, typename R, class ColType>
     R aggregate(R (ColType::*aggregateMethod)(size_t, size_t, size_t, size_t*) const,
         size_t column_ndx, T count_target, size_t* return_ndx = nullptr) const;
 
     int64_t sum_int(size_t column_ndx) const;
-    int64_t maximum_int(size_t column_ndx, size_t* return_ndx = 0) const;
-    int64_t minimum_int(size_t column_ndx, size_t* return_ndx = 0) const;
-    double average_int(size_t column_ndx) const;
+    int64_t maximum_int(size_t column_ndx, size_t* return_ndx = nullptr) const;
+    int64_t minimum_int(size_t column_ndx, size_t* return_ndx = nullptr) const;
+    double average_int(size_t column_ndx, size_t* value_count = nullptr) const;
     size_t count_int(size_t column_ndx, int64_t target) const;
 
     double sum_float(size_t column_ndx) const;
-    float maximum_float(size_t column_ndx, size_t* return_ndx = 0) const;
-    float minimum_float(size_t column_ndx, size_t* return_ndx = 0) const;
-    double average_float(size_t column_ndx) const;
+    float maximum_float(size_t column_ndx, size_t* return_ndx = nullptr) const;
+    float minimum_float(size_t column_ndx, size_t* return_ndx = nullptr) const;
+    double average_float(size_t column_ndx, size_t* value_count = nullptr) const;
     size_t count_float(size_t column_ndx, float target) const;
 
     double sum_double(size_t column_ndx) const;
-    double maximum_double(size_t column_ndx, size_t* return_ndx = 0) const;
-    double minimum_double(size_t column_ndx, size_t* return_ndx = 0) const;
-    double average_double(size_t column_ndx) const;
+    double maximum_double(size_t column_ndx, size_t* return_ndx = nullptr) const;
+    double minimum_double(size_t column_ndx, size_t* return_ndx = nullptr) const;
+    double average_double(size_t column_ndx, size_t* value_count = nullptr) const;
     size_t count_double(size_t column_ndx, double target) const;
 
-    DateTime maximum_datetime(size_t column_ndx, size_t* return_ndx = 0) const;
-    DateTime minimum_datetime(size_t column_ndx, size_t* return_ndx = 0) const;
+    DateTime maximum_datetime(size_t column_ndx, size_t* return_ndx = nullptr) const;
+    DateTime minimum_datetime(size_t column_ndx, size_t* return_ndx = nullptr) const;
 
     void apply_same_order(TableViewBase& order);
 
@@ -254,17 +259,17 @@ public:
                    Table::AggrType op, Table& result) const;
 
     // Get row index in the source table this view is "looking" at.
-    std::size_t get_source_ndx(std::size_t row_ndx) const REALM_NOEXCEPT;
+    size_t get_source_ndx(size_t row_ndx) const noexcept;
 
     /// Search this view for the specified source table row (specified by its
     /// index in the source table). If found, the index of that row within this
     /// view is returned, otherwise `realm::not_found` is returned.
-    std::size_t find_by_source_ndx(std::size_t source_ndx) const REALM_NOEXCEPT;
+    size_t find_by_source_ndx(size_t source_ndx) const noexcept;
 
     // Conversion
     void to_json(std::ostream&) const;
-    void to_string(std::ostream&, std::size_t limit = 500) const;
-    void row_to_string(std::size_t row_ndx, std::ostream&) const;
+    void to_string(std::ostream&, size_t limit = 500) const;
+    void row_to_string(size_t row_ndx, std::ostream&) const;
 
     // Determine if the view is 'in sync' with the underlying table
     // as well as other views used to generate the view. Note that updates
@@ -273,7 +278,7 @@ public:
     // is generated from another view (not a table), updates may cause
     // that view to be outdated, AND as the generated view depends upon
     // it, it too will become outdated.
-    bool is_in_sync() const REALM_NOEXCEPT;
+    bool is_in_sync() const noexcept;
 
     // Synchronize a view to match a table or tableview from which it
     // has been derived. Synchronization is achieved by rerunning the
@@ -301,15 +306,28 @@ public:
     // Sort m_row_indexes according to multiple columns
     void sort(std::vector<size_t> columns, std::vector<bool> ascending);
 
+    // Remove rows that are duplicated with respect to the column set passed as argument. 
+    // distinct() will preserve the original order of the row pointers, also if the order is a result of sort()
+    // If two rows are indentical (for the given set of distinct-columns), then the last row is removed.
+    // You can call sync_if_needed() to update the distinct view, just like you can for a sorted view.
+    // Each time you call distinct() it will first fetch the full original TableView contents and then apply
+    // distinct() on that. So it distinct() does not filter the result of the previous distinct().
+    void distinct(size_t column);
+    void distinct(std::vector<size_t> columns);
+
     // Actual sorting facility is provided by the base class:
     using RowIndexes::sort;
 
-    virtual ~TableViewBase() REALM_NOEXCEPT;
+    virtual ~TableViewBase() noexcept;
 
 protected:
     void do_sync();
     // Null if, and only if, the view is detached.
     mutable TableRef m_table;
+
+    mutable TableRef m_linked_table;
+    size_t m_linked_column;
+    size_t m_linked_row;
 
     // If this TableView was created from a LinkView, then this reference points to it. Otherwise it's 0
     mutable ConstLinkViewRef m_linkview_source;
@@ -318,8 +336,14 @@ protected:
 
     // m_distinct_column_source != npos if this view was created from distinct values in a column of m_table.
     size_t m_distinct_column_source;
+
+    // If m_distinct_columns.size() > 0, it means that this TableView has had called TableView::distinct() and
+    // must only contain unique rows with respect to that column set of the parent table
+    std::vector<size_t> m_distinct_columns;
+
     Sorter m_sorting_predicate; // Stores sorting criterias (columns + ascending)
     bool m_auto_sort = false;
+
 
     // A valid query holds a reference to its table which must match our m_table.
     // hence we can use a query with a null table reference to indicate that the view
@@ -337,40 +361,48 @@ protected:
     /// Construct empty view, ready for addition of row indices.
     TableViewBase(Table* parent);
     TableViewBase(Table* parent, Query& query, size_t start, size_t end, size_t limit);
+    TableViewBase(Table *parent, Table *linked_table, size_t column, size_t row_ndx);
 
     /// Copy constructor.
     TableViewBase(const TableViewBase&);
 
     /// Move constructor.
-    TableViewBase(TableViewBase&&) REALM_NOEXCEPT;
+    TableViewBase(TableViewBase&&) noexcept;
 
-    TableViewBase& operator=(const TableViewBase&) REALM_NOEXCEPT;
-    TableViewBase& operator=(TableViewBase&&) REALM_NOEXCEPT;
+    TableViewBase& operator=(const TableViewBase&) noexcept;
+    TableViewBase& operator=(TableViewBase&&) noexcept;
 
-    template<class R, class V> static R find_all_integer(V*, std::size_t, int64_t);
-    template<class R, class V> static R find_all_float(V*, std::size_t, float);
-    template<class R, class V> static R find_all_double(V*, std::size_t, double);
-    template<class R, class V> static R find_all_string(V*, std::size_t, StringData);
+    template<class R, class V>
+    static R find_all_integer(V*, size_t, int64_t);
+
+    template<class R, class V>
+    static R find_all_float(V*, size_t, float);
+
+    template<class R, class V>
+    static R find_all_double(V*, size_t, double);
+
+    template<class R, class V>
+    static R find_all_string(V*, size_t, StringData);
 
     typedef TableView_Handover_patch Handover_patch;
 
     // handover machinery entry points based on dynamic type. These methods:
     // a) forward their calls to the static type entry points.
     // b) new/delete patch data structures.
-    virtual std::unique_ptr<TableViewBase> clone_for_handover(std::unique_ptr<Handover_patch>& patch, 
+    virtual std::unique_ptr<TableViewBase> clone_for_handover(std::unique_ptr<Handover_patch>& patch,
                                                               ConstSourcePayload mode) const
     {
         patch.reset(new Handover_patch);
         std::unique_ptr<TableViewBase> retval(new TableViewBase(*this, *patch, mode));
-        return move(retval);
+        return retval;
     }
 
-    virtual std::unique_ptr<TableViewBase> clone_for_handover(std::unique_ptr<Handover_patch>& patch, 
+    virtual std::unique_ptr<TableViewBase> clone_for_handover(std::unique_ptr<Handover_patch>& patch,
                                                               MutableSourcePayload mode)
     {
         patch.reset(new Handover_patch);
         std::unique_ptr<TableViewBase> retval(new TableViewBase(*this, *patch, mode));
-        return move(retval);
+        return retval;
     }
 
     virtual void apply_and_consume_patch(std::unique_ptr<Handover_patch>& patch, Group& group)
@@ -380,35 +412,44 @@ protected:
     }
     // handover machinery entry points based on static type
     void apply_patch(Handover_patch& patch, Group& group);
-    TableViewBase(const TableViewBase& source, Handover_patch& patch, 
+    TableViewBase(const TableViewBase& source, Handover_patch& patch,
                   ConstSourcePayload mode);
-    TableViewBase(TableViewBase& source, Handover_patch& patch, 
+    TableViewBase(TableViewBase& source, Handover_patch& patch,
                   MutableSourcePayload mode);
 
 private:
-    void detach() const REALM_NOEXCEPT; // may have to remove const
-    std::size_t find_first_integer(std::size_t column_ndx, int64_t value) const;
+    void detach() const noexcept; // may have to remove const
+    size_t find_first_integer(size_t column_ndx, int64_t value) const;
     friend class Table;
     friend class Query;
     friend class SharedGroup;
-    template<class Tab, class View, class Impl> friend class BasicTableViewBase;
+    template<class Tab, class View, class Impl>
+    friend class BasicTableViewBase;
 
     // Called by table to adjust any row references:
-    void adj_row_acc_insert_rows(std::size_t row_ndx, std::size_t num_rows) REALM_NOEXCEPT;
-    void adj_row_acc_erase_row(std::size_t row_ndx) REALM_NOEXCEPT;
-    void adj_row_acc_move_over(std::size_t from_row_ndx, std::size_t to_row_ndx) REALM_NOEXCEPT;
+    void adj_row_acc_insert_rows(size_t row_ndx, size_t num_rows) noexcept;
+    void adj_row_acc_erase_row(size_t row_ndx) noexcept;
+    void adj_row_acc_move_over(size_t from_row_ndx, size_t to_row_ndx) noexcept;
+    void adj_row_acc_clear() noexcept;
 
-    template<typename Tab> friend class BasicTableView;
+    template<typename Tab>
+    friend class BasicTableView;
 };
 
 
-inline void TableViewBase::detach() const REALM_NOEXCEPT // may have to remove const
+inline void TableViewBase::detach() const noexcept // may have to remove const
 {
     m_table = TableRef();
 }
 
 
 class ConstTableView;
+
+
+enum class RemoveMode {
+    ordered,
+    unordered
+};
 
 
 /// A TableView gives read and write access to the parent table.
@@ -422,34 +463,35 @@ public:
     TableView();
     TableView(const TableView&) = default;
     TableView(TableView&&) = default;
-    ~TableView() REALM_NOEXCEPT;
+    ~TableView() noexcept;
     TableView& operator=(const TableView&) = default;
     TableView& operator=(TableView&&) = default;
 
     // Rows
     typedef BasicRowExpr<Table> RowExpr;
     typedef BasicRowExpr<const Table> ConstRowExpr;
-    RowExpr get(std::size_t row_ndx) REALM_NOEXCEPT;
-    ConstRowExpr get(std::size_t row_ndx) const REALM_NOEXCEPT;
-    RowExpr front() REALM_NOEXCEPT;
-    ConstRowExpr front() const REALM_NOEXCEPT;
-    RowExpr back() REALM_NOEXCEPT;
-    ConstRowExpr back() const REALM_NOEXCEPT;
-    RowExpr operator[](std::size_t row_ndx) REALM_NOEXCEPT;
-    ConstRowExpr operator[](std::size_t row_ndx) const REALM_NOEXCEPT;
+    RowExpr get(size_t row_ndx) noexcept;
+    ConstRowExpr get(size_t row_ndx) const noexcept;
+    RowExpr front() noexcept;
+    ConstRowExpr front() const noexcept;
+    RowExpr back() noexcept;
+    ConstRowExpr back() const noexcept;
+    RowExpr operator[](size_t row_ndx) noexcept;
+    ConstRowExpr operator[](size_t row_ndx) const noexcept;
 
     // Setting values
     void set_int(size_t column_ndx, size_t row_ndx, int64_t value);
     void set_bool(size_t column_ndx, size_t row_ndx, bool value);
     void set_datetime(size_t column_ndx, size_t row_ndx, DateTime value);
-    template<class E> void set_enum(size_t column_ndx, size_t row_ndx, E value);
+    template<class E>
+    void set_enum(size_t column_ndx, size_t row_ndx, E value);
     void set_float(size_t column_ndx, size_t row_ndx, float value);
     void set_double(size_t column_ndx, size_t row_ndx, double value);
     void set_string(size_t column_ndx, size_t row_ndx, StringData value);
     void set_binary(size_t column_ndx, size_t row_ndx, BinaryData value);
     void set_mixed(size_t column_ndx, size_t row_ndx, Mixed value);
     void set_subtable(size_t column_ndx,size_t row_ndx, const Table* table);
-    void set_link(std::size_t column_ndx, std::size_t row_ndx, std::size_t target_row_ndx);
+    void set_link(size_t column_ndx, size_t row_ndx, size_t target_row_ndx);
 
     // Subtables
     TableRef      get_subtable(size_t column_ndx, size_t row_ndx);
@@ -457,14 +499,38 @@ public:
     void          clear_subtable(size_t column_ndx, size_t row_ndx);
 
     // Links
-    TableRef get_link_target(std::size_t column_ndx) REALM_NOEXCEPT;
-    ConstTableRef get_link_target(std::size_t column_ndx) const REALM_NOEXCEPT;
-    void nullify_link(std::size_t column_ndx, std::size_t row_ndx);
+    TableRef get_link_target(size_t column_ndx) noexcept;
+    ConstTableRef get_link_target(size_t column_ndx) const noexcept;
+    void nullify_link(size_t column_ndx, size_t row_ndx);
 
-    // Deleting
-    void clear();
-    void remove(std::size_t row_ndx);
-    void remove_last();
+    //@{
+    /// \brief Remove the specified row (or rows) from the underlying table.
+    ///
+    /// remove() removes the specified row from the underlying table,
+    /// remove_last() removes the last row in the table view from the underlying
+    /// table, and clear removes all the rows in the table view from the
+    /// underlying table.
+    ///
+    /// When rows are removed from the underlying table, they will by necessity
+    /// also be removed from the table view.
+    ///
+    /// The order of the remaining rows in the the table view will be maintained
+    /// regardless of the value passed for \a underlying_mode.
+    ///
+    /// \param row_ndx The index within this table view of the row to be
+    /// removed.
+    ///
+    /// \param underlying_mode If set to RemoveMode::ordered (the default), the
+    /// rows will be removed from the underlying table in a way that maintains
+    /// the order of the remaining rows in the underlying table. If set to
+    /// RemoveMode::unordered, the order of the remaining rows in the underlying
+    /// table will not in general be maintaind, but the operation will generally
+    /// be much faster. In any case, the order of remaining rows in the table
+    /// view will not be affected.
+    void remove(size_t row_ndx, RemoveMode underlying_mode = RemoveMode::ordered);
+    void remove_last(RemoveMode underlying_mode = RemoveMode::ordered);
+    void clear(RemoveMode underlying_mode = RemoveMode::ordered);
+    //@}
 
     // Searching (Int and String)
     TableView       find_all_int(size_t column_ndx, int64_t value);
@@ -482,10 +548,10 @@ public:
     // FIXME: Need: TableView find_all_binary(size_t column_ndx, BinaryData value);
     // FIXME: Need: ConstTableView find_all_binary(size_t column_ndx, BinaryData value) const;
 
-    Table& get_parent() REALM_NOEXCEPT;
-    const Table& get_parent() const REALM_NOEXCEPT;
+    Table& get_parent() noexcept;
+    const Table& get_parent() const noexcept;
 
-    std::unique_ptr<TableViewBase> 
+    std::unique_ptr<TableViewBase>
     clone_for_handover(std::unique_ptr<Handover_patch>& patch, ConstSourcePayload mode) const override
     {
         patch.reset(new Handover_patch);
@@ -493,7 +559,7 @@ public:
         return retval;
     }
 
-    std::unique_ptr<TableViewBase> 
+    std::unique_ptr<TableViewBase>
     clone_for_handover(std::unique_ptr<Handover_patch>& patch, MutableSourcePayload mode) override
     {
         patch.reset(new Handover_patch);
@@ -530,6 +596,7 @@ public:
 private:
     TableView(Table& parent);
     TableView(Table& parent, Query& query, size_t start, size_t end, size_t limit);
+    TableView(Table *parent, Table *linked_table, size_t column, size_t row_ndx);
 
     TableView find_all_integer(size_t column_ndx, int64_t value);
     ConstTableView find_all_integer(size_t column_ndx, int64_t value) const;
@@ -540,7 +607,8 @@ private:
     friend class TableViewBase;
     friend class ListviewNode;
     friend class LinkView;
-    template<typename, typename, typename> friend class BasicTableViewBase;
+    template<typename, typename, typename>
+    friend class BasicTableViewBase;
 };
 
 
@@ -559,7 +627,7 @@ private:
 class ConstTableView: public TableViewBase {
 public:
     ConstTableView();
-    ~ConstTableView() REALM_NOEXCEPT;
+    ~ConstTableView() noexcept;
     ConstTableView(const ConstTableView&) = default;
     ConstTableView(ConstTableView&&) = default;
     ConstTableView& operator=(const ConstTableView&) = default;
@@ -572,16 +640,16 @@ public:
 
     // Rows
     typedef BasicRowExpr<const Table> ConstRowExpr;
-    ConstRowExpr get(std::size_t row_ndx) const REALM_NOEXCEPT;
-    ConstRowExpr front() const REALM_NOEXCEPT;
-    ConstRowExpr back() const REALM_NOEXCEPT;
-    ConstRowExpr operator[](std::size_t row_ndx) const REALM_NOEXCEPT;
+    ConstRowExpr get(size_t row_ndx) const noexcept;
+    ConstRowExpr front() const noexcept;
+    ConstRowExpr back() const noexcept;
+    ConstRowExpr operator[](size_t row_ndx) const noexcept;
 
     // Subtables
     ConstTableRef get_subtable(size_t column_ndx, size_t row_ndx) const;
 
     // Links
-    ConstTableRef get_link_target(std::size_t column_ndx) const REALM_NOEXCEPT;
+    ConstTableRef get_link_target(size_t column_ndx) const noexcept;
 
     // Searching (Int and String)
     ConstTableView find_all_int(size_t column_ndx, int64_t value) const;
@@ -591,22 +659,22 @@ public:
     ConstTableView find_all_double(size_t column_ndx, double value) const;
     ConstTableView find_all_string(size_t column_ndx, StringData value) const;
 
-    const Table& get_parent() const REALM_NOEXCEPT;
+    const Table& get_parent() const noexcept;
 
     std::unique_ptr<TableViewBase>
     clone_for_handover(std::unique_ptr<Handover_patch>& patch, ConstSourcePayload mode) const override
     {
         patch.reset(new Handover_patch);
         std::unique_ptr<TableViewBase> retval(new ConstTableView(*this, *patch, mode));
-        return move(retval);
+        return retval;
     }
 
-    std::unique_ptr<TableViewBase> 
+    std::unique_ptr<TableViewBase>
     clone_for_handover(std::unique_ptr<Handover_patch>& patch, MutableSourcePayload mode) override
     {
         patch.reset(new Handover_patch);
         std::unique_ptr<TableViewBase> retval(new ConstTableView(*this, *patch, mode));
-        return move(retval);
+        return retval;
     }
 
     // this one is here to follow the general scheme, it is not really needed, the
@@ -650,38 +718,42 @@ private:
 // ================================================================================================
 // TableViewBase Implementation:
 
+inline const Query& TableViewBase::get_query() const noexcept
+{
+    return m_query;
+}
 
-inline bool TableViewBase::is_empty() const REALM_NOEXCEPT
+inline bool TableViewBase::is_empty() const noexcept
 {
     return m_row_indexes.is_empty();
 }
 
-inline bool TableViewBase::is_attached() const REALM_NOEXCEPT
+inline bool TableViewBase::is_attached() const noexcept
 {
     return bool(m_table);
 }
 
-inline bool TableViewBase::is_row_attached(std::size_t row_ndx) const REALM_NOEXCEPT
+inline bool TableViewBase::is_row_attached(size_t row_ndx) const noexcept
 {
     return size_t(m_row_indexes.get(row_ndx)) != detached_ref;
 }
 
-inline std::size_t TableViewBase::size() const REALM_NOEXCEPT
+inline size_t TableViewBase::size() const noexcept
 {
     return m_row_indexes.size();
 }
 
-inline std::size_t TableViewBase::num_attached_rows() const REALM_NOEXCEPT
+inline size_t TableViewBase::num_attached_rows() const noexcept
 {
     return m_row_indexes.size() - m_num_detached_refs;
 }
 
-inline std::size_t TableViewBase::get_source_ndx(std::size_t row_ndx) const REALM_NOEXCEPT
+inline size_t TableViewBase::get_source_ndx(size_t row_ndx) const noexcept
 {
     return to_size_t(m_row_indexes.get(row_ndx));
 }
 
-inline std::size_t TableViewBase::find_by_source_ndx(std::size_t source_ndx) const REALM_NOEXCEPT
+inline size_t TableViewBase::find_by_source_ndx(size_t source_ndx) const noexcept
 {
     REALM_ASSERT(source_ndx < m_table->size());
     return m_row_indexes.find_first(source_ndx);
@@ -698,7 +770,7 @@ inline TableViewBase::TableViewBase():
 }
 
 inline TableViewBase::TableViewBase(Table* parent):
-    RowIndexes(IntegerColumn::unattached_root_tag(), Allocator::get_default()), 
+    RowIndexes(IntegerColumn::unattached_root_tag(), Allocator::get_default()),
     m_table(parent->get_table_ref()), // Throws
     m_last_seen_version(m_table ? m_table->m_version : 0),
     m_distinct_column_source(npos),
@@ -720,7 +792,7 @@ inline TableViewBase::TableViewBase(Table* parent, Query& query, size_t start, s
     m_last_seen_version(m_table ? m_table->m_version : 0),
     m_distinct_column_source(npos),
     m_auto_sort(false),
-    m_query(query, Query::TCopyExpressionTag()),
+    m_query(query),
     m_start(start),
     m_end(end),
     m_limit(limit)
@@ -735,15 +807,39 @@ inline TableViewBase::TableViewBase(Table* parent, Query& query, size_t start, s
     m_row_indexes.get_root_array()->init_from_ref(ref_guard.release());
 }
 
+inline TableViewBase::TableViewBase(Table *parent, Table *linked_table, size_t column, size_t row_ndx):
+    RowIndexes(IntegerColumn::unattached_root_tag(), Allocator::get_default()),
+    m_table(parent->get_table_ref()), // Throws
+    m_linked_table(linked_table->get_table_ref()), // Throws
+    m_linked_column(column),
+    m_linked_row(row_ndx),
+    m_last_seen_version(m_table ? m_table->m_version : 0),
+    m_distinct_column_source(npos),
+    m_auto_sort(false)
+{
+    // FIXME: This code is unreasonably complicated because it uses `IntegerColumn` as
+    // a free-standing container, and beause `IntegerColumn` does not conform to the
+    // RAII idiom (nor should it).
+    Allocator& alloc = m_row_indexes.get_alloc();
+    _impl::DeepArrayRefDestroyGuard ref_guard(alloc);
+    ref_guard.reset(IntegerColumn::create(alloc)); // Throws
+    parent->register_view(this); // Throws
+    m_row_indexes.get_root_array()->init_from_ref(ref_guard.release());
+}
+
 inline TableViewBase::TableViewBase(const TableViewBase& tv):
     RowIndexes(IntegerColumn::unattached_root_tag(), Allocator::get_default()),
     m_table(tv.m_table),
+    m_linked_table(tv.m_linked_table),
+    m_linked_column(tv.m_linked_column),
+    m_linked_row(tv.m_linked_row),
     m_linkview_source(tv.m_linkview_source),
     m_last_seen_version(tv.m_last_seen_version),
     m_distinct_column_source(tv.m_distinct_column_source),
-    m_sorting_predicate(tv.m_sorting_predicate),
+    m_distinct_columns(std::move(tv.m_distinct_columns)),
+    m_sorting_predicate(std::move(tv.m_sorting_predicate)),
     m_auto_sort(tv.m_auto_sort),
-    m_query(tv.m_query, Query::TCopyExpressionTag()),
+    m_query(tv.m_query),
     m_start(tv.m_start),
     m_end(tv.m_end),
     m_limit(tv.m_limit),
@@ -761,17 +857,21 @@ inline TableViewBase::TableViewBase(const TableViewBase& tv):
     ref_guard.release();
 }
 
-inline TableViewBase::TableViewBase(TableViewBase&& tv) REALM_NOEXCEPT:
+inline TableViewBase::TableViewBase(TableViewBase&& tv) noexcept:
     RowIndexes(std::move(tv.m_row_indexes)),
     m_table(move(tv.m_table)),
-    m_linkview_source(tv.m_linkview_source),
+    m_linked_table(move(tv.m_linked_table)),
+    m_linked_column(tv.m_linked_column),
+    m_linked_row(tv.m_linked_row),
+    m_linkview_source(std::move(tv.m_linkview_source)),
     // if we are created from a table view which is outdated, take care to use the outdated
     // version number so that we can later trigger a sync if needed.
     m_last_seen_version(tv.m_last_seen_version),
     m_distinct_column_source(tv.m_distinct_column_source),
-    m_sorting_predicate(tv.m_sorting_predicate),
+    m_distinct_columns(std::move(tv.m_distinct_columns)),
+    m_sorting_predicate(std::move(tv.m_sorting_predicate)),
     m_auto_sort(tv.m_auto_sort),
-    m_query(tv.m_query, Query::TCopyExpressionTag()),
+    m_query(std::move(tv.m_query)),
     m_start(tv.m_start),
     m_end(tv.m_end),
     m_limit(tv.m_limit),
@@ -781,7 +881,7 @@ inline TableViewBase::TableViewBase(TableViewBase&& tv) REALM_NOEXCEPT:
         m_table->move_registered_view(&tv, this);
 }
 
-inline TableViewBase::~TableViewBase() REALM_NOEXCEPT
+inline TableViewBase::~TableViewBase() noexcept
 {
     if (m_table) {
         m_table->unregister_view(this);
@@ -790,7 +890,7 @@ inline TableViewBase::~TableViewBase() REALM_NOEXCEPT
     m_row_indexes.destroy(); // Shallow
 }
 
-inline TableViewBase& TableViewBase::operator=(TableViewBase&& tv) REALM_NOEXCEPT
+inline TableViewBase& TableViewBase::operator=(TableViewBase&& tv) noexcept
 {
     if (m_table)
         m_table->unregister_view(this);
@@ -799,15 +899,16 @@ inline TableViewBase& TableViewBase::operator=(TableViewBase&& tv) REALM_NOEXCEP
         m_table->move_registered_view(&tv, this);
 
     m_row_indexes.move_assign(tv.m_row_indexes);
-    m_query = tv.m_query;
+    m_query = std::move(tv.m_query);
     m_num_detached_refs = tv.m_num_detached_refs;
     m_last_seen_version = tv.m_last_seen_version;
     m_auto_sort = tv.m_auto_sort;
     m_start = tv.m_start;
     m_end = tv.m_end;
     m_limit = tv.m_limit;
-    m_linkview_source = tv.m_linkview_source;
-    m_sorting_predicate = tv.m_sorting_predicate;
+    m_linkview_source = std::move(tv.m_linkview_source);
+    m_distinct_columns = tv.m_distinct_columns;
+    m_sorting_predicate = std::move(tv.m_sorting_predicate);
 
     return *this;
 }
@@ -846,13 +947,13 @@ inline const ColumnBase& TableViewBase::get_column_base(size_t index) const
     return m_table->get_column_base(index);
 }
 
-inline size_t TableViewBase::get_column_count() const REALM_NOEXCEPT
+inline size_t TableViewBase::get_column_count() const noexcept
 {
     REALM_ASSERT(m_table);
     return m_table->get_column_count();
 }
 
-inline StringData TableViewBase::get_column_name(size_t column_ndx) const REALM_NOEXCEPT
+inline StringData TableViewBase::get_column_name(size_t column_ndx) const noexcept
 {
     REALM_ASSERT(m_table);
     return m_table->get_column_name(column_ndx);
@@ -864,7 +965,7 @@ inline size_t TableViewBase::get_column_index(StringData name) const
     return m_table->get_column_index(name);
 }
 
-inline DataType TableViewBase::get_column_type(size_t column_ndx) const REALM_NOEXCEPT
+inline DataType TableViewBase::get_column_type(size_t column_ndx) const noexcept
 {
     REALM_ASSERT(m_table);
     return m_table->get_column_type(column_ndx);
@@ -874,8 +975,7 @@ inline DataType TableViewBase::get_column_type(size_t column_ndx) const REALM_NO
 // Getters
 
 
-inline int64_t TableViewBase::get_int(size_t column_ndx, size_t row_ndx) const
-    REALM_NOEXCEPT
+inline int64_t TableViewBase::get_int(size_t column_ndx, size_t row_ndx) const noexcept
 {
     REALM_ASSERT_INDEX(column_ndx, row_ndx);
 
@@ -884,8 +984,7 @@ inline int64_t TableViewBase::get_int(size_t column_ndx, size_t row_ndx) const
     return m_table->get_int(column_ndx, real_ndx);
 }
 
-inline bool TableViewBase::get_bool(size_t column_ndx, size_t row_ndx) const
-    REALM_NOEXCEPT
+inline bool TableViewBase::get_bool(size_t column_ndx, size_t row_ndx) const noexcept
 {
     REALM_ASSERT_INDEX_AND_TYPE(column_ndx, row_ndx, type_Bool);
 
@@ -894,8 +993,7 @@ inline bool TableViewBase::get_bool(size_t column_ndx, size_t row_ndx) const
     return m_table->get_bool(column_ndx, real_ndx);
 }
 
-inline DateTime TableViewBase::get_datetime(size_t column_ndx, size_t row_ndx) const
-    REALM_NOEXCEPT
+inline DateTime TableViewBase::get_datetime(size_t column_ndx, size_t row_ndx) const noexcept
 {
     REALM_ASSERT_INDEX_AND_TYPE(column_ndx, row_ndx, type_DateTime);
 
@@ -904,8 +1002,7 @@ inline DateTime TableViewBase::get_datetime(size_t column_ndx, size_t row_ndx) c
     return m_table->get_datetime(column_ndx, real_ndx);
 }
 
-inline float TableViewBase::get_float(size_t column_ndx, size_t row_ndx) const
-    REALM_NOEXCEPT
+inline float TableViewBase::get_float(size_t column_ndx, size_t row_ndx) const noexcept
 {
     REALM_ASSERT_INDEX_AND_TYPE(column_ndx, row_ndx, type_Float);
 
@@ -914,8 +1011,7 @@ inline float TableViewBase::get_float(size_t column_ndx, size_t row_ndx) const
     return m_table->get_float(column_ndx, real_ndx);
 }
 
-inline double TableViewBase::get_double(size_t column_ndx, size_t row_ndx) const
-    REALM_NOEXCEPT
+inline double TableViewBase::get_double(size_t column_ndx, size_t row_ndx) const noexcept
 {
     REALM_ASSERT_INDEX_AND_TYPE(column_ndx, row_ndx, type_Double);
 
@@ -924,8 +1020,7 @@ inline double TableViewBase::get_double(size_t column_ndx, size_t row_ndx) const
     return m_table->get_double(column_ndx, real_ndx);
 }
 
-inline StringData TableViewBase::get_string(size_t column_ndx, size_t row_ndx) const
-    REALM_NOEXCEPT
+inline StringData TableViewBase::get_string(size_t column_ndx, size_t row_ndx) const noexcept
 {
     REALM_ASSERT_INDEX_AND_TYPE(column_ndx, row_ndx, type_String);
 
@@ -934,28 +1029,25 @@ inline StringData TableViewBase::get_string(size_t column_ndx, size_t row_ndx) c
     return m_table->get_string(column_ndx, real_ndx);
 }
 
-inline BinaryData TableViewBase::get_binary(size_t column_ndx, size_t row_ndx) const
-    REALM_NOEXCEPT
+inline BinaryData TableViewBase::get_binary(size_t column_ndx, size_t row_ndx) const noexcept
 {
     REALM_ASSERT_INDEX_AND_TYPE(column_ndx, row_ndx, type_Binary);
 
     const size_t real_ndx = size_t(m_row_indexes.get(row_ndx));
     REALM_ASSERT(real_ndx != detached_ref);
-    return m_table->get_binary(column_ndx, real_ndx); // Throws
+    return m_table->get_binary(column_ndx, real_ndx);
 }
 
-inline Mixed TableViewBase::get_mixed(size_t column_ndx, size_t row_ndx) const
-    REALM_NOEXCEPT
+inline Mixed TableViewBase::get_mixed(size_t column_ndx, size_t row_ndx) const noexcept
 {
     REALM_ASSERT_INDEX_AND_TYPE(column_ndx, row_ndx, type_Mixed);
 
     const size_t real_ndx = size_t(m_row_indexes.get(row_ndx));
     REALM_ASSERT(real_ndx != detached_ref);
-    return m_table->get_mixed(column_ndx, real_ndx); // Throws
+    return m_table->get_mixed(column_ndx, real_ndx);
 }
 
-inline DataType TableViewBase::get_mixed_type(size_t column_ndx, size_t row_ndx) const
-    REALM_NOEXCEPT
+inline DataType TableViewBase::get_mixed_type(size_t column_ndx, size_t row_ndx) const noexcept
 {
     REALM_ASSERT_INDEX_AND_TYPE(column_ndx, row_ndx, type_Mixed);
 
@@ -964,8 +1056,7 @@ inline DataType TableViewBase::get_mixed_type(size_t column_ndx, size_t row_ndx)
     return m_table->get_mixed_type(column_ndx, real_ndx);
 }
 
-inline size_t TableViewBase::get_subtable_size(size_t column_ndx, size_t row_ndx) const
-    REALM_NOEXCEPT
+inline size_t TableViewBase::get_subtable_size(size_t column_ndx, size_t row_ndx) const noexcept
 {
     REALM_ASSERT_INDEX_AND_TYPE_TABLE_OR_MIXED(column_ndx, row_ndx);
 
@@ -974,8 +1065,7 @@ inline size_t TableViewBase::get_subtable_size(size_t column_ndx, size_t row_ndx
     return m_table->get_subtable_size(column_ndx, real_ndx);
 }
 
-inline std::size_t TableViewBase::get_link(std::size_t column_ndx, std::size_t row_ndx) const
-    REALM_NOEXCEPT
+inline size_t TableViewBase::get_link(size_t column_ndx, size_t row_ndx) const noexcept
 {
     REALM_ASSERT_INDEX_AND_TYPE(column_ndx, row_ndx, type_Link);
 
@@ -984,23 +1074,22 @@ inline std::size_t TableViewBase::get_link(std::size_t column_ndx, std::size_t r
     return m_table->get_link(column_ndx, real_ndx);
 }
 
-inline TableRef TableView::get_link_target(std::size_t column_ndx) REALM_NOEXCEPT
+inline TableRef TableView::get_link_target(size_t column_ndx) noexcept
 {
     return m_table->get_link_target(column_ndx);
 }
 
-inline ConstTableRef TableView::get_link_target(std::size_t column_ndx) const REALM_NOEXCEPT
+inline ConstTableRef TableView::get_link_target(size_t column_ndx) const noexcept
 {
     return m_table->get_link_target(column_ndx);
 }
 
-inline ConstTableRef ConstTableView::get_link_target(std::size_t column_ndx) const REALM_NOEXCEPT
+inline ConstTableRef ConstTableView::get_link_target(size_t column_ndx) const noexcept
 {
     return m_table->get_link_target(column_ndx);
 }
 
-inline bool TableViewBase::is_null_link(std::size_t column_ndx, std::size_t row_ndx) const
-    REALM_NOEXCEPT
+inline bool TableViewBase::is_null_link(size_t column_ndx, size_t row_ndx) const noexcept
 {
     REALM_ASSERT_INDEX_AND_TYPE(column_ndx, row_ndx, type_Link);
 
@@ -1032,28 +1121,28 @@ inline size_t TableViewBase::find_first_datetime(size_t column_ndx, DateTime val
 }
 
 
-template <class R, class V>
+template<class R, class V>
 R TableViewBase::find_all_integer(V* view, size_t column_ndx, int64_t value)
 {
     typedef typename std::remove_const<V>::type TNonConst;
     return view->m_table->where(const_cast<TNonConst*>(view)).equal(column_ndx, value).find_all();
 }
 
-template <class R, class V>
+template<class R, class V>
 R TableViewBase::find_all_float(V* view, size_t column_ndx, float value)
 {
     typedef typename std::remove_const<V>::type TNonConst;
     return view->m_table->where(const_cast<TNonConst*>(view)).equal(column_ndx, value).find_all();
 }
 
-template <class R, class V>
+template<class R, class V>
 R TableViewBase::find_all_double(V* view, size_t column_ndx, double value)
 {
     typedef typename std::remove_const<V>::type TNonConst;
     return view->m_table->where(const_cast<TNonConst*>(view)).equal(column_ndx, value).find_all();
 }
 
-template <class R, class V>
+template<class R, class V>
 R TableViewBase::find_all_string(V* view, size_t column_ndx, StringData value)
 {
     typedef typename std::remove_const<V>::type TNonConst;
@@ -1081,31 +1170,31 @@ inline ConstTableView::ConstTableView(TableView&& tv):
 {
 }
 
-inline TableView::~TableView() REALM_NOEXCEPT
+inline TableView::~TableView() noexcept
 {
 }
 
-inline ConstTableView::~ConstTableView() REALM_NOEXCEPT
+inline ConstTableView::~ConstTableView() noexcept
 {
 }
 
-inline void TableView::remove_last()
+inline void TableView::remove_last(RemoveMode underlying_mode)
 {
     if (!is_empty())
-        remove(size()-1);
+        remove(size()-1, underlying_mode);
 }
 
-inline Table& TableView::get_parent() REALM_NOEXCEPT
+inline Table& TableView::get_parent() noexcept
 {
     return *m_table;
 }
 
-inline const Table& TableView::get_parent() const REALM_NOEXCEPT
+inline const Table& TableView::get_parent() const noexcept
 {
     return *m_table;
 }
 
-inline const Table& ConstTableView::get_parent() const REALM_NOEXCEPT
+inline const Table& ConstTableView::get_parent() const noexcept
 {
     return *m_table;
 }
@@ -1117,6 +1206,11 @@ inline TableView::TableView(Table& parent):
 
 inline TableView::TableView(Table& parent, Query& query, size_t start, size_t end, size_t limit):
     TableViewBase(&parent, query, start, end, limit)
+{
+}
+
+inline TableView::TableView(Table *parent, Table *linked_table, size_t column, size_t row_ndx):
+    TableViewBase(parent, linked_table, column, row_ndx)
 {
 }
 
@@ -1265,75 +1359,75 @@ inline ConstTableView ConstTableView::find_all_datetime(size_t column_ndx, DateT
 // Rows
 
 
-inline TableView::RowExpr TableView::get(std::size_t row_ndx) REALM_NOEXCEPT
+inline TableView::RowExpr TableView::get(size_t row_ndx) noexcept
 {
     REALM_ASSERT_ROW(row_ndx);
-    std::size_t real_ndx = std::size_t(m_row_indexes.get(row_ndx));
+    size_t real_ndx = size_t(m_row_indexes.get(row_ndx));
     REALM_ASSERT(real_ndx != detached_ref);
     return m_table->get(real_ndx);
 }
 
-inline TableView::ConstRowExpr TableView::get(std::size_t row_ndx) const REALM_NOEXCEPT
+inline TableView::ConstRowExpr TableView::get(size_t row_ndx) const noexcept
 {
     REALM_ASSERT_ROW(row_ndx);
-    std::size_t real_ndx = std::size_t(m_row_indexes.get(row_ndx));
+    size_t real_ndx = size_t(m_row_indexes.get(row_ndx));
     REALM_ASSERT(real_ndx != detached_ref);
     return m_table->get(real_ndx);
 }
 
-inline ConstTableView::ConstRowExpr ConstTableView::get(std::size_t row_ndx) const REALM_NOEXCEPT
+inline ConstTableView::ConstRowExpr ConstTableView::get(size_t row_ndx) const noexcept
 {
     REALM_ASSERT_ROW(row_ndx);
-    std::size_t real_ndx = std::size_t(m_row_indexes.get(row_ndx));
+    size_t real_ndx = size_t(m_row_indexes.get(row_ndx));
     REALM_ASSERT(real_ndx != detached_ref);
     return m_table->get(real_ndx);
 }
 
-inline TableView::RowExpr TableView::front() REALM_NOEXCEPT
+inline TableView::RowExpr TableView::front() noexcept
 {
     return get(0);
 }
 
-inline TableView::ConstRowExpr TableView::front() const REALM_NOEXCEPT
+inline TableView::ConstRowExpr TableView::front() const noexcept
 {
     return get(0);
 }
 
-inline ConstTableView::ConstRowExpr ConstTableView::front() const REALM_NOEXCEPT
+inline ConstTableView::ConstRowExpr ConstTableView::front() const noexcept
 {
     return get(0);
 }
 
-inline TableView::RowExpr TableView::back() REALM_NOEXCEPT
+inline TableView::RowExpr TableView::back() noexcept
 {
-    std::size_t last_row_ndx = size() - 1;
+    size_t last_row_ndx = size() - 1;
     return get(last_row_ndx);
 }
 
-inline TableView::ConstRowExpr TableView::back() const REALM_NOEXCEPT
+inline TableView::ConstRowExpr TableView::back() const noexcept
 {
-    std::size_t last_row_ndx = size() - 1;
+    size_t last_row_ndx = size() - 1;
     return get(last_row_ndx);
 }
 
-inline ConstTableView::ConstRowExpr ConstTableView::back() const REALM_NOEXCEPT
+inline ConstTableView::ConstRowExpr ConstTableView::back() const noexcept
 {
-    std::size_t last_row_ndx = size() - 1;
+    size_t last_row_ndx = size() - 1;
     return get(last_row_ndx);
 }
 
-inline TableView::RowExpr TableView::operator[](std::size_t row_ndx) REALM_NOEXCEPT
+inline TableView::RowExpr TableView::operator[](size_t row_ndx) noexcept
 {
     return get(row_ndx);
 }
 
-inline TableView::ConstRowExpr TableView::operator[](std::size_t row_ndx) const REALM_NOEXCEPT
+inline TableView::ConstRowExpr TableView::operator[](size_t row_ndx) const noexcept
 {
     return get(row_ndx);
 }
 
 inline ConstTableView::ConstRowExpr
-ConstTableView::operator[](std::size_t row_ndx) const REALM_NOEXCEPT
+ConstTableView::operator[](size_t row_ndx) const noexcept
 {
     return get(row_ndx);
 }
@@ -1427,7 +1521,8 @@ inline void TableView::set_double(size_t column_ndx, size_t row_ndx, double valu
     m_table->set_double(column_ndx, real_ndx, value);
 }
 
-template<class E> inline void TableView::set_enum(size_t column_ndx, size_t row_ndx, E value)
+template<class E>
+inline void TableView::set_enum(size_t column_ndx, size_t row_ndx, E value)
 {
     const size_t real_ndx = size_t(m_row_indexes.get(row_ndx));
     REALM_ASSERT(real_ndx != detached_ref);
@@ -1469,7 +1564,7 @@ inline void TableView::set_subtable(size_t column_ndx, size_t row_ndx, const Tab
     m_table->set_subtable(column_ndx, real_ndx, value);
 }
 
-inline void TableView::set_link(std::size_t column_ndx, std::size_t row_ndx, std::size_t target_row_ndx)
+inline void TableView::set_link(size_t column_ndx, size_t row_ndx, size_t target_row_ndx)
 {
     REALM_ASSERT_INDEX_AND_TYPE(column_ndx, row_ndx, type_Link);
     const size_t real_ndx = size_t(m_row_indexes.get(row_ndx));
@@ -1477,7 +1572,7 @@ inline void TableView::set_link(std::size_t column_ndx, std::size_t row_ndx, std
     m_table->set_link(column_ndx, real_ndx, target_row_ndx);
 }
 
-inline void TableView::nullify_link(std::size_t column_ndx, std::size_t row_ndx)
+inline void TableView::nullify_link(size_t column_ndx, size_t row_ndx)
 {
     REALM_ASSERT_INDEX_AND_TYPE(column_ndx, row_ndx, type_Link);
     const size_t real_ndx = size_t(m_row_indexes.get(row_ndx));

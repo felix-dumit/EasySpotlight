@@ -1,53 +1,29 @@
 PODS:
-  - EasySpotlight (0.2.1)
-  - Nimble (2.0.0-rc.3)
-  - Quick (0.6.0)
-  - Realm (0.95.2):
-    - Realm/Headers (= 0.95.2)
-  - Realm/Headers (0.95.2)
-  - RealmSwift (0.95.2):
-    - Realm (= 0.95.2)
+  - EasySpotlight (0.2.2)
+  - Nimble (3.0.0)
+  - Quick (0.8.0)
+  - Realm (0.96.3):
+    - Realm/Headers (= 0.96.3)
+  - Realm/Headers (0.96.3)
+  - RealmSwift (0.96.3):
+    - Realm (= 0.96.3)
 
 DEPENDENCIES:
   - EasySpotlight (from `../`)
-  - Nimble (from `https://github.com/Quick/Nimble`)
-  - Quick (from `https://github.com/Quick/Quick`)
-  - Realm (from `https://github.com/realm/realm-cocoa`, branch `swift-2.0`)
-  - RealmSwift (from `https://github.com/realm/realm-cocoa`, branch `swift-2.0`)
+  - Nimble
+  - Quick
+  - Realm
+  - RealmSwift
 
 EXTERNAL SOURCES:
   EasySpotlight:
     :path: "../"
-  Nimble:
-    :git: https://github.com/Quick/Nimble
-  Quick:
-    :git: https://github.com/Quick/Quick
-  Realm:
-    :branch: swift-2.0
-    :git: https://github.com/realm/realm-cocoa
-  RealmSwift:
-    :branch: swift-2.0
-    :git: https://github.com/realm/realm-cocoa
-
-CHECKOUT OPTIONS:
-  Nimble:
-    :commit: 70b901e55bad427d211b93586a83e0e3bca32034
-    :git: https://github.com/Quick/Nimble
-  Quick:
-    :commit: 4c19d1257813c44df9c3c56b296b2b11ca40d4a9
-    :git: https://github.com/Quick/Quick
-  Realm:
-    :commit: 476a826ae327fefa2b6b58ae3bcdd4f978c66213
-    :git: https://github.com/realm/realm-cocoa
-  RealmSwift:
-    :commit: 476a826ae327fefa2b6b58ae3bcdd4f978c66213
-    :git: https://github.com/realm/realm-cocoa
 
 SPEC CHECKSUMS:
-  EasySpotlight: ad846ab4781ad7dd5f7ace667c402625e07227a4
-  Nimble: 2f64d173ad23dc39f10110840a1ed15f29ef75e8
-  Quick: aaa961333f0bec39bfefa4b759128e4eb39f0d0e
-  Realm: 392c2662f18bd6d77c97a2cc1da1273b13c542c1
-  RealmSwift: d59af58ee52301069b69468fab018919b591b0c1
+  EasySpotlight: d6bda82ee71477816f1803b82a5b605fc8679c0d
+  Nimble: 4c353d43735b38b545cbb4cb91504588eb5de926
+  Quick: 563d0f6ec5f72e394645adb377708639b7dd38ab
+  Realm: 145d3cdf78a03aee71bde5381ad7e542bd541720
+  RealmSwift: aab84968aad662f61f36473d1aea019f63481505
 
-COCOAPODS: 0.38.2
+COCOAPODS: 0.39.0

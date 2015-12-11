@@ -20,7 +20,8 @@
 
 /*
 Searching: The main finding function is:
-    template<class cond, Action action, size_t bitwidth, class Callback> void find(int64_t value, size_t start, size_t end, size_t baseindex, QueryState *state, Callback callback) const
+    template<class cond, Action action, size_t bitwidth, class Callback>
+    void find(int64_t value, size_t start, size_t end, size_t baseindex, QueryState *state, Callback callback) const
 
     cond:       One of Equal, NotEqual, Greater, etc. classes
     Action:     One of act_ReturnFirst, act_FindAll, act_Max, act_CallbackIdx, etc, constants
@@ -39,7 +40,7 @@ Searching: The main finding function is:
 #define REALM_ARRAY_HPP
 
 #include <cmath>
-#include <cstdlib> // std::size_t
+#include <cstdlib> // size_t
 #include <algorithm>
 #include <utility>
 #include <vector>
@@ -49,6 +50,7 @@ Searching: The main finding function is:
 
 #include <realm/util/meta.hpp>
 #include <realm/util/assert.hpp>
+#include <realm/util/file_mapper.hpp>
 #include <realm/utilities.hpp>
 #include <realm/alloc.hpp>
 #include <realm/string_data.hpp>
@@ -73,19 +75,21 @@ Searching: The main finding function is:
 namespace realm {
 
 enum Action {act_ReturnFirst, act_Sum, act_Max, act_Min, act_Count, act_FindAll, act_CallIdx, act_CallbackIdx,
-             act_CallbackVal, act_CallbackNone, act_CallbackBoth};
+             act_CallbackVal, act_CallbackNone, act_CallbackBoth, act_Average};
 
-template<class T> inline T no0(T v) { return v == 0 ? 1 : v; }
+template<class T>
+inline T no0(T v) { return v == 0 ? 1 : v; }
 
 /// Special index value. It has various meanings depending on
 /// context. It is returned by some search functions to indicate 'not
 /// found'. It is similar in function to std::string::npos.
-const std::size_t npos = std::size_t(-1);
+const size_t npos = size_t(-1);
 
-
+// Maximum number of bytes that the payload of an array can be
+const size_t max_array_payload = 0x00ffffffL;
 
 /// Alias for realm::npos.
-const std::size_t not_found = npos;
+const size_t not_found = npos;
 
  /* wid == 16/32 likely when accessing offsets in B tree */
 #define REALM_TEMPEX(fun, wid, arg) \
@@ -148,7 +152,8 @@ const std::size_t not_found = npos;
 class Array;
 class StringColumn;
 class GroupWriter;
-template<class T> class QueryState;
+template<class T>
+class QueryState;
 namespace _impl { class ArrayWriterBase; }
 
 
@@ -161,9 +166,9 @@ public:
         array_count(0)
     {
     }
-    std::size_t allocated;
-    std::size_t used;
-    std::size_t array_count;
+    size_t allocated;
+    size_t used;
+    size_t array_count;
 };
 #endif
 
@@ -171,16 +176,16 @@ public:
 class ArrayParent
 {
 public:
-    virtual ~ArrayParent() REALM_NOEXCEPT {}
+    virtual ~ArrayParent() noexcept {}
 
 protected:
-    virtual void update_child_ref(std::size_t child_ndx, ref_type new_ref) = 0;
+    virtual void update_child_ref(size_t child_ndx, ref_type new_ref) = 0;
 
-    virtual ref_type get_child_ref(std::size_t child_ndx) const REALM_NOEXCEPT = 0;
+    virtual ref_type get_child_ref(size_t child_ndx) const noexcept = 0;
 
 #ifdef REALM_DEBUG
     // Used only by Array::to_dot().
-    virtual std::pair<ref_type, std::size_t> get_to_dot_parent(std::size_t ndx_in_parent) const = 0;
+    virtual std::pair<ref_type, size_t> get_to_dot_parent(size_t ndx_in_parent) const = 0;
 #endif
 
     friend class Array;
@@ -239,17 +244,17 @@ class Array: public ArrayParent {
 public:
 
 //    void state_init(int action, QueryState *state);
-//    bool match(int action, std::size_t index, int64_t value, QueryState *state);
+//    bool match(int action, size_t index, int64_t value, QueryState *state);
 
     /// Create an array accessor in the unattached state.
-    explicit Array(Allocator&) REALM_NOEXCEPT;
+    explicit Array(Allocator&) noexcept;
 
     // Fastest way to instantiate an array, if you just want to utilize its
     // methods
     struct no_prealloc_tag {};
-    explicit Array(no_prealloc_tag) REALM_NOEXCEPT;
+    explicit Array(no_prealloc_tag) noexcept;
 
-    ~Array() REALM_NOEXCEPT override {}
+    ~Array() noexcept override {}
 
     enum Type {
         type_Normal,
@@ -279,14 +284,14 @@ public:
     /// Reinitialize this array accessor to point to the specified new
     /// underlying memory. This does not modify the parent reference information
     /// of this accessor.
-    void init_from_ref(ref_type) REALM_NOEXCEPT;
+    void init_from_ref(ref_type) noexcept;
 
     /// Same as init_from_ref(ref_type) but avoid the mapping of 'ref' to memory
     /// pointer.
-    void init_from_mem(MemRef) REALM_NOEXCEPT;
+    void init_from_mem(MemRef) noexcept;
 
     /// Same as `init_from_ref(get_ref_from_parent())`.
-    void init_from_parent() REALM_NOEXCEPT;
+    void init_from_parent() noexcept;
 
     /// Update the parents reference to this child. This requires, of course,
     /// that the parent information stored in this child is up to date. If the
@@ -300,7 +305,7 @@ public:
     ///
     /// Returns true if, and only if the array has changed. If the array has not
     /// changed, then its children are guaranteed to also not have changed.
-    bool update_from_parent(std::size_t old_baseline) REALM_NOEXCEPT;
+    bool update_from_parent(size_t old_baseline) noexcept;
 
     /// Change the type of an already attached array node.
     ///
@@ -313,7 +318,7 @@ public:
     /// underlying memory.
     MemRef clone_deep(Allocator& target_alloc) const;
 
-    void move_assign(Array&) REALM_NOEXCEPT; // Move semantics for assignment
+    void move_assign(Array&) noexcept; // Move semantics for assignment
 
     /// Construct an empty integer array of the specified type, and return just
     /// the reference to the underlying memory.
@@ -328,46 +333,46 @@ public:
     /// Construct a shallow copy of the specified slice of this array using the
     /// specified target allocator. Subarrays will **not** be cloned. See
     /// slice_and_clone_children() for an alternative.
-    MemRef slice(std::size_t offset, std::size_t size, Allocator& target_alloc) const;
+    MemRef slice(size_t offset, size_t size, Allocator& target_alloc) const;
 
     /// Construct a deep copy of the specified slice of this array using the
     /// specified target allocator. Subarrays will be cloned.
-    MemRef slice_and_clone_children(std::size_t offset, std::size_t size,
+    MemRef slice_and_clone_children(size_t offset, size_t size,
                                     Allocator& target_alloc) const;
 
     // Parent tracking
-    bool has_parent() const REALM_NOEXCEPT;
-    ArrayParent* get_parent() const REALM_NOEXCEPT;
+    bool has_parent() const noexcept;
+    ArrayParent* get_parent() const noexcept;
 
     /// Setting a new parent affects ownership of the attached array node, if
     /// any. If a non-null parent is specified, and there was no parent
     /// originally, then the caller passes ownership to the parent, and vice
     /// versa. This assumes, of course, that the change in parentship reflects a
     /// corresponding change in the list of children in the affected parents.
-    void set_parent(ArrayParent* parent, std::size_t ndx_in_parent) REALM_NOEXCEPT;
+    void set_parent(ArrayParent* parent, size_t ndx_in_parent) noexcept;
 
-    std::size_t get_ndx_in_parent() const REALM_NOEXCEPT;
-    void set_ndx_in_parent(std::size_t) REALM_NOEXCEPT;
-    void adjust_ndx_in_parent(int diff) REALM_NOEXCEPT;
+    size_t get_ndx_in_parent() const noexcept;
+    void set_ndx_in_parent(size_t) noexcept;
+    void adjust_ndx_in_parent(int diff) noexcept;
 
     /// Get the ref of this array as known to the parent. The caller must ensure
     /// that the parent information ('pointer to parent' and 'index in parent')
     /// is correct before calling this function.
-    ref_type get_ref_from_parent() const REALM_NOEXCEPT;
+    ref_type get_ref_from_parent() const noexcept;
 
-    bool is_attached() const REALM_NOEXCEPT;
+    bool is_attached() const noexcept;
 
     /// Detach from the underlying array node. This method has no effect if the
     /// accessor is currently unattached (idempotency).
-    void detach() REALM_NOEXCEPT;
+    void detach() noexcept;
 
-    std::size_t size() const REALM_NOEXCEPT;
-    bool is_empty() const REALM_NOEXCEPT;
-    Type get_type() const REALM_NOEXCEPT;
+    size_t size() const noexcept;
+    bool is_empty() const noexcept;
+    Type get_type() const noexcept;
 
     static void add_to_column(IntegerColumn* column, int64_t value);
 
-    void insert(std::size_t ndx, int_fast64_t value);
+    void insert(size_t ndx, int_fast64_t value);
     void add(int_fast64_t value);
 
     /// This function is guaranteed to not throw if the current width is
@@ -375,21 +380,27 @@ public:
     /// ensure_minimum_width(value)) and get_alloc().is_read_only(get_ref())
     /// returns false (noexcept:array-set). Note that for a value of zero, the
     /// first criterion is trivially satisfied.
-    void set(std::size_t ndx, int64_t value);
+    void set(size_t ndx, int64_t value);
 
-    void set_as_ref(std::size_t ndx, ref_type ref);
+    void set_as_ref(size_t ndx, ref_type ref);
 
-    template<std::size_t w> void set(std::size_t ndx, int64_t value);
+    template<size_t w>
+    void set(size_t ndx, int64_t value);
 
-    int64_t get(std::size_t ndx) const REALM_NOEXCEPT;
-    template<std::size_t w> int64_t get(std::size_t ndx) const REALM_NOEXCEPT;
-    void get_chunk(size_t ndx, int64_t res[8]) const REALM_NOEXCEPT;
-    template<size_t w> void get_chunk(size_t ndx, int64_t res[8]) const REALM_NOEXCEPT;
+    int64_t get(size_t ndx) const noexcept;
 
-    ref_type get_as_ref(std::size_t ndx) const REALM_NOEXCEPT;
+    template<size_t w>
+    int64_t get(size_t ndx) const noexcept;
 
-    int64_t front() const REALM_NOEXCEPT;
-    int64_t back() const REALM_NOEXCEPT;
+    void get_chunk(size_t ndx, int64_t res[8]) const noexcept;
+
+    template<size_t w>
+    void get_chunk(size_t ndx, int64_t res[8]) const noexcept;
+
+    ref_type get_as_ref(size_t ndx) const noexcept;
+
+    int64_t front() const noexcept;
+    int64_t back() const noexcept;
 
     /// Remove the element at the specified index, and move elements at higher
     /// indexes to the next lower index.
@@ -403,16 +414,16 @@ public:
     /// call. This is automatically guaranteed if the array is used in a
     /// non-transactional context, or if the array has already been successfully
     /// modified within the current write transaction.
-    void erase(std::size_t ndx);
+    void erase(size_t ndx);
 
-    /// Same as erase(std::size_t), but remove all elements in the specified
+    /// Same as erase(size_t), but remove all elements in the specified
     /// range.
     ///
     /// Please note that this function does **not** destroy removed subarrays.
     ///
     /// This function guarantees that no exceptions will be thrown if
     /// get_alloc().is_read_only(get_ref()) would return false before the call.
-    void erase(std::size_t begin, std::size_t end);
+    void erase(size_t begin, size_t end);
 
     /// Reduce the size of this array to the specified number of elements. It is
     /// an error to specify a size that is greater than the current size of this
@@ -424,7 +435,7 @@ public:
     ///
     /// This function guarantees that no exceptions will be thrown if
     /// get_alloc().is_read_only(get_ref()) would return false before the call.
-    void truncate(std::size_t size);
+    void truncate(size_t size);
 
     /// Reduce the size of this array to the specified number of elements. It is
     /// an error to specify a size that is greater than the current size of this
@@ -433,7 +444,7 @@ public:
     ///
     /// This function is guaranteed not to throw if
     /// get_alloc().is_read_only(get_ref()) returns false.
-    void truncate_and_destroy_children(std::size_t size);
+    void truncate_and_destroy_children(size_t size);
 
     /// Remove every element from this array. This is just a shorthand for
     /// calling truncate(0).
@@ -456,23 +467,23 @@ public:
 
     /// If neccessary, expand the representation so that it can store the
     /// specified value.
-    void ensure_minimum_width(int64_t value);
+    void ensure_minimum_width(int_fast64_t value);
 
-    typedef StringData (*StringGetter)(void*, std::size_t, char*); // Pre-declare getter function from string index
-    size_t IndexStringFindFirst(StringData value, ColumnBase* column) const;
-    void   IndexStringFindAll(IntegerColumn& result, StringData value, ColumnBase* column) const;
-    size_t IndexStringCount(StringData value, ColumnBase* column) const;
-    FindRes IndexStringFindAllNoCopy(StringData value, size_t& res_ref, ColumnBase* column) const;
+    typedef StringData (*StringGetter)(void*, size_t, char*); // Pre-declare getter function from string index
+    size_t index_string_find_first(StringData value, ColumnBase* column) const;
+    void   index_string_find_all(IntegerColumn& result, StringData value, ColumnBase* column) const;
+    size_t index_string_count(StringData value, ColumnBase* column) const;
+    FindRes index_string_find_all_no_copy(StringData value, size_t& res_ref, ColumnBase* column) const;
 
     /// This one may change the represenation of the array, so be carefull if
     /// you call it after ensure_minimum_width().
     void set_all_to_zero();
 
     /// Add \a diff to the element at the specified index.
-    void adjust(std::size_t ndx, int_fast64_t diff);
+    void adjust(size_t ndx, int_fast64_t diff);
 
     /// Add \a diff to all the elements in the specified index range.
-    void adjust(std::size_t begin, std::size_t end, int_fast64_t diff);
+    void adjust(size_t begin, size_t end, int_fast64_t diff);
 
     /// Add signed \a diff to all elements that are greater than, or equal to \a
     /// limit.
@@ -485,9 +496,19 @@ public:
     ///
     /// These functions are guaranteed to not throw if
     /// `get_alloc().is_read_only(get_ref())` returns false.
-    void move(std::size_t begin, std::size_t end, std::size_t dest_begin);
-    void move_backward(std::size_t begin, std::size_t end, std::size_t dest_end);
+    void move(size_t begin, size_t end, size_t dest_begin);
+    void move_backward(size_t begin, size_t end, size_t dest_end);
     //@}
+
+    /// move_rotate moves one element from \a from to be located at index \a to,
+    /// shifting all elements inbetween by one.
+    ///
+    /// If \a from is larger than \a to, the elements inbetween are shifted down.
+    /// If \a to is larger than \a from, the elements inbetween are shifted up.
+    ///
+    /// This function is guaranteed to not throw if
+    /// `get_alloc().is_read_only(get_ref())` returns false.
+    void move_rotate(size_t from, size_t to, size_t num_elems = 1);
 
     //@{
     /// Find the lower/upper bound of the specified value in a sequence of
@@ -520,8 +541,8 @@ public:
     ///
     /// FIXME: It may be worth considering if overall efficiency can be improved
     /// by doing a linear search for short sequences.
-    std::size_t lower_bound_int(int64_t value) const REALM_NOEXCEPT;
-    std::size_t upper_bound_int(int64_t value) const REALM_NOEXCEPT;
+    size_t lower_bound_int(int64_t value) const noexcept;
+    size_t upper_bound_int(int64_t value) const noexcept;
     //@}
 
     /// \brief Search the \c Array for a value greater or equal than \a target,
@@ -546,86 +567,125 @@ public:
     /// \param indirection an \c Array containing valid indices of values in
     ///        this \c Array, sorted in ascending order
     /// \return the index of the value if found, or realm::not_found otherwise
-    std::size_t find_gte(const int64_t target, std::size_t start, Array const* indirection) const;
-    void Preset(int64_t min, int64_t max, std::size_t count);
-    void Preset(std::size_t bitwidth, std::size_t count);
+    size_t find_gte(const int64_t target, size_t start, Array const* indirection) const;
+    void preset(int64_t min, int64_t max, size_t count);
+    void preset(size_t bitwidth, size_t count);
 
-    int64_t sum(std::size_t start = 0, std::size_t end = std::size_t(-1)) const;
-    std::size_t count(int64_t value) const REALM_NOEXCEPT;
+    int64_t sum(size_t start = 0, size_t end = size_t(-1)) const;
+    size_t count(int64_t value) const noexcept;
 
-    bool maximum(int64_t& result, std::size_t start = 0, std::size_t end = std::size_t(-1),
-                 std::size_t* return_ndx = nullptr) const;
+    bool maximum(int64_t& result, size_t start = 0, size_t end = size_t(-1),
+                 size_t* return_ndx = nullptr) const;
 
-    bool minimum(int64_t& result, std::size_t start = 0, std::size_t end = std::size_t(-1),
-                 std::size_t* return_ndx = nullptr) const;
+    bool minimum(int64_t& result, size_t start = 0, size_t end = size_t(-1),
+                 size_t* return_ndx = nullptr) const;
 
     /// This information is guaranteed to be cached in the array accessor.
-    bool is_inner_bptree_node() const REALM_NOEXCEPT;
+    bool is_inner_bptree_node() const noexcept;
 
     /// Returns true if type is either type_HasRefs or type_InnerColumnNode.
     ///
     /// This information is guaranteed to be cached in the array accessor.
-    bool has_refs() const REALM_NOEXCEPT;
+    bool has_refs() const noexcept;
 
     /// This information is guaranteed to be cached in the array accessor.
     ///
     /// Columns and indexes can use the context bit to differentiate leaf types.
-    bool get_context_flag() const REALM_NOEXCEPT;
-    void set_context_flag(bool) REALM_NOEXCEPT;
+    bool get_context_flag() const noexcept;
+    void set_context_flag(bool) noexcept;
 
-    ref_type get_ref() const REALM_NOEXCEPT;
-    MemRef get_mem() const REALM_NOEXCEPT;
+    ref_type get_ref() const noexcept;
+    MemRef get_mem() const noexcept;
 
     /// Destroy only the array that this accessor is attached to, not the
     /// children of that array. See non-static destroy_deep() for an
     /// alternative. If this accessor is already in the detached state, this
     /// function has no effect (idempotency).
-    void destroy() REALM_NOEXCEPT;
+    void destroy() noexcept;
 
     /// Recursively destroy children (as if calling
     /// clear_and_destroy_children()), then put this accessor into the detached
     /// state (as if calling detach()), then free the allocated memory. If this
     /// accessor is already in the detached state, this function has no effect
     /// (idempotency).
-    void destroy_deep() REALM_NOEXCEPT;
+    void destroy_deep() noexcept;
 
     /// Shorthand for `destroy(MemRef(ref, alloc), alloc)`.
-    static void destroy(ref_type ref, Allocator& alloc) REALM_NOEXCEPT;
+    static void destroy(ref_type ref, Allocator& alloc) noexcept;
 
     /// Destroy only the specified array node, not its children. See also
     /// destroy_deep(MemRef, Allocator&).
-    static void destroy(MemRef, Allocator&) REALM_NOEXCEPT;
+    static void destroy(MemRef, Allocator&) noexcept;
 
     /// Shorthand for `destroy_deep(MemRef(ref, alloc), alloc)`.
-    static void destroy_deep(ref_type ref, Allocator& alloc) REALM_NOEXCEPT;
+    static void destroy_deep(ref_type ref, Allocator& alloc) noexcept;
 
     /// Destroy the specified array node and all of its children, recursively.
     ///
     /// This is done by freeing the specified array node after calling
     /// destroy_deep() for every contained 'ref' element.
-    static void destroy_deep(MemRef, Allocator&) REALM_NOEXCEPT;
+    static void destroy_deep(MemRef, Allocator&) noexcept;
 
-    Allocator& get_alloc() const REALM_NOEXCEPT { return m_alloc; }
+    Allocator& get_alloc() const noexcept { return m_alloc; }
 
     // Serialization
 
-    /// Returns the position in the target where the first byte of this array
-    /// was written.
+    /// Returns the ref (position in the target stream) of the written copy of
+    /// this array, or the ref of the original array if \a only_if_modified is
+    /// true, and this array is unmodified (Alloc::is_read_only()).
     ///
     /// The number of bytes that will be written by a non-recursive invocation
     /// of this function is exactly the number returned by get_byte_size().
-    size_t write(_impl::ArrayWriterBase& target, bool recurse = true, bool persist = false) const;
+    ///
+    /// \param deep If true, recursively write out subarrays, but still subject
+    /// to \a only_if_modified.
+    ref_type write(_impl::ArrayWriterBase&, bool deep, bool only_if_modified) const;
 
-    /// Compare two arrays for equality.
-    bool compare_int(const Array&) const REALM_NOEXCEPT;
+    /// Same as non-static write() with `deep` set to true. This is for the
+    /// cases where you do not already have an array accessor available.
+    static ref_type write(ref_type, Allocator&, _impl::ArrayWriterBase&, bool only_if_modified);
 
     // Main finding function - used for find_first, find_all, sum, max, min, etc.
     bool find(int cond, Action action, int64_t value, size_t start, size_t end, size_t baseindex,
+              QueryState<int64_t>* state, bool nullable_array = false, bool find_null = false) const;
+
+    // Templated find function to avoid conversion to and from integer represenation of condition
+    template <class cond>
+    bool find(Action action, int64_t value, size_t start, size_t end, size_t baseindex, QueryState<int64_t> *state, bool nullable_array = false, bool find_null = false) const {
+        if (action == act_ReturnFirst) {
+            REALM_TEMPEX3(return find, cond, act_ReturnFirst, m_width, (value, start, end, baseindex, state, CallbackDummy(), nullable_array, find_null))
+        }
+        else if (action == act_Sum) {
+            REALM_TEMPEX3(return find, cond, act_Sum, m_width, (value, start, end, baseindex, state, CallbackDummy(), nullable_array, find_null))
+        }
+        else if (action == act_Min) {
+            REALM_TEMPEX3(return find, cond, act_Min, m_width, (value, start, end, baseindex, state, CallbackDummy(), nullable_array, find_null))
+        }
+        else if (action == act_Max) {
+            REALM_TEMPEX3(return find, cond, act_Max, m_width, (value, start, end, baseindex, state, CallbackDummy(), nullable_array, find_null))
+        }
+        else if (action == act_Count) {
+            REALM_TEMPEX3(return find, cond, act_Count, m_width, (value, start, end, baseindex, state, CallbackDummy(), nullable_array, find_null))
+        }
+        else if (action == act_FindAll) {
+            REALM_TEMPEX3(return find, cond, act_FindAll, m_width, (value, start, end, baseindex, state, CallbackDummy(), nullable_array, find_null))
+        }
+        else if (action == act_CallbackIdx) {
+            REALM_TEMPEX3(return find, cond, act_CallbackIdx, m_width, (value, start, end, baseindex, state, CallbackDummy(), nullable_array, find_null))
+        }
+        REALM_ASSERT_DEBUG(false);
+        return false;
+    }
+
+
+/*
+    bool find(int cond, Action action, null, size_t start, size_t end, size_t baseindex,
               QueryState<int64_t>* state) const;
+*/
 
     template<class cond, Action action, size_t bitwidth, class Callback>
     bool find(int64_t value, size_t start, size_t end, size_t baseindex,
-              QueryState<int64_t>* state, Callback callback) const;
+              QueryState<int64_t>* state, Callback callback, bool nullable_array = false, bool find_null = false) const;
 
     // This is the one installed into the m_vtable->finder slots.
     template<class cond, Action action, size_t bitwidth>
@@ -633,17 +693,23 @@ public:
               QueryState<int64_t>* state) const;
 
     template<class cond, Action action, class Callback>
-    bool find(int64_t value, size_t start, size_t end, size_t baseindex,
+    bool find(int64_t value, size_t start, size_t end, size_t baseindex, QueryState<int64_t>* state,
+                 Callback callback, bool nullable_array = false, bool find_null = false) const;
+
+/*
+    template<class cond, Action action, class Callback>
+    bool find(null, size_t start, size_t end, size_t baseindex,
               QueryState<int64_t>* state, Callback callback) const;
+*/
 
     // Optimized implementation for release mode
-    template<class cond2, Action action, size_t bitwidth, class Callback>
+    template<class cond, Action action, size_t bitwidth, class Callback>
     bool find_optimized(int64_t value, size_t start, size_t end, size_t baseindex,
-                        QueryState<int64_t>* state, Callback callback) const;
+                        QueryState<int64_t>* state, Callback callback, bool nullable_array = false, bool find_null = false) const;
 
     // Called for each search result
     template<Action action, class Callback>
-    bool find_action(size_t index, int64_t value,
+    bool find_action(size_t index, util::Optional<int64_t> value,
                      QueryState<int64_t>* state, Callback callback) const;
 
     template<Action action, class Callback>
@@ -653,77 +719,89 @@ public:
     // Wrappers for backwards compatibility and for simple use without
     // setting up state initialization etc
     template<class cond>
-    std::size_t find_first(int64_t value, std::size_t start = 0,
-                           std::size_t end = std::size_t(-1)) const;
+    size_t find_first(int64_t value, size_t start = 0,
+                           size_t end = size_t(-1)) const;
 
-    void find_all(IntegerColumn* result, int64_t value, std::size_t col_offset = 0,
-                  std::size_t begin = 0, std::size_t end = std::size_t(-1)) const;
+    void find_all(IntegerColumn* result, int64_t value, size_t col_offset = 0,
+                  size_t begin = 0, size_t end = size_t(-1)) const;
 
-    std::size_t find_first(int64_t value, std::size_t begin = 0,
-                           std::size_t end = size_t(-1)) const;
+    size_t find_first(int64_t value, size_t begin = 0,
+                           size_t end = size_t(-1)) const;
 
     // Non-SSE find for the four functions Equal/NotEqual/Less/Greater
-    template<class cond2, Action action, size_t bitwidth, class Callback>
-    bool Compare(int64_t value, size_t start, size_t end, size_t baseindex,
+    template<class cond, Action action, size_t bitwidth, class Callback>
+    bool compare(int64_t value, size_t start, size_t end, size_t baseindex,
                  QueryState<int64_t>* state, Callback callback) const;
 
     // Non-SSE find for Equal/NotEqual
     template<bool eq, Action action, size_t width, class Callback>
-    inline bool CompareEquality(int64_t value, size_t start, size_t end, size_t baseindex,
+    inline bool compare_equality(int64_t value, size_t start, size_t end, size_t baseindex,
                                 QueryState<int64_t>* state, Callback callback) const;
 
     // Non-SSE find for Less/Greater
     template<bool gt, Action action, size_t bitwidth, class Callback>
-    bool CompareRelation(int64_t value, size_t start, size_t end, size_t baseindex,
+    bool compare_relation(int64_t value, size_t start, size_t end, size_t baseindex,
                          QueryState<int64_t>* state, Callback callback) const;
 
     template<class cond, Action action, size_t foreign_width, class Callback, size_t width>
-    bool CompareLeafs4(const Array* foreign, size_t start, size_t end, size_t baseindex,
+    bool compare_leafs_4(const Array* foreign, size_t start, size_t end, size_t baseindex,
                        QueryState<int64_t>* state, Callback callback) const;
 
     template<class cond, Action action, class Callback, size_t bitwidth, size_t foreign_bitwidth>
-    bool CompareLeafs(const Array* foreign, size_t start, size_t end, size_t baseindex,
+    bool compare_leafs(const Array* foreign, size_t start, size_t end, size_t baseindex,
                       QueryState<int64_t>* state, Callback callback) const;
 
     template<class cond, Action action, class Callback>
-    bool CompareLeafs(const Array* foreign, size_t start, size_t end, size_t baseindex,
+    bool compare_leafs(const Array* foreign, size_t start, size_t end, size_t baseindex,
                       QueryState<int64_t>* state, Callback callback) const;
 
     template<class cond, Action action, size_t width, class Callback>
-    bool CompareLeafs(const Array* foreign, size_t start, size_t end, size_t baseindex,
+    bool compare_leafs(const Array* foreign, size_t start, size_t end, size_t baseindex,
                       QueryState<int64_t>* state, Callback callback) const;
 
     // SSE find for the four functions Equal/NotEqual/Less/Greater
 #ifdef REALM_COMPILER_SSE
-    template<class cond2, Action action, size_t width, class Callback>
-    bool FindSSE(int64_t value, __m128i *data, size_t items, QueryState<int64_t>* state,
+    template<class cond, Action action, size_t width, class Callback>
+    bool find_sse(int64_t value, __m128i *data, size_t items, QueryState<int64_t>* state,
                  size_t baseindex, Callback callback) const;
 
-    template<class cond2, Action action, size_t width, class Callback>
-    REALM_FORCEINLINE bool FindSSE_intern(__m128i* action_data, __m128i* data, size_t items,
+    template<class cond, Action action, size_t width, class Callback>
+    REALM_FORCEINLINE bool find_sse_intern(__m128i* action_data, __m128i* data, size_t items,
                                             QueryState<int64_t>* state, size_t baseindex,
                                             Callback callback) const;
 
 #endif
 
-    template<size_t width> inline bool TestZero(uint64_t value) const;         // Tests value for 0-elements
-    template<bool eq, size_t width>size_t FindZero(uint64_t v) const;          // Finds position of 0/non-zero element
-    template<size_t width, bool zero> uint64_t cascade(uint64_t a) const;      // Sets lowermost bits of zero or non-zero elements
-    template<bool gt, size_t width>int64_t FindGTLT_Magic(int64_t v) const;    // Compute magic constant needed for searching for value 'v' using bit hacks
-    template<size_t width> inline int64_t LowerBits() const;                   // Return chunk with lower bit set in each element
-    std::size_t FirstSetBit(unsigned int v) const;
-    std::size_t FirstSetBit64(int64_t v) const;
-    template<std::size_t w> int64_t get_universal(const char* const data, const std::size_t ndx) const;
+    template<size_t width>
+    inline bool test_zero(uint64_t value) const; // Tests value for 0-elements
+
+    template<bool eq, size_t width>
+    size_t find_zero(uint64_t v) const;          // Finds position of 0/non-zero element
+
+    template<size_t width, bool zero>
+    uint64_t cascade(uint64_t a) const;          // Sets lowermost bits of zero or non-zero elements
+
+    template<bool gt, size_t width>
+    int64_t find_gtlt_magic(int64_t v) const;    // Compute magic constant needed for searching for value 'v' using bit hacks
+
+    template<size_t width>
+    inline int64_t lower_bits() const;           // Return chunk with lower bit set in each element
+
+    size_t first_set_bit(unsigned int v) const;
+    size_t first_set_bit64(int64_t v) const;
+
+    template<size_t w>
+    int64_t get_universal(const char* const data, const size_t ndx) const;
 
     // Find value greater/less in 64-bit chunk - only works for positive values
-    template<bool gt, Action action, std::size_t width, class Callback>
-    bool FindGTLT_Fast(uint64_t chunk, uint64_t magic, QueryState<int64_t>* state, std::size_t baseindex,
-                       Callback callback) const;
+    template<bool gt, Action action, size_t width, class Callback>
+    bool find_gtlt_fast(uint64_t chunk, uint64_t magic, QueryState<int64_t>* state, size_t baseindex,
+                        Callback callback) const;
 
     // Find value greater/less in 64-bit chunk - no constraints
-    template<bool gt, Action action, std::size_t width, class Callback>
-    bool FindGTLT(int64_t v, uint64_t chunk, QueryState<int64_t>* state, std::size_t baseindex,
-                  Callback callback) const;
+    template<bool gt, Action action, size_t width, class Callback>
+    bool find_gtlt(int64_t v, uint64_t chunk, QueryState<int64_t>* state, size_t baseindex,
+                   Callback callback) const;
 
 
     /// Get the number of elements in the B+-tree rooted at this array
@@ -735,10 +813,10 @@ public:
     /// the total number of elements in the subtree. The motivation
     /// for removing it, is that it will significantly improve the
     /// efficiency when inserting after, and erasing the last element.
-    std::size_t get_bptree_size() const REALM_NOEXCEPT;
+    size_t get_bptree_size() const noexcept;
 
     /// The root must not be a leaf.
-    static std::size_t get_bptree_size_from_header(const char* root_header) REALM_NOEXCEPT;
+    static size_t get_bptree_size_from_header(const char* root_header) noexcept;
 
 
     /// Find the leaf node corresponding to the specified element
@@ -761,7 +839,7 @@ public:
     /// points to the the header of the located leaf, and
     /// `ndx_in_leaf` is the local index within that leaf
     /// corresponding to the specified element index.
-    std::pair<MemRef, std::size_t> get_bptree_leaf(std::size_t elem_ndx) const REALM_NOEXCEPT;
+    std::pair<MemRef, size_t> get_bptree_leaf(size_t elem_ndx) const noexcept;
 
 
     class NodeInfo;
@@ -781,7 +859,7 @@ public:
     ///
     /// \return True if, and only if the handler has returned true for
     /// all visited leafs.
-    bool visit_bptree_leaves(std::size_t elem_ndx_offset, std::size_t elems_in_tree,
+    bool visit_bptree_leaves(size_t elem_ndx_offset, size_t elems_in_tree,
                              VisitHandler&);
 
 
@@ -794,7 +872,7 @@ public:
     /// Call the handler for the leaf that contains the element at the
     /// specified index. This function must be called on an inner
     /// B+-tree node, never a leaf.
-    void update_bptree_elem(std::size_t elem_ndx, UpdateHandler&);
+    void update_bptree_elem(size_t elem_ndx, UpdateHandler&);
 
 
     class EraseHandler;
@@ -828,15 +906,16 @@ public:
     /// inner B+-tree nodes always have a bit-width of 64, or allow
     /// the root node to be discarded and the column ref to be set to
     /// zero in Table::m_columns.
-    static void erase_bptree_elem(Array* root, std::size_t elem_ndx, EraseHandler&);
+    static void erase_bptree_elem(Array* root, size_t elem_ndx, EraseHandler&);
 
 
     struct TreeInsertBase {
-        std::size_t m_split_offset;
-        std::size_t m_split_size;
+        size_t m_split_offset;
+        size_t m_split_size;
     };
 
-    template<class TreeTraits> struct TreeInsert: TreeInsertBase {
+    template<class TreeTraits>
+    struct TreeInsert: TreeInsertBase {
         typename TreeTraits::value_type m_value;
         bool m_nullable;
     };
@@ -851,30 +930,30 @@ public:
     /// never a leaf. If this inner node had to be split, this
     /// function returns the `ref` of the new sibling.
     template<class TreeTraits>
-    ref_type bptree_insert(std::size_t elem_ndx, TreeInsert<TreeTraits>& state);
+    ref_type bptree_insert(size_t elem_ndx, TreeInsert<TreeTraits>& state);
 
-    ref_type bptree_leaf_insert(std::size_t ndx, int64_t, TreeInsertBase& state);
+    ref_type bptree_leaf_insert(size_t ndx, int64_t, TreeInsertBase& state);
 
     /// Get the specified element without the cost of constructing an
     /// array instance. If an array instance is already available, or
     /// you need to get multiple values, then this method will be
     /// slower.
-    static int_fast64_t get(const char* header, std::size_t ndx) REALM_NOEXCEPT;
+    static int_fast64_t get(const char* header, size_t ndx) noexcept;
 
-    /// Like get(const char*, std::size_t) but gets two consecutive
+    /// Like get(const char*, size_t) but gets two consecutive
     /// elements.
     static std::pair<int64_t, int64_t> get_two(const char* header,
-                                                           std::size_t ndx) REALM_NOEXCEPT;
+                                                           size_t ndx) noexcept;
 
-    static void get_three(const char* data, size_t ndx, ref_type& v0, ref_type& v1, ref_type& v2) REALM_NOEXCEPT;
+    static void get_three(const char* data, size_t ndx, ref_type& v0, ref_type& v1, ref_type& v2) noexcept;
 
     /// The meaning of 'width' depends on the context in which this
     /// array is used.
-    std::size_t get_width() const REALM_NOEXCEPT { return m_width; }
+    size_t get_width() const noexcept { return m_width; }
 
-    static char* get_data_from_header(char*) REALM_NOEXCEPT;
-    static char* get_header_from_data(char*) REALM_NOEXCEPT;
-    static const char* get_data_from_header(const char*) REALM_NOEXCEPT;
+    static char* get_data_from_header(char*) noexcept;
+    static char* get_header_from_data(char*) noexcept;
+    static const char* get_data_from_header(const char*) noexcept;
 
     enum WidthType {
         wtype_Bits     = 0,
@@ -882,14 +961,14 @@ public:
         wtype_Ignore   = 2
     };
 
-    static bool get_is_inner_bptree_node_from_header(const char*) REALM_NOEXCEPT;
-    static bool get_hasrefs_from_header(const char*) REALM_NOEXCEPT;
-    static bool get_context_flag_from_header(const char*) REALM_NOEXCEPT;
-    static WidthType get_wtype_from_header(const char*) REALM_NOEXCEPT;
-    static int get_width_from_header(const char*) REALM_NOEXCEPT;
-    static std::size_t get_size_from_header(const char*) REALM_NOEXCEPT;
+    static bool get_is_inner_bptree_node_from_header(const char*) noexcept;
+    static bool get_hasrefs_from_header(const char*) noexcept;
+    static bool get_context_flag_from_header(const char*) noexcept;
+    static WidthType get_wtype_from_header(const char*) noexcept;
+    static size_t get_width_from_header(const char*) noexcept;
+    static size_t get_size_from_header(const char*) noexcept;
 
-    static Type get_type_from_header(const char*) REALM_NOEXCEPT;
+    static Type get_type_from_header(const char*) noexcept;
 
     /// Get the number of bytes currently in use by this array. This
     /// includes the array header, but it does not include allocated
@@ -898,25 +977,25 @@ public:
     ///
     /// This number is exactly the number of bytes that will be
     /// written by a non-recursive invocation of write().
-    std::size_t get_byte_size() const REALM_NOEXCEPT;
+    size_t get_byte_size() const noexcept;
 
     /// Get the maximum number of bytes that can be written by a
     /// non-recursive invocation of write() on an array with the
     /// specified number of elements, that is, the maximum value that
     /// can be returned by get_byte_size().
-    static std::size_t get_max_byte_size(std::size_t num_elems) REALM_NOEXCEPT;
+    static size_t get_max_byte_size(size_t num_elems) noexcept;
 
     /// FIXME: Belongs in IntegerArray
-    static std::size_t calc_aligned_byte_size(std::size_t size, int width);
+    static size_t calc_aligned_byte_size(size_t size, int width);
 
 #ifdef REALM_DEBUG
     void print() const;
-    void Verify() const;
-    typedef std::size_t (*LeafVerifier)(MemRef, Allocator&);
+    void verify() const;
+    typedef size_t (*LeafVerifier)(MemRef, Allocator&);
     void verify_bptree(LeafVerifier) const;
     class MemUsageHandler {
     public:
-        virtual void handle(ref_type ref, std::size_t allocated, std::size_t used) = 0;
+        virtual void handle(ref_type ref, size_t allocated, size_t used) = 0;
     };
     void report_memory_usage(MemUsageHandler&) const;
     void stats(MemStats& stats) const;
@@ -925,7 +1004,7 @@ public:
     void to_dot(std::ostream&, StringData title = StringData()) const;
     class ToDotHandler {
     public:
-        virtual void to_dot(MemRef leaf_mem, ArrayParent*, std::size_t ndx_in_parent,
+        virtual void to_dot(MemRef leaf_mem, ArrayParent*, size_t ndx_in_parent,
                             std::ostream&) = 0;
         ~ToDotHandler() {}
     };
@@ -935,144 +1014,154 @@ public:
 
     static const int header_size = 8; // Number of bytes used by header
 
+    // The encryption layer relies on headers always fitting within a single page.
+    static_assert(header_size == 8, "Header must always fit in entirely on a page");
 private:
-    typedef bool (*CallbackDummy)(int64_t);
-
     Array& operator=(const Array&); // not allowed
 protected:
+    typedef bool(*CallbackDummy)(int64_t);
+
     /// Insert a new child after original. If the parent has to be
     /// split, this function returns the `ref` of the new parent node.
-    ref_type insert_bptree_child(Array& offsets, std::size_t orig_child_ndx,
+    ref_type insert_bptree_child(Array& offsets, size_t orig_child_ndx,
                                  ref_type new_sibling_ref, TreeInsertBase& state);
 
     void ensure_bptree_offsets(Array& offsets);
     void create_bptree_offsets(Array& offsets, int_fast64_t first_value);
 
-    bool do_erase_bptree_elem(std::size_t elem_ndx, EraseHandler&);
+    bool do_erase_bptree_elem(size_t elem_ndx, EraseHandler&);
 
-    template <IndexMethod method, class T>
-    std::size_t index_string(StringData value, IntegerColumn& result, ref_type& result_ref,
+    template<IndexMethod method, class T>
+    size_t index_string(StringData value, IntegerColumn& result, ref_type& result_ref,
                              ColumnBase* column) const;
 protected:
-//    void AddPositiveLocal(int64_t value);
+//    void add_positive_local(int64_t value);
 
     // Includes array header. Not necessarily 8-byte aligned.
-    virtual std::size_t CalcByteLen(std::size_t size, std::size_t width) const;
+    virtual size_t calc_byte_len(size_t size, size_t width) const;
 
-    virtual std::size_t CalcItemCount(std::size_t bytes, std::size_t width) const REALM_NOEXCEPT;
+    virtual size_t calc_item_count(size_t bytes, size_t width) const noexcept;
     virtual WidthType GetWidthType() const { return wtype_Bits; }
 
-    bool get_is_inner_bptree_node_from_header() const REALM_NOEXCEPT;
-    bool get_hasrefs_from_header() const REALM_NOEXCEPT;
-    bool get_context_flag_from_header() const REALM_NOEXCEPT;
-    WidthType get_wtype_from_header() const REALM_NOEXCEPT;
-    int get_width_from_header() const REALM_NOEXCEPT;
-    std::size_t get_size_from_header() const REALM_NOEXCEPT;
+    bool get_is_inner_bptree_node_from_header() const noexcept;
+    bool get_hasrefs_from_header() const noexcept;
+    bool get_context_flag_from_header() const noexcept;
+    WidthType get_wtype_from_header() const noexcept;
+    size_t get_width_from_header() const noexcept;
+    size_t get_size_from_header() const noexcept;
 
     // Undefined behavior if m_alloc.is_read_only(m_ref) returns true
-    std::size_t get_capacity_from_header() const REALM_NOEXCEPT;
+    size_t get_capacity_from_header() const noexcept;
 
-    void set_header_is_inner_bptree_node(bool value) REALM_NOEXCEPT;
-    void set_header_hasrefs(bool value) REALM_NOEXCEPT;
-    void set_header_context_flag(bool value) REALM_NOEXCEPT;
-    void set_header_wtype(WidthType value) REALM_NOEXCEPT;
-    void set_header_width(int value) REALM_NOEXCEPT;
-    void set_header_size(std::size_t value) REALM_NOEXCEPT;
-    void set_header_capacity(std::size_t value) REALM_NOEXCEPT;
+    void set_header_is_inner_bptree_node(bool value) noexcept;
+    void set_header_hasrefs(bool value) noexcept;
+    void set_header_context_flag(bool value) noexcept;
+    void set_header_wtype(WidthType value) noexcept;
+    void set_header_width(int value) noexcept;
+    void set_header_size(size_t value) noexcept;
+    void set_header_capacity(size_t value) noexcept;
 
-    static void set_header_is_inner_bptree_node(bool value, char* header) REALM_NOEXCEPT;
-    static void set_header_hasrefs(bool value, char* header) REALM_NOEXCEPT;
-    static void set_header_context_flag(bool value, char* header) REALM_NOEXCEPT;
-    static void set_header_wtype(WidthType value, char* header) REALM_NOEXCEPT;
-    static void set_header_width(int value, char* header) REALM_NOEXCEPT;
-    static void set_header_size(std::size_t value, char* header) REALM_NOEXCEPT;
-    static void set_header_capacity(std::size_t value, char* header) REALM_NOEXCEPT;
+    static void set_header_is_inner_bptree_node(bool value, char* header) noexcept;
+    static void set_header_hasrefs(bool value, char* header) noexcept;
+    static void set_header_context_flag(bool value, char* header) noexcept;
+    static void set_header_wtype(WidthType value, char* header) noexcept;
+    static void set_header_width(int value, char* header) noexcept;
+    static void set_header_size(size_t value, char* header) noexcept;
+    static void set_header_capacity(size_t value, char* header) noexcept;
 
     static void init_header(char* header, bool is_inner_bptree_node, bool has_refs,
                             bool context_flag, WidthType width_type, int width,
-                            std::size_t size, std::size_t capacity) REALM_NOEXCEPT;
+                            size_t size, size_t capacity) noexcept;
 
 
     // This returns the minimum value ("lower bound") of the representable values
     // for the given bit width. Valid widths are 0, 1, 2, 4, 8, 16, 32, and 64.
-    template <std::size_t width>
-    static int_fast64_t lbound_for_width() REALM_NOEXCEPT;
-    static int_fast64_t lbound_for_width(std::size_t width) REALM_NOEXCEPT;
+    template<size_t width>
+    static int_fast64_t lbound_for_width() noexcept;
+
+    static int_fast64_t lbound_for_width(size_t width) noexcept;
 
     // This returns the maximum value ("inclusive upper bound") of the representable values
     // for the given bit width. Valid widths are 0, 1, 2, 4, 8, 16, 32, and 64.
-    template <std::size_t width>
-    static int_fast64_t ubound_for_width() REALM_NOEXCEPT;
-    static int_fast64_t ubound_for_width(std::size_t width) REALM_NOEXCEPT;
+    template<size_t width>
+    static int_fast64_t ubound_for_width() noexcept;
 
-    template<std::size_t width> void set_width() REALM_NOEXCEPT;
-    void set_width(std::size_t) REALM_NOEXCEPT;
-    void alloc(std::size_t count, std::size_t width);
+    static int_fast64_t ubound_for_width(size_t width) noexcept;
+
+    template<size_t width>
+    void set_width() noexcept;
+    void set_width(size_t) noexcept;
+    void alloc(size_t count, size_t width);
     void copy_on_write();
 
 private:
 
-    template<size_t w> int64_t sum(size_t start, size_t end) const;
-    template<bool max, std::size_t w> bool minmax(int64_t& result, std::size_t start,
-                                                  std::size_t end, std::size_t* return_ndx) const;
-    template<size_t w> std::size_t find_gte(const int64_t target, std::size_t start, Array const* indirection) const;
+    template<size_t w>
+    int64_t sum(size_t start, size_t end) const;
+
+    template<bool max, size_t w>
+    bool minmax(int64_t& result, size_t start, size_t end, size_t* return_ndx) const;
+
+    template<size_t w>
+    size_t find_gte(const int64_t target, size_t start, Array const* indirection) const;
 
 protected:
     /// The total size in bytes (including the header) of a new empty
     /// array. Must be a multiple of 8 (i.e., 64-bit aligned).
-    static const std::size_t initial_capacity = 128;
+    static const size_t initial_capacity = 128;
 
     /// It is an error to specify a non-zero value unless the width
     /// type is wtype_Bits. It is also an error to specify a non-zero
     /// size if the width type is wtype_Ignore.
-    static MemRef create(Type, bool context_flag, WidthType, std::size_t size,
+    static MemRef create(Type, bool context_flag, WidthType, size_t size,
                          int_fast64_t value, Allocator&);
 
     static MemRef clone(MemRef header, Allocator& alloc, Allocator& target_alloc);
 
     /// Get the address of the header of this array.
-    char* get_header() REALM_NOEXCEPT;
+    char* get_header() noexcept;
 
     /// Same as get_byte_size().
-    static std::size_t get_byte_size_from_header(const char*) REALM_NOEXCEPT;
+    static size_t get_byte_size_from_header(const char*) noexcept;
 
     // Undefined behavior if array is in immutable memory
-    static std::size_t get_capacity_from_header(const char*) REALM_NOEXCEPT;
+    static size_t get_capacity_from_header(const char*) noexcept;
 
     // Overriding method in ArrayParent
-    void update_child_ref(std::size_t, ref_type) override;
+    void update_child_ref(size_t, ref_type) override;
 
     // Overriding method in ArrayParent
-    ref_type get_child_ref(std::size_t) const REALM_NOEXCEPT override;
+    ref_type get_child_ref(size_t) const noexcept override;
 
-    void destroy_children(std::size_t offset = 0) REALM_NOEXCEPT;
+    void destroy_children(size_t offset = 0) noexcept;
 
 #ifdef REALM_DEBUG
-    std::pair<ref_type, std::size_t>
-    get_to_dot_parent(std::size_t ndx_in_parent) const override;
+    std::pair<ref_type, size_t>
+    get_to_dot_parent(size_t ndx_in_parent) const override;
 #endif
 
 protected:
     // Getters and Setters for adaptive-packed arrays
-    typedef int64_t (Array::*Getter)(std::size_t) const; // Note: getters must not throw
-    typedef void (Array::*Setter)(std::size_t, int64_t);
-    typedef bool (Array::*Finder)(int64_t, std::size_t, std::size_t, std::size_t, QueryState<int64_t>*) const;
+    typedef int64_t (Array::*Getter)(size_t) const; // Note: getters must not throw
+    typedef void (Array::*Setter)(size_t, int64_t);
+    typedef bool (Array::*Finder)(int64_t, size_t, size_t, size_t, QueryState<int64_t>*) const;
     typedef void (Array::*ChunkGetter)(size_t, int64_t res[8]) const; // Note: getters must not throw
 
     struct VTable {
         Getter getter;
         ChunkGetter chunk_getter;
         Setter setter;
-        Finder finder[cond_Count]; // one for each COND_XXX enum
+        Finder finder[cond_VTABLE_FINDER_COUNT]; // one for each active function pointer
     };
-    template <size_t w> struct VTableForWidth;
+    template<size_t w>
+    struct VTableForWidth;
 
 protected:
 
     /// Takes a 64-bit value and returns the minimum number of bits needed
     /// to fit the value. For alignment this is rounded up to nearest
     /// log2. Posssible results {0, 1, 2, 4, 8, 16, 32, 64}
-    static std::size_t bit_width(int64_t value);
+    static size_t bit_width(int64_t value);
 
 #ifdef REALM_DEBUG
     void report_memory_usage_2(MemUsageHandler&) const;
@@ -1083,27 +1172,30 @@ private:
     const VTable* m_vtable = nullptr;
 
 public:
-    // FIXME: Should not be mutable
     // FIXME: Should not be public
-    mutable char* m_data = nullptr; // Points to first byte after header
+    char* m_data = nullptr; // Points to first byte after header
 
 protected:
     int64_t m_lbound;       // min number that can be stored with current m_width
     int64_t m_ubound;       // max number that can be stored with current m_width
 
-    std::size_t m_size = 0;     // Number of elements currently stored.
-    std::size_t m_capacity = 0; // Number of elements that fit inside the allocated memory.
+    size_t m_size = 0;     // Number of elements currently stored.
+    size_t m_capacity = 0; // Number of elements that fit inside the allocated memory.
 
     Allocator& m_alloc;
 private:
-    std::size_t m_ref;
+    size_t m_ref;
     ArrayParent* m_parent = nullptr;
-    std::size_t m_ndx_in_parent = 0; // Ignored if m_parent is null.
+    size_t m_ndx_in_parent = 0; // Ignored if m_parent is null.
 protected:
-    unsigned char m_width = 0;  // Size of an element (meaning depend on type of array).
+    uint_least8_t m_width = 0;  // Size of an element (meaning depend on type of array).
     bool m_is_inner_bptree_node; // This array is an inner node of B+-tree.
     bool m_has_refs;        // Elements whose first bit is zero are refs to subarrays.
     bool m_context_flag;    // Meaning depends on context.
+
+private:
+    ref_type do_write_shallow(_impl::ArrayWriterBase&) const;
+    ref_type do_write_deep(_impl::ArrayWriterBase&, bool only_if_modified) const;
 
     friend class SlabAlloc;
     friend class GroupWriter;
@@ -1115,22 +1207,22 @@ class Array::NodeInfo {
 public:
     MemRef m_mem;
     Array* m_parent;
-    std::size_t m_ndx_in_parent;
-    std::size_t m_offset, m_size;
+    size_t m_ndx_in_parent;
+    size_t m_offset, m_size;
 };
 
 class Array::VisitHandler {
 public:
     virtual bool visit(const NodeInfo& leaf_info) = 0;
-    virtual ~VisitHandler() REALM_NOEXCEPT {}
+    virtual ~VisitHandler() noexcept {}
 };
 
 
 class Array::UpdateHandler {
 public:
-    virtual void update(MemRef, ArrayParent*, std::size_t leaf_ndx_in_parent,
-                        std::size_t elem_ndx_in_leaf) = 0;
-    virtual ~UpdateHandler() REALM_NOEXCEPT {}
+    virtual void update(MemRef, ArrayParent*, size_t leaf_ndx_in_parent,
+                        size_t elem_ndx_in_leaf) = 0;
+    virtual ~UpdateHandler() noexcept {}
 };
 
 
@@ -1147,10 +1239,10 @@ public:
     /// and *exactly* once during each *successful* execution of
     /// Array::erase_bptree_elem().
     virtual bool erase_leaf_elem(MemRef, ArrayParent*,
-                                 std::size_t leaf_ndx_in_parent,
-                                 std::size_t elem_ndx_in_leaf) = 0;
+                                 size_t leaf_ndx_in_parent,
+                                 size_t elem_ndx_in_leaf) = 0;
 
-    virtual void destroy_leaf(MemRef leaf_mem) REALM_NOEXCEPT = 0;
+    virtual void destroy_leaf(MemRef leaf_mem) noexcept = 0;
 
     /// Must replace the current root with the specified leaf. The
     /// implementation of this function must not destroy the
@@ -1165,7 +1257,7 @@ public:
     /// it will be preceeded by a call to erase_leaf_elem().
     virtual void replace_root_by_empty_leaf() = 0;
 
-    virtual ~EraseHandler() REALM_NOEXCEPT {}
+    virtual ~EraseHandler() noexcept {}
 };
 
 
@@ -1176,14 +1268,16 @@ public:
 
 class QueryStateBase { virtual void dyncast(){} };
 
-template<> class QueryState<int64_t>: public QueryStateBase {
+template<>
+class QueryState<int64_t>: public QueryStateBase {
 public:
     int64_t m_state;
     size_t m_match_count;
     size_t m_limit;
     size_t m_minmax_index; // used only for min/max, to save index of current min/max value
 
-    template<Action action> bool uses_val()
+    template<Action action>
+    bool uses_val()
     {
         if (action == act_Max || action == act_Min || action == act_Sum)
             return true;
@@ -1216,7 +1310,7 @@ public:
         }
     }
 
-    template <Action action, bool pattern>
+    template<Action action, bool pattern>
     inline bool match(size_t index, uint64_t indexpattern, int64_t value)
     {
         if (pattern) {
@@ -1266,25 +1360,52 @@ public:
         }
         return (m_limit > m_match_count);
     }
+
+    template<Action action, bool pattern>
+    inline bool match(size_t index, uint64_t indexpattern, util::Optional<int64_t> value)
+    {
+        // FIXME: This is a temporary hack for nullable integers.
+        if (value) {
+            return match<action, pattern>(index, indexpattern, *value);
+        }
+
+        // If value is null, the only sensible actions are count, find_all, and return first.
+        // Max, min, and sum should all have no effect.
+        if (action == act_Count) {
+            m_state++;
+            m_match_count = size_t(m_state);
+        }
+        else if (action == act_FindAll) {
+            Array::add_to_column(reinterpret_cast<IntegerColumn*>(m_state), index);
+        }
+        else if (action == act_ReturnFirst) {
+            m_match_count++;
+            m_state = index;
+            return false;
+        }
+        return m_limit > m_match_count;
+    }
 };
 
 // Used only for Basic-types: currently float and double
-template<class R> class QueryState : public QueryStateBase {
+template<class R>
+class QueryState : public QueryStateBase {
 public:
     R m_state;
     size_t m_match_count;
     size_t m_limit;
     size_t m_minmax_index; // used only for min/max, to save index of current min/max value
 
-    template<Action action> bool uses_val()
+    template<Action action>
+    bool uses_val()
     {
-        return (action == act_Max || action == act_Min || action == act_Sum);
+        return (action == act_Max || action == act_Min || action == act_Sum || action == act_Count);
     }
 
     void init(Action action, Array*, size_t limit)
     {
-        REALM_STATIC_ASSERT((std::is_same<R, float>::value ||
-                               std::is_same<R, double>::value), "");
+        REALM_ASSERT((std::is_same<R, float>::value ||
+                               std::is_same<R, double>::value));
         m_match_count = 0;
         m_limit = limit;
         m_minmax_index = not_found;
@@ -1306,33 +1427,40 @@ public:
         if (pattern)
             return false;
 
-        REALM_STATIC_ASSERT(action == act_Sum || action == act_Max || action == act_Min, "");
-        ++m_match_count;
+        static_assert(action == act_Sum || action == act_Max || action == act_Min || action == act_Count,
+                      "Search action not supported");
 
-        if (action == act_Max) {
-            if (value > m_state) {
-                m_state = value;
-                m_minmax_index = index;
+        if (action == act_Count) {
+            ++m_match_count;
+        }
+        else if (!null::is_null_float(value)) {
+            ++m_match_count;
+            if (action == act_Max) {
+                if (value > m_state) {
+                    m_state = value;
+                    m_minmax_index = index;
+                }
+            }
+            else if (action == act_Min) {
+                if (value < m_state) {
+                    m_state = value;
+                    m_minmax_index = index;
+                }
+            }
+            else if (action == act_Sum)
+                m_state += value;
+            else {
+                REALM_ASSERT_DEBUG(false);
             }
         }
-        else if (action == act_Min) {
-            if (value < m_state) {
-                m_state = value;
-                m_minmax_index = index;
-            }
-        }
-        else if (action == act_Sum)
-            m_state += value;
-        else {
-            REALM_ASSERT_DEBUG(false);
-        }
+
         return (m_limit > m_match_count);
     }
 };
 
 
 
-inline Array::Array(Allocator& alloc) REALM_NOEXCEPT:
+inline Array::Array(Allocator& alloc) noexcept:
     m_alloc(alloc)
 {
 }
@@ -1340,7 +1468,7 @@ inline Array::Array(Allocator& alloc) REALM_NOEXCEPT:
 // Fastest way to instantiate an Array. For use with GetDirect() that only fills out m_width, m_data
 // and a few other basic things needed for read-only access. Or for use if you just want a way to call
 // some methods written in Array.*
-inline Array::Array(no_prealloc_tag) REALM_NOEXCEPT:
+inline Array::Array(no_prealloc_tag) noexcept:
     m_alloc(*static_cast<Allocator*>(0))
 {
 }
@@ -1353,7 +1481,7 @@ inline void Array::create(Type type, bool context_flag, size_t size, int_fast64_
 }
 
 
-inline void Array::init_from_ref(ref_type ref) REALM_NOEXCEPT
+inline void Array::init_from_ref(ref_type ref) noexcept
 {
     REALM_ASSERT_DEBUG(ref);
     char* header = m_alloc.translate(ref);
@@ -1361,14 +1489,14 @@ inline void Array::init_from_ref(ref_type ref) REALM_NOEXCEPT
 }
 
 
-inline void Array::init_from_parent() REALM_NOEXCEPT
+inline void Array::init_from_parent() noexcept
 {
     ref_type ref = get_ref_from_parent();
     init_from_ref(ref);
 }
 
 
-inline Array::Type Array::get_type() const REALM_NOEXCEPT
+inline Array::Type Array::get_type() const noexcept
 {
     if (m_is_inner_bptree_node) {
         REALM_ASSERT_DEBUG(m_has_refs);
@@ -1380,14 +1508,14 @@ inline Array::Type Array::get_type() const REALM_NOEXCEPT
 }
 
 
-inline void Array::get_chunk(std::size_t ndx, int64_t res[8]) const REALM_NOEXCEPT
+inline void Array::get_chunk(size_t ndx, int64_t res[8]) const noexcept
 {
     REALM_ASSERT_DEBUG(ndx < m_size);
     (this->*(m_vtable->chunk_getter))(ndx, res);
 }
 
 
-inline int64_t Array::get(std::size_t ndx) const REALM_NOEXCEPT
+inline int64_t Array::get(size_t ndx) const noexcept
 {
     REALM_ASSERT_DEBUG(is_attached());
     REALM_ASSERT_DEBUG(ndx < m_size);
@@ -1410,17 +1538,17 @@ inline int64_t Array::get(std::size_t ndx) const REALM_NOEXCEPT
 */
 }
 
-inline int64_t Array::front() const REALM_NOEXCEPT
+inline int64_t Array::front() const noexcept
 {
     return get(0);
 }
 
-inline int64_t Array::back() const REALM_NOEXCEPT
+inline int64_t Array::back() const noexcept
 {
     return get(m_size - 1);
 }
 
-inline ref_type Array::get_as_ref(std::size_t ndx) const REALM_NOEXCEPT
+inline ref_type Array::get_as_ref(size_t ndx) const noexcept
 {
     REALM_ASSERT_DEBUG(is_attached());
     REALM_ASSERT_DEBUG(m_has_refs);
@@ -1428,38 +1556,38 @@ inline ref_type Array::get_as_ref(std::size_t ndx) const REALM_NOEXCEPT
     return to_ref(v);
 }
 
-inline bool Array::is_inner_bptree_node() const REALM_NOEXCEPT
+inline bool Array::is_inner_bptree_node() const noexcept
 {
     return m_is_inner_bptree_node;
 }
 
-inline bool Array::has_refs() const REALM_NOEXCEPT
+inline bool Array::has_refs() const noexcept
 {
     return m_has_refs;
 }
 
-inline bool Array::get_context_flag() const REALM_NOEXCEPT
+inline bool Array::get_context_flag() const noexcept
 {
     return m_context_flag;
 }
 
-inline void Array::set_context_flag(bool value) REALM_NOEXCEPT
+inline void Array::set_context_flag(bool value) noexcept
 {
     m_context_flag = value;
     set_header_context_flag(value);
 }
 
-inline ref_type Array::get_ref() const REALM_NOEXCEPT
+inline ref_type Array::get_ref() const noexcept
 {
     return m_ref;
 }
 
-inline MemRef Array::get_mem() const REALM_NOEXCEPT
+inline MemRef Array::get_mem() const noexcept
 {
     return MemRef(get_header_from_data(m_data), m_ref);
 }
 
-inline void Array::destroy() REALM_NOEXCEPT
+inline void Array::destroy() noexcept
 {
     if (!is_attached())
         return;
@@ -1468,7 +1596,7 @@ inline void Array::destroy() REALM_NOEXCEPT
     m_data = nullptr;
 }
 
-inline void Array::destroy_deep() REALM_NOEXCEPT
+inline void Array::destroy_deep() noexcept
 {
     if (!is_attached())
         return;
@@ -1481,13 +1609,40 @@ inline void Array::destroy_deep() REALM_NOEXCEPT
     m_data = nullptr;
 }
 
+inline ref_type Array::write(_impl::ArrayWriterBase& out, bool deep, bool only_if_modified) const
+{
+    REALM_ASSERT(is_attached());
+
+    if (only_if_modified && m_alloc.is_read_only(m_ref))
+        return m_ref;
+
+    if (!deep || !m_has_refs)
+        return do_write_shallow(out); // Throws
+
+    return do_write_deep(out, only_if_modified); // Throws
+}
+
+inline ref_type Array::write(ref_type ref, Allocator& alloc, _impl::ArrayWriterBase& out,
+                             bool only_if_modified)
+{
+    if (only_if_modified && alloc.is_read_only(ref))
+        return ref;
+
+    Array array(alloc);
+    array.init_from_ref(ref);
+
+    if (!array.m_has_refs)
+        return array.do_write_shallow(out); // Throws
+
+    return array.do_write_deep(out, only_if_modified); // Throws
+}
 
 inline void Array::add(int_fast64_t value)
 {
     insert(m_size, value);
 }
 
-inline void Array::erase(std::size_t ndx)
+inline void Array::erase(size_t ndx)
 {
     // This can throw, but only if array is currently in read-only
     // memory.
@@ -1499,7 +1654,7 @@ inline void Array::erase(std::size_t ndx)
 }
 
 
-inline void Array::erase(std::size_t begin, std::size_t end)
+inline void Array::erase(size_t begin, size_t end)
 {
     if (begin != end) {
         // This can throw, but only if array is currently in read-only memory.
@@ -1521,22 +1676,22 @@ inline void Array::clear_and_destroy_children()
     truncate_and_destroy_children(0);
 }
 
-inline void Array::destroy(ref_type ref, Allocator& alloc) REALM_NOEXCEPT
+inline void Array::destroy(ref_type ref, Allocator& alloc) noexcept
 {
     destroy(MemRef(ref, alloc), alloc);
 }
 
-inline void Array::destroy(MemRef mem, Allocator& alloc) REALM_NOEXCEPT
+inline void Array::destroy(MemRef mem, Allocator& alloc) noexcept
 {
     alloc.free_(mem);
 }
 
-inline void Array::destroy_deep(ref_type ref, Allocator& alloc) REALM_NOEXCEPT
+inline void Array::destroy_deep(ref_type ref, Allocator& alloc) noexcept
 {
     destroy_deep(MemRef(ref, alloc), alloc);
 }
 
-inline void Array::destroy_deep(MemRef mem, Allocator& alloc) REALM_NOEXCEPT
+inline void Array::destroy_deep(MemRef mem, Allocator& alloc) noexcept
 {
     if (!get_hasrefs_from_header(mem.m_addr)) {
         alloc.free_(mem);
@@ -1548,7 +1703,7 @@ inline void Array::destroy_deep(MemRef mem, Allocator& alloc) REALM_NOEXCEPT
 }
 
 
-inline void Array::adjust(std::size_t ndx, int_fast64_t diff)
+inline void Array::adjust(size_t ndx, int_fast64_t diff)
 {
     // FIXME: Should be optimized
     REALM_ASSERT_3(ndx, <=, m_size);
@@ -1556,17 +1711,17 @@ inline void Array::adjust(std::size_t ndx, int_fast64_t diff)
     set(ndx, int64_t(v + diff)); // Throws
 }
 
-inline void Array::adjust(std::size_t begin, std::size_t end, int_fast64_t diff)
+inline void Array::adjust(size_t begin, size_t end, int_fast64_t diff)
 {
     // FIXME: Should be optimized
-    for (std::size_t i = begin; i != end; ++i)
+    for (size_t i = begin; i != end; ++i)
         adjust(i, diff); // Throws
 }
 
 inline void Array::adjust_ge(int_fast64_t limit, int_fast64_t diff)
 {
     size_t n = size();
-    for (std::size_t i = 0; i != n; ++i) {
+    for (size_t i = 0; i != n; ++i) {
         int_fast64_t v = get(i);
         if (v >= limit)
             set(i, int64_t(v + diff)); // Throws
@@ -1577,116 +1732,116 @@ inline void Array::adjust_ge(int_fast64_t limit, int_fast64_t diff)
 
 //-------------------------------------------------
 
-inline bool Array::get_is_inner_bptree_node_from_header(const char* header) REALM_NOEXCEPT
+inline bool Array::get_is_inner_bptree_node_from_header(const char* header) noexcept
 {
     typedef unsigned char uchar;
     const uchar* h = reinterpret_cast<const uchar*>(header);
     return (int(h[4]) & 0x80) != 0;
 }
-inline bool Array::get_hasrefs_from_header(const char* header) REALM_NOEXCEPT
+inline bool Array::get_hasrefs_from_header(const char* header) noexcept
 {
     typedef unsigned char uchar;
     const uchar* h = reinterpret_cast<const uchar*>(header);
     return (int(h[4]) & 0x40) != 0;
 }
-inline bool Array::get_context_flag_from_header(const char* header) REALM_NOEXCEPT
+inline bool Array::get_context_flag_from_header(const char* header) noexcept
 {
     typedef unsigned char uchar;
     const uchar* h = reinterpret_cast<const uchar*>(header);
     return (int(h[4]) & 0x20) != 0;
 }
-inline Array::WidthType Array::get_wtype_from_header(const char* header) REALM_NOEXCEPT
+inline Array::WidthType Array::get_wtype_from_header(const char* header) noexcept
 {
     typedef unsigned char uchar;
     const uchar* h = reinterpret_cast<const uchar*>(header);
     return WidthType((int(h[4]) & 0x18) >> 3);
 }
-inline int Array::get_width_from_header(const char* header) REALM_NOEXCEPT
+inline size_t Array::get_width_from_header(const char* header) noexcept
 {
     typedef unsigned char uchar;
     const uchar* h = reinterpret_cast<const uchar*>(header);
-    return (1 << (int(h[4]) & 0x07)) >> 1;
+    return size_t((1 << (int(h[4]) & 0x07)) >> 1);
 }
-inline std::size_t Array::get_size_from_header(const char* header) REALM_NOEXCEPT
+inline size_t Array::get_size_from_header(const char* header) noexcept
 {
     typedef unsigned char uchar;
     const uchar* h = reinterpret_cast<const uchar*>(header);
-    return (std::size_t(h[5]) << 16) + (std::size_t(h[6]) << 8) + h[7];
+    return (size_t(h[5]) << 16) + (size_t(h[6]) << 8) + h[7];
 }
-inline std::size_t Array::get_capacity_from_header(const char* header) REALM_NOEXCEPT
+inline size_t Array::get_capacity_from_header(const char* header) noexcept
 {
     typedef unsigned char uchar;
     const uchar* h = reinterpret_cast<const uchar*>(header);
-    return (std::size_t(h[0]) << 16) + (std::size_t(h[1]) << 8) + h[2];
+    return (size_t(h[0]) << 16) + (size_t(h[1]) << 8) + h[2];
 }
 
 
-inline char* Array::get_data_from_header(char* header) REALM_NOEXCEPT
+inline char* Array::get_data_from_header(char* header) noexcept
 {
     return header + header_size;
 }
-inline char* Array::get_header_from_data(char* data) REALM_NOEXCEPT
+inline char* Array::get_header_from_data(char* data) noexcept
 {
     return data - header_size;
 }
-inline const char* Array::get_data_from_header(const char* header) REALM_NOEXCEPT
+inline const char* Array::get_data_from_header(const char* header) noexcept
 {
     return get_data_from_header(const_cast<char*>(header));
 }
 
 
-inline bool Array::get_is_inner_bptree_node_from_header() const REALM_NOEXCEPT
+inline bool Array::get_is_inner_bptree_node_from_header() const noexcept
 {
     return get_is_inner_bptree_node_from_header(get_header_from_data(m_data));
 }
-inline bool Array::get_hasrefs_from_header() const REALM_NOEXCEPT
+inline bool Array::get_hasrefs_from_header() const noexcept
 {
     return get_hasrefs_from_header(get_header_from_data(m_data));
 }
-inline bool Array::get_context_flag_from_header() const REALM_NOEXCEPT
+inline bool Array::get_context_flag_from_header() const noexcept
 {
     return get_context_flag_from_header(get_header_from_data(m_data));
 }
-inline Array::WidthType Array::get_wtype_from_header() const REALM_NOEXCEPT
+inline Array::WidthType Array::get_wtype_from_header() const noexcept
 {
     return get_wtype_from_header(get_header_from_data(m_data));
 }
-inline int Array::get_width_from_header() const REALM_NOEXCEPT
+inline size_t Array::get_width_from_header() const noexcept
 {
     return get_width_from_header(get_header_from_data(m_data));
 }
-inline std::size_t Array::get_size_from_header() const REALM_NOEXCEPT
+inline size_t Array::get_size_from_header() const noexcept
 {
     return get_size_from_header(get_header_from_data(m_data));
 }
-inline std::size_t Array::get_capacity_from_header() const REALM_NOEXCEPT
+inline size_t Array::get_capacity_from_header() const noexcept
 {
     return get_capacity_from_header(get_header_from_data(m_data));
 }
 
 
-inline void Array::set_header_is_inner_bptree_node(bool value, char* header) REALM_NOEXCEPT
+inline void Array::set_header_is_inner_bptree_node(bool value, char* header) noexcept
 {
     typedef unsigned char uchar;
     uchar* h = reinterpret_cast<uchar*>(header);
     h[4] = uchar((int(h[4]) & ~0x80) | int(value) << 7);
 }
 
-inline void Array::set_header_hasrefs(bool value, char* header) REALM_NOEXCEPT
+inline void Array::set_header_hasrefs(bool value, char* header) noexcept
 {
     typedef unsigned char uchar;
     uchar* h = reinterpret_cast<uchar*>(header);
     h[4] = uchar((int(h[4]) & ~0x40) | int(value) << 6);
 }
 
-inline void Array::set_header_context_flag(bool value, char* header) REALM_NOEXCEPT
+inline void Array::set_header_context_flag(bool value, char* header) noexcept
 {
     typedef unsigned char uchar;
     uchar* h = reinterpret_cast<uchar*>(header);
     h[4] = uchar((int(h[4]) & ~0x20) | int(value) << 5);
 }
 
-inline void Array::set_header_wtype(WidthType value, char* header) REALM_NOEXCEPT
+inline void Array::set_header_wtype(WidthType value, char* header) noexcept
 {
     // Indicates how to calculate size in bytes based on width
     // 0: bits      (width/8) * size
@@ -1697,7 +1852,7 @@ inline void Array::set_header_wtype(WidthType value, char* header) REALM_NOEXCEP
     h[4] = uchar((int(h[4]) & ~0x18) | int(value) << 3);
 }
 
-inline void Array::set_header_width(int value, char* header) REALM_NOEXCEPT
+inline void Array::set_header_width(int value, char* header) noexcept
 {
     // Pack width in 3 bits (log2)
     int w = 0;
@@ -1712,9 +1867,9 @@ inline void Array::set_header_width(int value, char* header) REALM_NOEXCEPT
     h[4] = uchar((int(h[4]) & ~0x7) | w);
 }
 
-inline void Array::set_header_size(std::size_t value, char* header) REALM_NOEXCEPT
+inline void Array::set_header_size(size_t value, char* header) noexcept
 {
-    REALM_ASSERT_3(value, <=, 0xFFFFFFL);
+    REALM_ASSERT_3(value, <=, max_array_payload);
     typedef unsigned char uchar;
     uchar* h = reinterpret_cast<uchar*>(header);
     h[5] = uchar((value >> 16) & 0x000000FF);
@@ -1723,9 +1878,9 @@ inline void Array::set_header_size(std::size_t value, char* header) REALM_NOEXCE
 }
 
 // Note: There is a copy of this function is test_alloc.cpp
-inline void Array::set_header_capacity(std::size_t value, char* header) REALM_NOEXCEPT
+inline void Array::set_header_capacity(size_t value, char* header) noexcept
 {
-    REALM_ASSERT_3(value, <=, 0xFFFFFFL);
+    REALM_ASSERT_3(value, <=, max_array_payload);
     typedef unsigned char uchar;
     uchar* h = reinterpret_cast<uchar*>(header);
     h[0] = uchar((value >> 16) & 0x000000FF);
@@ -1735,37 +1890,37 @@ inline void Array::set_header_capacity(std::size_t value, char* header) REALM_NO
 
 
 
-inline void Array::set_header_is_inner_bptree_node(bool value) REALM_NOEXCEPT
+inline void Array::set_header_is_inner_bptree_node(bool value) noexcept
 {
     set_header_is_inner_bptree_node(value, get_header_from_data(m_data));
 }
-inline void Array::set_header_hasrefs(bool value) REALM_NOEXCEPT
+inline void Array::set_header_hasrefs(bool value) noexcept
 {
     set_header_hasrefs(value, get_header_from_data(m_data));
 }
-inline void Array::set_header_context_flag(bool value) REALM_NOEXCEPT
+inline void Array::set_header_context_flag(bool value) noexcept
 {
     set_header_context_flag(value, get_header_from_data(m_data));
 }
-inline void Array::set_header_wtype(WidthType value) REALM_NOEXCEPT
+inline void Array::set_header_wtype(WidthType value) noexcept
 {
     set_header_wtype(value, get_header_from_data(m_data));
 }
-inline void Array::set_header_width(int value) REALM_NOEXCEPT
+inline void Array::set_header_width(int value) noexcept
 {
     set_header_width(value, get_header_from_data(m_data));
 }
-inline void Array::set_header_size(std::size_t value) REALM_NOEXCEPT
+inline void Array::set_header_size(size_t value) noexcept
 {
     set_header_size(value, get_header_from_data(m_data));
 }
-inline void Array::set_header_capacity(std::size_t value) REALM_NOEXCEPT
+inline void Array::set_header_capacity(size_t value) noexcept
 {
     set_header_capacity(value, get_header_from_data(m_data));
 }
 
 
-inline Array::Type Array::get_type_from_header(const char* header) REALM_NOEXCEPT
+inline Array::Type Array::get_type_from_header(const char* header) noexcept
 {
     if (get_is_inner_bptree_node_from_header(header))
         return type_InnerBptreeNode;
@@ -1775,15 +1930,15 @@ inline Array::Type Array::get_type_from_header(const char* header) REALM_NOEXCEP
 }
 
 
-inline char* Array::get_header() REALM_NOEXCEPT
+inline char* Array::get_header() noexcept
 {
     return get_header_from_data(m_data);
 }
 
 
-inline std::size_t Array::get_byte_size() const REALM_NOEXCEPT
+inline size_t Array::get_byte_size() const noexcept
 {
-    std::size_t num_bytes = 0;
+    size_t num_bytes = 0;
     const char* header = get_header_from_data(m_data);
     switch (get_wtype_from_header(header)) {
         case wtype_Bits: {
@@ -1796,7 +1951,7 @@ inline std::size_t Array::get_byte_size() const REALM_NOEXCEPT
             // never overflow, but it potentially involves two slow
             // divisions.
             uint_fast64_t num_bits = uint_fast64_t(m_size) * m_width;
-            num_bytes = std::size_t(num_bits / 8);
+            num_bytes = size_t(num_bits / 8);
             if (num_bits & 0x7)
                 ++num_bytes;
             goto found;
@@ -1813,7 +1968,7 @@ inline std::size_t Array::get_byte_size() const REALM_NOEXCEPT
 
   found:
     // Ensure 8-byte alignment
-    std::size_t rest = (~num_bytes & 0x7) + 1;
+    size_t rest = (~num_bytes & 0x7) + 1;
     if (rest < 8)
         num_bytes += rest;
 
@@ -1826,21 +1981,21 @@ inline std::size_t Array::get_byte_size() const REALM_NOEXCEPT
 }
 
 
-inline std::size_t Array::get_byte_size_from_header(const char* header) REALM_NOEXCEPT
+inline size_t Array::get_byte_size_from_header(const char* header) noexcept
 {
-    std::size_t num_bytes = 0;
-    std::size_t size = get_size_from_header(header);
+    size_t num_bytes = 0;
+    size_t size = get_size_from_header(header);
     switch (get_wtype_from_header(header)) {
         case wtype_Bits: {
-            int width = get_width_from_header(header);
-            std::size_t num_bits = (size * width); // FIXME: Prone to overflow
+            size_t width = get_width_from_header(header);
+            size_t num_bits = (size * width); // FIXME: Prone to overflow
             num_bytes = num_bits / 8;
             if (num_bits & 0x7)
                 ++num_bytes;
             goto found;
         }
         case wtype_Multiply: {
-            int width = get_width_from_header(header);
+            size_t width = get_width_from_header(header);
             num_bytes = size * width;
             goto found;
         }
@@ -1852,7 +2007,7 @@ inline std::size_t Array::get_byte_size_from_header(const char* header) REALM_NO
 
   found:
     // Ensure 8-byte alignment
-    std::size_t rest = (~num_bytes & 0x7) + 1;
+    size_t rest = (~num_bytes & 0x7) + 1;
     if (rest < 8)
         num_bytes += rest;
 
@@ -1864,7 +2019,7 @@ inline std::size_t Array::get_byte_size_from_header(const char* header) REALM_NO
 
 inline void Array::init_header(char* header, bool is_inner_bptree_node, bool has_refs,
                                bool context_flag, WidthType width_type, int width,
-                               std::size_t size, std::size_t capacity) REALM_NOEXCEPT
+                               size_t size, size_t capacity) noexcept
 {
     // Note: Since the header layout contains unallocated bit and/or
     // bytes, it is important that we put the entire header into a
@@ -1888,7 +2043,7 @@ inline MemRef Array::clone_deep(Allocator& target_alloc) const
     return clone(MemRef(header, m_ref), m_alloc, target_alloc); // Throws
 }
 
-inline void Array::move_assign(Array& a) REALM_NOEXCEPT
+inline void Array::move_assign(Array& a) noexcept
 {
     REALM_ASSERT_3(&get_alloc(), ==, &a.get_alloc());
     // FIXME: Be carefull with the old parent info here. Should it be
@@ -1917,33 +2072,33 @@ inline MemRef Array::create_array(Type type, bool context_flag, size_t size, int
     return create(type, context_flag, wtype_Bits, size, value, alloc); // Throws
 }
 
-inline bool Array::has_parent() const REALM_NOEXCEPT
+inline bool Array::has_parent() const noexcept
 {
-    return m_parent != 0;
+    return m_parent != nullptr;
 }
 
-inline ArrayParent* Array::get_parent() const REALM_NOEXCEPT
+inline ArrayParent* Array::get_parent() const noexcept
 {
     return m_parent;
 }
 
-inline void Array::set_parent(ArrayParent* parent, std::size_t ndx_in_parent) REALM_NOEXCEPT
+inline void Array::set_parent(ArrayParent* parent, size_t ndx_in_parent) noexcept
 {
     m_parent = parent;
     m_ndx_in_parent = ndx_in_parent;
 }
 
-inline std::size_t Array::get_ndx_in_parent() const REALM_NOEXCEPT
+inline size_t Array::get_ndx_in_parent() const noexcept
 {
     return m_ndx_in_parent;
 }
 
-inline void Array::set_ndx_in_parent(std::size_t ndx) REALM_NOEXCEPT
+inline void Array::set_ndx_in_parent(size_t ndx) noexcept
 {
     m_ndx_in_parent = ndx;
 }
 
-inline void Array::adjust_ndx_in_parent(int diff) REALM_NOEXCEPT
+inline void Array::adjust_ndx_in_parent(int diff) noexcept
 {
     // Note that `diff` is promoted to an unsigned type, and that
     // C++03 still guarantees the expected result regardless of the
@@ -1951,34 +2106,34 @@ inline void Array::adjust_ndx_in_parent(int diff) REALM_NOEXCEPT
     m_ndx_in_parent += diff;
 }
 
-inline ref_type Array::get_ref_from_parent() const REALM_NOEXCEPT
+inline ref_type Array::get_ref_from_parent() const noexcept
 {
     ref_type ref = m_parent->get_child_ref(m_ndx_in_parent);
     return ref;
 }
 
-inline bool Array::is_attached() const REALM_NOEXCEPT
+inline bool Array::is_attached() const noexcept
 {
     return m_data != nullptr;
 }
 
-inline void Array::detach() REALM_NOEXCEPT
+inline void Array::detach() noexcept
 {
     m_data = nullptr;
 }
 
-inline std::size_t Array::size() const REALM_NOEXCEPT
+inline size_t Array::size() const noexcept
 {
     REALM_ASSERT_DEBUG(is_attached());
     return m_size;
 }
 
-inline bool Array::is_empty() const REALM_NOEXCEPT
+inline bool Array::is_empty() const noexcept
 {
     return size() == 0;
 }
 
-inline std::size_t Array::get_max_byte_size(std::size_t num_elems) REALM_NOEXCEPT
+inline size_t Array::get_max_byte_size(size_t num_elems) noexcept
 {
     int max_bytes_per_elem = 8;
     return header_size + num_elems * max_bytes_per_elem; // FIXME: Prone to overflow
@@ -1996,19 +2151,19 @@ inline void Array::update_child_ref(size_t child_ndx, ref_type new_ref)
     set(child_ndx, new_ref);
 }
 
-inline ref_type Array::get_child_ref(size_t child_ndx) const REALM_NOEXCEPT
+inline ref_type Array::get_child_ref(size_t child_ndx) const noexcept
 {
     return get_as_ref(child_ndx);
 }
 
-inline std::size_t Array::get_bptree_size() const REALM_NOEXCEPT
+inline size_t Array::get_bptree_size() const noexcept
 {
     REALM_ASSERT_DEBUG(is_inner_bptree_node());
     int_fast64_t v = back();
-    return std::size_t(v / 2); // v = 1 + 2*total_elems_in_tree
+    return size_t(v / 2); // v = 1 + 2*total_elems_in_tree
 }
 
-inline std::size_t Array::get_bptree_size_from_header(const char* root_header) REALM_NOEXCEPT
+inline size_t Array::get_bptree_size_from_header(const char* root_header) noexcept
 {
     REALM_ASSERT_DEBUG(get_is_inner_bptree_node_from_header(root_header));
     size_t root_size = get_size_from_header(root_header);
@@ -2062,13 +2217,13 @@ ref_type Array::bptree_append(TreeInsert<TreeTraits>& state)
     REALM_ASSERT_DEBUG(size() >= 1 + 1 + 1); // At least one child
 
     ArrayParent& childs_parent = *this;
-    std::size_t child_ref_ndx = size() - 2;
+    size_t child_ref_ndx = size() - 2;
     ref_type child_ref = get_as_ref(child_ref_ndx), new_sibling_ref;
     char* child_header = static_cast<char*>(m_alloc.translate(child_ref));
 
     bool child_is_leaf = !get_is_inner_bptree_node_from_header(child_header);
     if (child_is_leaf) {
-        std::size_t elem_ndx_in_child = npos; // Append
+        size_t elem_ndx_in_child = npos; // Append
         new_sibling_ref =
             TreeTraits::leaf_insert(MemRef(child_header, child_ref), childs_parent,
                                     child_ref_ndx, m_alloc, elem_ndx_in_child, state); // Throws
@@ -2099,7 +2254,7 @@ ref_type Array::bptree_append(TreeInsert<TreeTraits>& state)
 
 
 template<class TreeTraits>
-ref_type Array::bptree_insert(std::size_t elem_ndx, TreeInsert<TreeTraits>& state)
+ref_type Array::bptree_insert(size_t elem_ndx, TreeInsert<TreeTraits>& state)
 {
     REALM_ASSERT_3(size(), >=, 1 + 1 + 1); // At least one child
 
@@ -2109,7 +2264,7 @@ ref_type Array::bptree_insert(std::size_t elem_ndx, TreeInsert<TreeTraits>& stat
     Array offsets(m_alloc);
     ensure_bptree_offsets(offsets); // Throws
 
-    std::size_t child_ndx, elem_ndx_in_child;
+    size_t child_ndx, elem_ndx_in_child;
     if (elem_ndx == 0) {
         // Optimization for prepend
         child_ndx = 0;
@@ -2124,12 +2279,12 @@ ref_type Array::bptree_insert(std::size_t elem_ndx, TreeInsert<TreeTraits>& stat
         // when searching through the offsets array.
         child_ndx = offsets.lower_bound_int(elem_ndx);
         REALM_ASSERT_3(child_ndx, <, size() - 2);
-        std::size_t elem_ndx_offset = child_ndx == 0 ? 0 : to_size_t(offsets.get(child_ndx-1));
+        size_t elem_ndx_offset = child_ndx == 0 ? 0 : to_size_t(offsets.get(child_ndx-1));
         elem_ndx_in_child = elem_ndx - elem_ndx_offset;
     }
 
     ArrayParent& childs_parent = *this;
-    std::size_t child_ref_ndx = child_ndx + 1;
+    size_t child_ref_ndx = child_ndx + 1;
     ref_type child_ref = get_as_ref(child_ref_ndx), new_sibling_ref;
     char* child_header = static_cast<char*>(m_alloc.translate(child_ref));
     bool child_is_leaf = !get_is_inner_bptree_node_from_header(child_header);
@@ -2162,41 +2317,43 @@ ref_type Array::bptree_insert(std::size_t elem_ndx, TreeInsert<TreeTraits>& stat
 // Finding code                                                                       *
 //*************************************************************************************
 
-template<std::size_t w> int64_t Array::get(std::size_t ndx) const REALM_NOEXCEPT
+template<size_t w>
+int64_t Array::get(size_t ndx) const noexcept
 {
     return get_universal<w>(m_data, ndx);
 }
 
-template<std::size_t w> int64_t Array::get_universal(const char* data, std::size_t ndx) const
+template<size_t w>
+int64_t Array::get_universal(const char* data, size_t ndx) const
 {
     if (w == 0) {
         return 0;
     }
     else if (w == 1) {
-        std::size_t offset = ndx >> 3;
+        size_t offset = ndx >> 3;
         return (data[offset] >> (ndx & 7)) & 0x01;
     }
     else if (w == 2) {
-        std::size_t offset = ndx >> 2;
+        size_t offset = ndx >> 2;
         return (data[offset] >> ((ndx & 3) << 1)) & 0x03;
     }
     else if (w == 4) {
-        std::size_t offset = ndx >> 1;
+        size_t offset = ndx >> 1;
         return (data[offset] >> ((ndx & 1) << 2)) & 0x0F;
     }
     else if (w == 8) {
         return *reinterpret_cast<const signed char*>(data + ndx);
     }
     else if (w == 16) {
-        std::size_t offset = ndx * 2;
+        size_t offset = ndx * 2;
         return *reinterpret_cast<const int16_t*>(data + offset);
     }
     else if (w == 32) {
-        std::size_t offset = ndx * 4;
+        size_t offset = ndx * 4;
         return *reinterpret_cast<const int32_t*>(data + offset);
     }
     else if (w == 64) {
-        std::size_t offset = ndx * 8;
+        size_t offset = ndx * 8;
         return *reinterpret_cast<const int64_t*>(data + offset);
     }
     else {
@@ -2225,7 +2382,7 @@ computations for the given search criteria makes it feasible to construct such a
 // computation of these values will not be made. Only works if find_action() and find_action_pattern() rewritten as macros. Note: This problem has been fixed in
 // next upcoming array.hpp version
 template<Action action, class Callback>
-bool Array::find_action(size_t index, int64_t value, QueryState<int64_t>* state, Callback callback) const
+bool Array::find_action(size_t index, util::Optional<int64_t> value, QueryState<int64_t>* state, Callback callback) const
 {
     if (action == act_CallbackIdx)
         return callback(index);
@@ -2244,7 +2401,8 @@ bool Array::find_action_pattern(size_t index, uint64_t pattern, QueryState<int64
 }
 
 
-template<size_t width, bool zero> uint64_t Array::cascade(uint64_t a) const
+template<size_t width, bool zero>
+uint64_t Array::cascade(uint64_t a) const
 {
     // Takes a chunk of values as argument and sets the least significant bit for each
     // element which is zero or non-zero, depending on the template parameter.
@@ -2352,55 +2510,83 @@ template<size_t width, bool zero> uint64_t Array::cascade(uint64_t a) const
 }
 
 // This is the main finding function for Array. Other finding functions are just wrappers around this one.
-// Search for 'value' using condition cond2 (Equal, NotEqual, Less, etc) and call find_action() or find_action_pattern()
+// Search for 'value' using condition cond (Equal, NotEqual, Less, etc) and call find_action() or find_action_pattern()
 // for each match. Break and return if find_action() returns false or 'end' is reached.
-template<class cond2, Action action, size_t bitwidth, class Callback> bool Array::find_optimized(int64_t value, size_t start, size_t end, size_t baseindex, QueryState<int64_t>* state, Callback callback) const
+
+// If nullable_array is set, then find_optimized() will treat the array is being nullable, i.e. it will skip the
+// first entry and compare correctly against null, etc.
+//
+// If find_null is set, it means that we search for a null. In that case, `value` is ignored. If find_null is set,
+// then nullable_array must be set too.
+template<class cond, Action action, size_t bitwidth, class Callback>
+bool Array::find_optimized(int64_t value, size_t start, size_t end, size_t baseindex, QueryState<int64_t>* state, Callback callback, bool nullable_array, bool find_null) const
 {
-    cond2 c;
-    REALM_ASSERT_DEBUG(start <= m_size && (end <= m_size || end == std::size_t(-1)) && start <= end);
+    REALM_ASSERT(!(find_null && !nullable_array));
+    REALM_ASSERT_DEBUG(start <= m_size && (end <= m_size || end == size_t(-1)) && start <= end);
 
-    // Test first few items with no initial time overhead
-    if (start > 0) {
-        if (m_size > start && c(get<bitwidth>(start), value) && start < end) {
-            if (!find_action<action, Callback>(start + baseindex, get<bitwidth>(start), state, callback))
-                return false;
+    size_t start2 = start;
+    cond c;
+
+    if (end == npos)
+        end = nullable_array ? size() - 1 : size();
+
+    if (nullable_array) {
+        // We were called by find() of a nullable array. So skip first entry, take nulls in count, etc, etc. Fixme:
+        // Huge speed optimizations are possible here! This is a very simple generic method.
+        for (; start2 < end; start2++) {
+            int64_t v = get<bitwidth>(start2 + 1);
+            if (c(v, value, v == get(0), find_null)) {                
+                util::Optional<int64_t> v2(v == get(0) ? util::none : util::make_optional(v));
+                if (!find_action<action, Callback>(start2 + baseindex, v2, state, callback))
+                    return false; // tell caller to stop aggregating/search
+            }
         }
-
-        ++start;
-
-        if (m_size > start && c(get<bitwidth>(start), value) && start < end) {
-            if (!find_action<action, Callback>(start + baseindex, get<bitwidth>(start), state, callback))
-                return false;
-        }
-
-        ++start;
-
-        if (m_size > start && c(get<bitwidth>(start), value) && start < end) {
-            if (!find_action<action, Callback>(start + baseindex, get<bitwidth>(start), state, callback))
-                return false;
-        }
-
-        ++start;
-
-        if (m_size > start && c(get<bitwidth>(start), value) && start < end) {
-            if (!find_action<action, Callback>(start + baseindex, get<bitwidth>(start), state, callback))
-                return false;
-        }
-
-        ++start;
+        return true; // tell caller to continue aggregating/search (on next array leafs)
     }
 
-    if (!(m_size > start && start < end))
+
+    // Test first few items with no initial time overhead
+    if (start2 > 0) {
+        if (m_size > start2 && c(get<bitwidth>(start2), value) && start2 < end) {
+            if (!find_action<action, Callback>(start2 + baseindex, get<bitwidth>(start2), state, callback))
+                return false;
+        }
+
+        ++start2;
+
+        if (m_size > start2 && c(get<bitwidth>(start2), value) && start2 < end) {
+            if (!find_action<action, Callback>(start2 + baseindex, get<bitwidth>(start2), state, callback))
+                return false;
+        }
+
+        ++start2;
+
+        if (m_size > start2 && c(get<bitwidth>(start2), value) && start2 < end) {
+            if (!find_action<action, Callback>(start2 + baseindex, get<bitwidth>(start2), state, callback))
+                return false;
+        }
+
+        ++start2;
+
+        if (m_size > start2 && c(get<bitwidth>(start2), value) && start2 < end) {
+            if (!find_action<action, Callback>(start2 + baseindex, get<bitwidth>(start2), state, callback))
+                return false;
+        }
+
+        ++start2;
+    }
+
+    if (!(m_size > start2 && start2 < end))
         return true;
 
-    if (end == std::size_t(-1))
+    if (end == size_t(-1))
         end = m_size;
 
-    // Return immediately if no items in array can match (such as if cond2 == Greater && value == 100 && m_ubound == 15)
+    // Return immediately if no items in array can match (such as if cond == Greater && value == 100 && m_ubound == 15)
     if (!c.can_match(value, m_lbound, m_ubound))
         return true;
 
-    // optimization if all items are guaranteed to match (such as cond2 == NotEqual && value == 100 && m_ubound == 15)
+    // optimization if all items are guaranteed to match (such as cond == NotEqual && value == 100 && m_ubound == 15)
     if (c.will_match(value, m_lbound, m_ubound)) {
         size_t end2;
 
@@ -2409,28 +2595,30 @@ template<class cond2, Action action, size_t bitwidth, class Callback> bool Array
         else {
             REALM_ASSERT_DEBUG(state->m_match_count < state->m_limit);
             size_t process = state->m_limit - state->m_match_count;
-            end2 = end - start > process ? start + process : end;
+            end2 = end - start2 > process ? start2 + process : end;
         }
         if (action == act_Sum || action == act_Max || action == act_Min) {
             int64_t res;
             size_t res_ndx = 0;
             if (action == act_Sum)
-                res = Array::sum(start, end2);
+                res = Array::sum(start2, end2);
             if (action == act_Max)
-                Array::maximum(res, start, end2, &res_ndx);
+                Array::maximum(res, start2, end2, &res_ndx);
             if (action == act_Min)
-                Array::minimum(res, start, end2, &res_ndx);
+                Array::minimum(res, start2, end2, &res_ndx);
 
             find_action<action, Callback>(res_ndx + baseindex, res, state, callback);
-            state->m_match_count += end2 - start;
+            // find_action will increment match count by 1, so we need to `-1` from the number of elements that
+            // we performed the fast Array methods on.
+            state->m_match_count += end2 - start2 - 1;
 
         }
         else if (action == act_Count) {
-            state->m_state += end2 - start;
+            state->m_state += end2 - start2;
         }
         else {
-            for (; start < end2; start++)
-                if (!find_action<action, Callback>(start + baseindex, get<bitwidth>(start), state, callback))
+            for (; start2 < end2; start2++)
+                if (!find_action<action, Callback>(start2 + baseindex, get<bitwidth>(start2), state, callback))
                     return false;
         }
         return true;
@@ -2440,46 +2628,47 @@ template<class cond2, Action action, size_t bitwidth, class Callback> bool Array
     REALM_ASSERT_3(m_width, !=, 0);
 
 #if defined(REALM_COMPILER_SSE)
-    // Only use SSE if payload is at least one SSE chunk (128 bits) in size. Also note taht SSE doesn't support 
-    // Less-than comparison for 64-bit values. 
-    if ((!(std::is_same<cond2, Less>::value && m_width == 64)) && end - start >= sizeof(__m128i) && m_width >= 8 &&
-        (sseavx<42>() || (sseavx<30>() && std::is_same<cond2, Equal>::value && m_width < 64))) {
+    // Only use SSE if payload is at least one SSE chunk (128 bits) in size. Also note taht SSE doesn't support
+    // Less-than comparison for 64-bit values.
+    if ((!(std::is_same<cond, Less>::value && m_width == 64)) && end - start2 >= sizeof(__m128i) && m_width >= 8 &&
+        (sseavx<42>() || (sseavx<30>() && std::is_same<cond, Equal>::value && m_width < 64))) {
 
-        // FindSSE() must start at 16-byte boundary, so search area before that using CompareEquality()
-        __m128i* const a = reinterpret_cast<__m128i*>(round_up(m_data + start * bitwidth / 8, sizeof (__m128i)));
+        // find_sse() must start2 at 16-byte boundary, so search area before that using compare_equality()
+        __m128i* const a = reinterpret_cast<__m128i*>(round_up(m_data + start2 * bitwidth / 8, sizeof (__m128i)));
         __m128i* const b = reinterpret_cast<__m128i*>(round_down(m_data + end * bitwidth / 8, sizeof (__m128i)));
 
-        if (!Compare<cond2, action, bitwidth, Callback>(value, start, (reinterpret_cast<char*>(a) - m_data) * 8 / no0(bitwidth), baseindex, state, callback))
+        if (!compare<cond, action, bitwidth, Callback>(value, start2, (reinterpret_cast<char*>(a) - m_data) * 8 / no0(bitwidth), baseindex, state, callback))
             return false;
 
         // Search aligned area with SSE
         if (b > a) {
             if (sseavx<42>()) {
-                if (!FindSSE<cond2, action, bitwidth, Callback>(value, a, b - a, state, baseindex + ((reinterpret_cast<char*>(a) - m_data) * 8 / no0(bitwidth)), callback))
+                if (!find_sse<cond, action, bitwidth, Callback>(value, a, b - a, state, baseindex + ((reinterpret_cast<char*>(a) - m_data) * 8 / no0(bitwidth)), callback))
                     return false;
                 }
                 else if (sseavx<30>()) {
 
-                if (!FindSSE<Equal, action, bitwidth, Callback>(value, a, b - a, state, baseindex + ((reinterpret_cast<char*>(a) - m_data) * 8 / no0(bitwidth)), callback))
+                if (!find_sse<Equal, action, bitwidth, Callback>(value, a, b - a, state, baseindex + ((reinterpret_cast<char*>(a) - m_data) * 8 / no0(bitwidth)), callback))
                     return false;
                 }
         }
 
-        // Search remainder with CompareEquality()
-        if (!Compare<cond2, action, bitwidth, Callback>(value, (reinterpret_cast<char*>(b) - m_data) * 8 / no0(bitwidth), end, baseindex, state, callback))
+        // Search remainder with compare_equality()
+        if (!compare<cond, action, bitwidth, Callback>(value, (reinterpret_cast<char*>(b) - m_data) * 8 / no0(bitwidth), end, baseindex, state, callback))
             return false;
 
         return true;
     }
     else {
-        return Compare<cond2, action, bitwidth, Callback>(value, start, end, baseindex, state, callback);
+        return compare<cond, action, bitwidth, Callback>(value, start2, end, baseindex, state, callback);
     }
 #else
-return Compare<cond2, action, bitwidth, Callback>(value, start, end, baseindex, state, callback);
+return compare<cond, action, bitwidth, Callback>(value, start2, end, baseindex, state, callback);
 #endif
 }
 
-template<size_t width> inline int64_t Array::LowerBits() const
+template<size_t width>
+inline int64_t Array::lower_bits() const
 {
     if (width == 1)
         return 0xFFFFFFFFFFFFFFFFULL;
@@ -2502,18 +2691,20 @@ template<size_t width> inline int64_t Array::LowerBits() const
 }
 
 // Tests if any chunk in 'value' is 0
-template<size_t width> inline bool Array::TestZero(uint64_t value) const
+template<size_t width>
+inline bool Array::test_zero(uint64_t value) const
 {
     uint64_t hasZeroByte;
-    uint64_t lower = LowerBits<width>();
-    uint64_t upper = LowerBits<width>() * 1ULL << (width == 0 ? 0 : (width - 1ULL));
+    uint64_t lower = lower_bits<width>();
+    uint64_t upper = lower_bits<width>() * 1ULL << (width == 0 ? 0 : (width - 1ULL));
     hasZeroByte = (value - lower) & ~value & upper;
     return hasZeroByte != 0;
 }
 
 // Finds first zero (if eq == true) or non-zero (if eq == false) element in v and returns its position.
-// IMPORTANT: This function assumes that at least 1 item matches (test this with TestZero() or other means first)!
-template<bool eq, size_t width>size_t Array::FindZero(uint64_t v) const
+// IMPORTANT: This function assumes that at least 1 item matches (test this with test_zero() or other means first)!
+template<bool eq, size_t width>
+size_t Array::find_zero(uint64_t v) const
 {
     size_t start = 0;
     uint64_t hasZeroByte;
@@ -2525,15 +2716,15 @@ template<bool eq, size_t width>size_t Array::FindZero(uint64_t v) const
     }
 
     // Bisection optimization, speeds up small bitwidths with high match frequency. More partions than 2 do NOT pay
-    // off because the work done by TestZero() is wasted for the cases where the value exists in first half, but
+    // off because the work done by test_zero() is wasted for the cases where the value exists in first half, but
     // useful if it exists in last half. Sweet spot turns out to be the widths and partitions below.
     if (width <= 8) {
-        hasZeroByte = TestZero<width>(v | 0xffffffff00000000ULL);
+        hasZeroByte = test_zero<width>(v | 0xffffffff00000000ULL);
         if (eq ? !hasZeroByte : (v & 0x00000000ffffffffULL) == 0) {
             // 00?? -> increasing
             start += 64 / no0(width) / 2;
             if (width <= 4) {
-                hasZeroByte = TestZero<width>(v | 0xffff000000000000ULL);
+                hasZeroByte = test_zero<width>(v | 0xffff000000000000ULL);
                 if (eq ? !hasZeroByte : (v & 0x0000ffffffffffffULL) == 0) {
                     // 000?
                     start += 64 / no0(width) / 4;
@@ -2543,7 +2734,7 @@ template<bool eq, size_t width>size_t Array::FindZero(uint64_t v) const
         else {
             if (width <= 4) {
                 // ??00
-                hasZeroByte = TestZero<width>(v | 0xffffffffffff0000ULL);
+                hasZeroByte = test_zero<width>(v | 0xffffffffffff0000ULL);
                 if (eq ? !hasZeroByte : (v & 0x000000000000ffffULL) == 0) {
                     // 0?00
                     start += 64 / no0(width) / 4;
@@ -2553,7 +2744,7 @@ template<bool eq, size_t width>size_t Array::FindZero(uint64_t v) const
     }
 
     while (eq == (((v >> (width * start)) & mask) != 0)) {
-        // You must only call FindZero() if you are sure that at least 1 item matches
+        // You must only call find_zero() if you are sure that at least 1 item matches
         REALM_ASSERT_3(start, <=, 8 * sizeof(v));
         start++;
     }
@@ -2562,7 +2753,8 @@ template<bool eq, size_t width>size_t Array::FindZero(uint64_t v) const
 }
 
 // Generate a magic constant used for later bithacks
-template<bool gt, size_t width>int64_t Array::FindGTLT_Magic(int64_t v) const
+template<bool gt, size_t width>
+int64_t Array::find_gtlt_magic(int64_t v) const
 {
     uint64_t mask1 = (width == 64 ? ~0ULL : ((1ULL << (width == 64 ? 0 : width)) - 1ULL)); // Warning free way of computing (1ULL << width) - 1
     uint64_t mask2 = mask1 >> 1;
@@ -2570,7 +2762,8 @@ template<bool gt, size_t width>int64_t Array::FindGTLT_Magic(int64_t v) const
     return magic;
 }
 
-template<bool gt, Action action, size_t width, class Callback> bool Array::FindGTLT_Fast(uint64_t chunk, uint64_t magic, QueryState<int64_t>* state, size_t baseindex, Callback callback) const
+template<bool gt, Action action, size_t width, class Callback>
+bool Array::find_gtlt_fast(uint64_t chunk, uint64_t magic, QueryState<int64_t>* state, size_t baseindex, Callback callback) const
 {
     // Tests if a a chunk of values contains values that are greater (if gt == true) or less (if gt == false) than v.
     // Fast, but limited to work when all values in the chunk are positive.
@@ -2583,7 +2776,7 @@ template<bool gt, Action action, size_t width, class Callback> bool Array::FindG
         if (find_action_pattern<action, Callback>(baseindex, m >> (no0(width) - 1), state, callback))
             break; // consumed, so do not call find_action()
 
-        size_t t = FirstSetBit64(m) / no0(width);
+        size_t t = first_set_bit64(m) / no0(width);
         p += t;
         if (!find_action<action, Callback>(p + baseindex, (chunk >> (p * width)) & mask1, state, callback))
             return false;
@@ -2599,7 +2792,8 @@ template<bool gt, Action action, size_t width, class Callback> bool Array::FindG
 }
 
 
-template<bool gt, Action action, size_t width, class Callback> bool Array::FindGTLT(int64_t v, uint64_t chunk, QueryState<int64_t>* state, size_t baseindex, Callback callback) const
+template<bool gt, Action action, size_t width, class Callback>
+bool Array::find_gtlt(int64_t v, uint64_t chunk, QueryState<int64_t>* state, size_t baseindex, Callback callback) const
 {
     // Find items in 'chunk' that are greater (if gt == true) or smaller (if gt == false) than 'v'. Fixme, __forceinline can make it crash in vS2010 - find out why
     if (width == 1) {
@@ -2670,17 +2864,17 @@ template<bool gt, Action action, size_t width, class Callback> bool Array::FindG
     }
     else if (width == 8) {
         // 88 ms:
-        if (gt ? static_cast<char>(chunk) > v : static_cast<char>(chunk) < v) {if (!find_action<action, Callback>( 0 + baseindex, static_cast<char>(chunk), state, callback)) return false;} chunk >>= 8;
-        if (gt ? static_cast<char>(chunk) > v : static_cast<char>(chunk) < v) {if (!find_action<action, Callback>( 1 + baseindex, static_cast<char>(chunk), state, callback)) return false;} chunk >>= 8;
-        if (gt ? static_cast<char>(chunk) > v : static_cast<char>(chunk) < v) {if (!find_action<action, Callback>( 2 + baseindex, static_cast<char>(chunk), state, callback)) return false;} chunk >>= 8;
-        if (gt ? static_cast<char>(chunk) > v : static_cast<char>(chunk) < v) {if (!find_action<action, Callback>( 3 + baseindex, static_cast<char>(chunk), state, callback)) return false;} chunk >>= 8;
-        if (gt ? static_cast<char>(chunk) > v : static_cast<char>(chunk) < v) {if (!find_action<action, Callback>( 4 + baseindex, static_cast<char>(chunk), state, callback)) return false;} chunk >>= 8;
-        if (gt ? static_cast<char>(chunk) > v : static_cast<char>(chunk) < v) {if (!find_action<action, Callback>( 5 + baseindex, static_cast<char>(chunk), state, callback)) return false;} chunk >>= 8;
-        if (gt ? static_cast<char>(chunk) > v : static_cast<char>(chunk) < v) {if (!find_action<action, Callback>( 6 + baseindex, static_cast<char>(chunk), state, callback)) return false;} chunk >>= 8;
-        if (gt ? static_cast<char>(chunk) > v : static_cast<char>(chunk) < v) {if (!find_action<action, Callback>( 7 + baseindex, static_cast<char>(chunk), state, callback)) return false;} chunk >>= 8;
+        if (gt ? static_cast<int8_t>(chunk) > v : static_cast<int8_t>(chunk) < v) {if (!find_action<action, Callback>( 0 + baseindex, static_cast<int8_t>(chunk), state, callback)) return false;} chunk >>= 8;
+        if (gt ? static_cast<int8_t>(chunk) > v : static_cast<int8_t>(chunk) < v) {if (!find_action<action, Callback>( 1 + baseindex, static_cast<int8_t>(chunk), state, callback)) return false;} chunk >>= 8;
+        if (gt ? static_cast<int8_t>(chunk) > v : static_cast<int8_t>(chunk) < v) {if (!find_action<action, Callback>( 2 + baseindex, static_cast<int8_t>(chunk), state, callback)) return false;} chunk >>= 8;
+        if (gt ? static_cast<int8_t>(chunk) > v : static_cast<int8_t>(chunk) < v) {if (!find_action<action, Callback>( 3 + baseindex, static_cast<int8_t>(chunk), state, callback)) return false;} chunk >>= 8;
+        if (gt ? static_cast<int8_t>(chunk) > v : static_cast<int8_t>(chunk) < v) {if (!find_action<action, Callback>( 4 + baseindex, static_cast<int8_t>(chunk), state, callback)) return false;} chunk >>= 8;
+        if (gt ? static_cast<int8_t>(chunk) > v : static_cast<int8_t>(chunk) < v) {if (!find_action<action, Callback>( 5 + baseindex, static_cast<int8_t>(chunk), state, callback)) return false;} chunk >>= 8;
+        if (gt ? static_cast<int8_t>(chunk) > v : static_cast<int8_t>(chunk) < v) {if (!find_action<action, Callback>( 6 + baseindex, static_cast<int8_t>(chunk), state, callback)) return false;} chunk >>= 8;
+        if (gt ? static_cast<int8_t>(chunk) > v : static_cast<int8_t>(chunk) < v) {if (!find_action<action, Callback>( 7 + baseindex, static_cast<int8_t>(chunk), state, callback)) return false;} chunk >>= 8;
 
         //97 ms ms:
-        // if (gt ? static_cast<char>(chunk >> 0*8) > v : static_cast<char>(chunk >> 0*8) < v) return 0;
+        // if (gt ? static_cast<int8_t>(chunk >> 0*8) > v : static_cast<int8_t>(chunk >> 0*8) < v) return 0;
     }
     else if (width == 16) {
 
@@ -2691,10 +2885,10 @@ template<bool gt, Action action, size_t width, class Callback> bool Array::FindG
 
         /*
         // Faster but disabled due to bug in VC2010 compiler (fixed in 2012 toolchain) where last 'if' is errorneously optimized away
-        if (gt ? static_cast<short int>chunk > v : static_cast<short int>chunk < v) {if (!state->AddPositiveLocal(0 + baseindex); else return 0;} chunk >>= 16;
-        if (gt ? static_cast<short int>chunk > v : static_cast<short int>chunk < v) {if (!state->AddPositiveLocal(1 + baseindex); else return 1;} chunk >>= 16;
-        if (gt ? static_cast<short int>chunk > v : static_cast<short int>chunk < v) {if (!state->AddPositiveLocal(2 + baseindex); else return 2;} chunk >>= 16;
-        if (gt ? static_cast<short int>chunk > v : static_cast<short int>chunk < v) {if (!state->AddPositiveLocal(3 + baseindex); else return 3;} chunk >>= 16;
+        if (gt ? static_cast<short int>chunk > v : static_cast<short int>chunk < v) {if (!state->add_positive_local(0 + baseindex); else return 0;} chunk >>= 16;
+        if (gt ? static_cast<short int>chunk > v : static_cast<short int>chunk < v) {if (!state->add_positive_local(1 + baseindex); else return 1;} chunk >>= 16;
+        if (gt ? static_cast<short int>chunk > v : static_cast<short int>chunk < v) {if (!state->add_positive_local(2 + baseindex); else return 2;} chunk >>= 16;
+        if (gt ? static_cast<short int>chunk > v : static_cast<short int>chunk < v) {if (!state->add_positive_local(3 + baseindex); else return 3;} chunk >>= 16;
 
         // Following illustrates it:
         #include <stdint.h>
@@ -2750,11 +2944,12 @@ template<bool gt, Action action, size_t width, class Callback> bool Array::FindG
 }
 
 
-template<bool eq, Action action, size_t width, class Callback> inline bool Array::CompareEquality(int64_t value, size_t start, size_t end, size_t baseindex, QueryState<int64_t>* state, Callback callback) const
+template<bool eq, Action action, size_t width, class Callback>
+inline bool Array::compare_equality(int64_t value, size_t start, size_t end, size_t baseindex, QueryState<int64_t>* state, Callback callback) const
 {
     // Find items in this Array that are equal (eq == true) or different (eq = false) from 'value'
 
-    REALM_ASSERT_DEBUG(start <= m_size && (end <= m_size || end == std::size_t(-1)) && start <= end);
+    REALM_ASSERT_DEBUG(start <= m_size && (end <= m_size || end == size_t(-1)) && start <= end);
 
     size_t ee = round_up(start, 64 / no0(width));
     ee = ee > end ? end : ee;
@@ -2779,12 +2974,12 @@ template<bool eq, Action action, size_t width, class Callback> inline bool Array
             start = (p - reinterpret_cast<int64_t*>(m_data)) * 8 * 8 / no0(width);
             size_t a = 0;
 
-            while (eq ? TestZero<width>(v2) : v2) {
+            while (eq ? test_zero<width>(v2) : v2) {
 
                 if (find_action_pattern<action, Callback>(start + baseindex, cascade<width, eq>(v2), state, callback))
                     break; // consumed
 
-                size_t t = FindZero<eq, width>(v2);
+                size_t t = find_zero<eq, width>(v2);
                 a += t;
 
                 if (a >= 64 / no0(width))
@@ -2827,22 +3022,22 @@ bool Array::find(int64_t value, size_t start, size_t end, size_t baseindex, Quer
 
 template<class cond, Action action, class Callback>
 bool Array::find(int64_t value, size_t start, size_t end, size_t baseindex, QueryState<int64_t>* state,
-                 Callback callback) const
+                 Callback callback, bool nullable_array, bool find_null) const
 {
-    REALM_TEMPEX4(return find, cond, action, m_width, Callback, (value, start, end, baseindex, state, callback));
+    REALM_TEMPEX4(return find, cond, action, m_width, Callback, (value, start, end, baseindex, state, callback, nullable_array, find_null));
 }
 
 template<class cond, Action action, size_t bitwidth, class Callback>
 bool Array::find(int64_t value, size_t start, size_t end, size_t baseindex, QueryState<int64_t>* state,
-                 Callback callback) const
+                 Callback callback, bool nullable_array, bool find_null) const
 {
-    return find_optimized<cond, action, bitwidth, Callback>(value, start, end, baseindex, state, callback);
+    return find_optimized<cond, action, bitwidth, Callback>(value, start, end, baseindex, state, callback, nullable_array, find_null);
 }
 
 #ifdef REALM_COMPILER_SSE
 // 'items' is the number of 16-byte SSE chunks. Returns index of packed element relative to first integer of first chunk
-template<class cond2, Action action, size_t width, class Callback>
-bool Array::FindSSE(int64_t value, __m128i *data, size_t items, QueryState<int64_t>* state, size_t baseindex,
+template<class cond, Action action, size_t width, class Callback>
+bool Array::find_sse(int64_t value, __m128i *data, size_t items, QueryState<int64_t>* state, size_t baseindex,
                     Callback callback) const
 {
     __m128i search = {0};
@@ -2855,22 +3050,21 @@ bool Array::FindSSE(int64_t value, __m128i *data, size_t items, QueryState<int64
     else if (width == 32)
         search = _mm_set1_epi32(static_cast<int>(value));
     else if (width == 64) {
-        if (cond2::condition == cond_Less)
+        if (std::is_same<cond, Less>::value)
             REALM_ASSERT(false);
         else
             search = _mm_set_epi64x(value, value);
     }
 
-    return FindSSE_intern<cond2, action, width, Callback>(data, &search, items, state, baseindex, callback);
+    return find_sse_intern<cond, action, width, Callback>(data, &search, items, state, baseindex, callback);
 }
 
 // Compares packed action_data with packed data (equal, less, etc) and performs aggregate action (max, min, sum,
 // find_all, etc) on value inside action_data for first match, if any
-template<class cond2, Action action, size_t width, class Callback>
-REALM_FORCEINLINE bool Array::FindSSE_intern(__m128i* action_data, __m128i* data, size_t items,
+template<class cond, Action action, size_t width, class Callback>
+REALM_FORCEINLINE bool Array::find_sse_intern(__m128i* action_data, __m128i* data, size_t items,
                                                QueryState<int64_t>* state, size_t baseindex, Callback callback) const
 {
-    int cond = cond2::condition;
     size_t i = 0;
     __m128i compare = {0};
     unsigned int resmask;
@@ -2878,7 +3072,7 @@ REALM_FORCEINLINE bool Array::FindSSE_intern(__m128i* action_data, __m128i* data
     // Search loop. Unrolling it has been tested to NOT increase performance (apparently mem bound)
     for (i = 0; i < items; ++i) {
         // equal / not-equal
-        if (cond == cond_Equal || cond == cond_NotEqual) {
+        if (std::is_same<cond, Equal>::value || std::is_same<cond, NotEqual>::value) {
             if (width == 8)
                 compare = _mm_cmpeq_epi8(action_data[i], *data);
             if (width == 16)
@@ -2891,7 +3085,7 @@ REALM_FORCEINLINE bool Array::FindSSE_intern(__m128i* action_data, __m128i* data
         }
 
         // greater
-        else if (cond == cond_Greater) {
+        else if (std::is_same<cond, Greater>::value) {
             if (width == 8)
                 compare = _mm_cmpgt_epi8(action_data[i], *data);
             if (width == 16)
@@ -2902,7 +3096,7 @@ REALM_FORCEINLINE bool Array::FindSSE_intern(__m128i* action_data, __m128i* data
                 compare = _mm_cmpgt_epi64(action_data[i], *data);
         }
         // less
-        else if (cond == cond_Less) {
+        else if (std::is_same<cond, Less>::value) {
             if (width == 8)
                 compare = _mm_cmplt_epi8(action_data[i], *data);
             else if (width == 16)
@@ -2915,7 +3109,7 @@ REALM_FORCEINLINE bool Array::FindSSE_intern(__m128i* action_data, __m128i* data
 
         resmask = _mm_movemask_epi8(compare);
 
-        if (cond == cond_NotEqual)
+        if (std::is_same<cond, NotEqual>::value)
             resmask = ~resmask & 0x0000ffff;
 
 //        if (resmask != 0)
@@ -2925,12 +3119,12 @@ REALM_FORCEINLINE bool Array::FindSSE_intern(__m128i* action_data, __m128i* data
 
         while (resmask != 0) {
 
-            uint64_t upper = LowerBits<width / 8>() << (no0(width / 8) - 1);
+            uint64_t upper = lower_bits<width / 8>() << (no0(width / 8) - 1);
             uint64_t pattern = resmask & upper; // fixme, bits at wrong offsets. Only OK because we only use them in 'count' aggregate
             if (find_action_pattern<action, Callback>(s + baseindex, pattern, state, callback))
                 break;
 
-            size_t idx = FirstSetBit(resmask) * 8 / no0(width);
+            size_t idx = first_set_bit(resmask) * 8 / no0(width);
             s += idx;
             if (!find_action<action, Callback>( s + baseindex, get_universal<width>(reinterpret_cast<char*>(action_data), s), state, callback))
                 return false;
@@ -2944,7 +3138,7 @@ REALM_FORCEINLINE bool Array::FindSSE_intern(__m128i* action_data, __m128i* data
 #endif //REALM_COMPILER_SSE
 
 template<class cond, Action action, class Callback>
-bool Array::CompareLeafs(const Array* foreign, size_t start, size_t end, size_t baseindex, QueryState<int64_t>* state,
+bool Array::compare_leafs(const Array* foreign, size_t start, size_t end, size_t baseindex, QueryState<int64_t>* state,
                          Callback callback) const
 {
     cond c;
@@ -2987,22 +3181,23 @@ bool Array::CompareLeafs(const Array* foreign, size_t start, size_t end, size_t 
     }
 
     bool r;
-    REALM_TEMPEX4(r = CompareLeafs, cond, action, m_width, Callback, (foreign, start, end, baseindex, state, callback))
+    REALM_TEMPEX4(r = compare_leafs, cond, action, m_width, Callback, (foreign, start, end, baseindex, state, callback))
     return r;
 }
 
 
-template<class cond, Action action, size_t width, class Callback> bool Array::CompareLeafs(const Array* foreign, size_t start, size_t end, size_t baseindex, QueryState<int64_t>* state, Callback callback) const
+template<class cond, Action action, size_t width, class Callback>
+bool Array::compare_leafs(const Array* foreign, size_t start, size_t end, size_t baseindex, QueryState<int64_t>* state, Callback callback) const
 {
     size_t fw = foreign->m_width;
     bool r;
-    REALM_TEMPEX5(r = CompareLeafs4, cond, action, width, Callback, fw, (foreign, start, end, baseindex, state, callback))
+    REALM_TEMPEX5(r = compare_leafs_4, cond, action, width, Callback, fw, (foreign, start, end, baseindex, state, callback))
     return r;
 }
 
 
 template<class cond, Action action, size_t width, class Callback, size_t foreign_width>
-bool Array::CompareLeafs4(const Array* foreign, size_t start, size_t end, size_t baseindex, QueryState<int64_t>* state,
+bool Array::compare_leafs_4(const Array* foreign, size_t start, size_t end, size_t baseindex, QueryState<int64_t>* state,
                           Callback callback) const
 {
     cond c;
@@ -3045,7 +3240,7 @@ bool Array::CompareLeafs4(const Array* foreign, size_t start, size_t end, size_t
             __m128i* a = reinterpret_cast<__m128i*>(m_data + start * width / 8);
             __m128i* b = reinterpret_cast<__m128i*>(foreign_m_data + start * width / 8);
 
-            bool continue_search = FindSSE_intern<cond, action, width, Callback>(a, b, 1, state, baseindex + start, callback);
+            bool continue_search = find_sse_intern<cond, action, width, Callback>(a, b, 1, state, baseindex + start, callback);
 
             if (!continue_search)
                 return false;
@@ -3162,21 +3357,20 @@ bool Array::CompareLeafs4(const Array* foreign, size_t start, size_t end, size_t
 }
 
 
-template<class cond2, Action action, size_t bitwidth, class Callback>
-bool Array::Compare(int64_t value, size_t start, size_t end, size_t baseindex, QueryState<int64_t>* state,
+template<class cond, Action action, size_t bitwidth, class Callback>
+bool Array::compare(int64_t value, size_t start, size_t end, size_t baseindex, QueryState<int64_t>* state,
                     Callback callback) const
 {
-    int cond = cond2::condition;
     bool ret = false;
 
-    if (cond == cond_Equal)
-        ret = CompareEquality<true, action, bitwidth, Callback>(value, start, end, baseindex, state, callback);
-    else if (cond == cond_NotEqual)
-        ret = CompareEquality<false, action, bitwidth, Callback>(value, start, end, baseindex, state, callback);
-    else if (cond == cond_Greater)
-        ret = CompareRelation<true, action, bitwidth, Callback>(value, start, end, baseindex, state, callback);
-    else if (cond == cond_Less)
-        ret = CompareRelation<false, action, bitwidth, Callback>(value, start, end, baseindex, state, callback);
+    if (std::is_same<cond, Equal>::value)
+        ret = compare_equality<true, action, bitwidth, Callback>(value, start, end, baseindex, state, callback);
+    else if (std::is_same<cond, NotEqual>::value)
+        ret = compare_equality<false, action, bitwidth, Callback>(value, start, end, baseindex, state, callback);
+    else if (std::is_same<cond, Greater>::value)
+        ret = compare_relation<true, action, bitwidth, Callback>(value, start, end, baseindex, state, callback);
+    else if (std::is_same<cond, Less>::value)
+        ret = compare_relation<false, action, bitwidth, Callback>(value, start, end, baseindex, state, callback);
     else
         REALM_ASSERT_DEBUG(false);
 
@@ -3184,10 +3378,10 @@ bool Array::Compare(int64_t value, size_t start, size_t end, size_t baseindex, Q
 }
 
 template<bool gt, Action action, size_t bitwidth, class Callback>
-bool Array::CompareRelation(int64_t value, size_t start, size_t end, size_t baseindex, QueryState<int64_t>* state,
+bool Array::compare_relation(int64_t value, size_t start, size_t end, size_t baseindex, QueryState<int64_t>* state,
                             Callback callback) const
 {
-    REALM_ASSERT(start <= m_size && (end <= m_size || end == std::size_t(-1)) && start <= end);
+    REALM_ASSERT(start <= m_size && (end <= m_size || end == size_t(-1)) && start <= end);
     uint64_t mask = (bitwidth == 64 ? ~0ULL : ((1ULL << (bitwidth == 64 ? 0 : bitwidth)) - 1ULL)); // Warning free way of computing (1ULL << width) - 1
 
     size_t ee = round_up(start, 64 / no0(bitwidth));
@@ -3209,27 +3403,26 @@ bool Array::CompareRelation(int64_t value, size_t start, size_t end, size_t base
     // bit hacks from http://graphics.stanford.edu/~seander/bithacks.html#HasLessInWord
 
     if (bitwidth == 1 || bitwidth == 2 || bitwidth == 4 || bitwidth == 8 || bitwidth == 16) {
-        uint64_t magic = FindGTLT_Magic<gt, bitwidth>(value);
+        uint64_t magic = find_gtlt_magic<gt, bitwidth>(value);
 
-        // Bit hacks only work if searched item <= 127 for 'greater than' and item <= 128 for 'less than'
+        // Bit hacks only work if searched item has its most significant bit clear for 'greater than' or
+        // 'item <= 1 << bitwidth' for 'less than'
         if (value != int64_t((magic & mask)) && value >= 0 && bitwidth >= 2 && value <= static_cast<int64_t>((mask >> 1) - (gt ? 1 : 0))) {
             // 15 ms
             while (p < e) {
-                uint64_t upper = LowerBits<bitwidth>() << (no0(bitwidth) - 1);
+                uint64_t upper = lower_bits<bitwidth>() << (no0(bitwidth) - 1);
 
                 const int64_t v = *p;
                 size_t idx;
 
-                // Bit hacks only works for positive items in chunk, so test their sign bits
+                // Bit hacks only works if all items in chunk have their most significant bit clear. Test this:
                 upper = upper & v;
 
-                if ((bitwidth > 4 ? !upper : true)) {
-                    // Assert that all values in chunk are positive.
-                    REALM_ASSERT(bitwidth <= 4 || ((LowerBits<bitwidth>() << (no0(bitwidth) - 1)) & value) == 0);
-                    idx = FindGTLT_Fast<gt, action, bitwidth, Callback>(v, magic, state, (p - reinterpret_cast<int64_t*>(m_data)) * 8 * 8 / no0(bitwidth) + baseindex, callback);
+                if (!upper) {
+                    idx = find_gtlt_fast<gt, action, bitwidth, Callback>(v, magic, state, (p - reinterpret_cast<int64_t*>(m_data)) * 8 * 8 / no0(bitwidth) + baseindex, callback);
                 }
                 else
-                    idx = FindGTLT<gt, action, bitwidth, Callback>(value, v, state, (p - reinterpret_cast<int64_t*>(m_data)) * 8 * 8 / no0(bitwidth) + baseindex, callback);
+                    idx = find_gtlt<gt, action, bitwidth, Callback>(value, v, state, (p - reinterpret_cast<int64_t*>(m_data)) * 8 * 8 / no0(bitwidth) + baseindex, callback);
 
                 if (!idx)
                     return false;
@@ -3240,7 +3433,7 @@ bool Array::CompareRelation(int64_t value, size_t start, size_t end, size_t base
             // 24 ms
             while (p < e) {
                 int64_t v = *p;
-                if (!FindGTLT<gt, action, bitwidth, Callback>(value, v, state, (p - reinterpret_cast<int64_t*>(m_data)) * 8 * 8 / no0(bitwidth) + baseindex, callback))
+                if (!find_gtlt<gt, action, bitwidth, Callback>(value, v, state, (p - reinterpret_cast<int64_t*>(m_data)) * 8 * 8 / no0(bitwidth) + baseindex, callback))
                     return false;
                 ++p;
             }
@@ -3262,9 +3455,10 @@ bool Array::CompareRelation(int64_t value, size_t start, size_t end, size_t base
 
 }
 
-template<class cond> size_t Array::find_first(int64_t value, size_t start, size_t end) const
+template<class cond>
+size_t Array::find_first(int64_t value, size_t start, size_t end) const
 {
-    REALM_ASSERT(start <= m_size && (end <= m_size || end == std::size_t(-1)) && start <= end);
+    REALM_ASSERT(start <= m_size && (end <= m_size || end == size_t(-1)) && start <= end);
     QueryState<int64_t> state;
     state.init(act_ReturnFirst, nullptr, 1); // todo, would be nice to avoid this in order to speed up find_first loops
     Finder finder = m_vtable->finder[cond::condition];

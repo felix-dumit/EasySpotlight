@@ -44,10 +44,11 @@ RLM_ASSUME_NONNULL_BEGIN
  ### Supported property types
  
  - `NSString`
- - `NSInteger`, `CGFloat`, `int`, `long`, `float`, and `double`
+ - `NSInteger`, `int`, `long`, `float`, and `double`
  - `BOOL` or `bool`
  - `NSDate`
  - `NSData`
+ - `NSNumber<X>`, where X is one of RLMInt, RLMFloat, RLMDouble or RLMBool, for optional number properties
  - `RLMObject` subclasses, so you can have many-to-one relationships.
  - `RLMArray<X>`, where X is an `RLMObject` subclass, so you can have many-to-many relationships.
 
@@ -59,7 +60,7 @@ RLM_ASSUME_NONNULL_BEGIN
  
  ### Relationships
  
- See our [Cocoa guide](http://realm.io/docs/cocoa/latest) for more details.
+ See our [Cocoa guide](https://realm.io/docs/objc/latest#relationships) for more details.
 
  ### Key-Value Observing
 
@@ -85,10 +86,7 @@ RLM_ASSUME_NONNULL_BEGIN
 
 @interface RLMObject : RLMObjectBase
 
-/**---------------------------------------------------------------------------------------
- *  @name Creating & Initializing Objects
- * ---------------------------------------------------------------------------------------
- */
+#pragma mark - Creating & Initializing Objects
 
 /**
  Initialize a standalone RLMObject
@@ -111,6 +109,7 @@ RLM_ASSUME_NONNULL_BEGIN
  */
 - (instancetype)initWithValue:(id)value NS_DESIGNATED_INITIALIZER;
 
+/// :nodoc:
 - (instancetype)initWithObject:(id)object DEPRECATED_MSG_ATTRIBUTE("use initWithValue:");
 
 
@@ -144,6 +143,7 @@ RLM_ASSUME_NONNULL_BEGIN
  */
 + (instancetype)createInDefaultRealmWithValue:(id)value;
 
+/// :nodoc:
 + (instancetype)createInDefaultRealmWithObject:(id)object DEPRECATED_MSG_ATTRIBUTE("use createInDefaultRealmWithValue:");
 
 /**
@@ -167,6 +167,7 @@ RLM_ASSUME_NONNULL_BEGIN
  */
 + (instancetype)createInRealm:(RLMRealm *)realm withValue:(id)value;
 
+/// :nodoc:
 + (instancetype)createInRealm:(RLMRealm *)realm withObject:(id)object DEPRECATED_MSG_ATTRIBUTE("use createInRealm:withValue:");
 
 /**
@@ -192,6 +193,7 @@ RLM_ASSUME_NONNULL_BEGIN
  */
 + (instancetype)createOrUpdateInDefaultRealmWithValue:(id)value;
 
+/// :nodoc:
 + (instancetype)createOrUpdateInDefaultRealmWithObject:(id)object DEPRECATED_MSG_ATTRIBUTE("use createOrUpdateInDefaultRealmWithValue:");
 
 /**
@@ -218,7 +220,10 @@ RLM_ASSUME_NONNULL_BEGIN
  */
 + (instancetype)createOrUpdateInRealm:(RLMRealm *)realm withValue:(id)value;
 
+/// :nodoc:
 + (instancetype)createOrUpdateInRealm:(RLMRealm *)realm withObject:(id)object DEPRECATED_MSG_ATTRIBUTE("use createOrUpdateInRealm:withValue:");
+
+#pragma mark - Properties
 
 /**
  The Realm in which this object is persisted. Returns nil for standalone objects.
@@ -238,13 +243,10 @@ RLM_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, readonly, getter = isInvalidated) BOOL invalidated;
 
+/// :nodoc:
 @property (nonatomic, readonly, getter = isDeletedFromRealm) BOOL deletedFromRealm __attribute__((deprecated("Use `invalidated` instead.")));
 
-
-/**---------------------------------------------------------------------------------------
- *  @name Customizing your Objects
- * ---------------------------------------------------------------------------------------
- */
+#pragma mark - Customizing your Objects
 
 /**
  Return an array of property names for properties which should be indexed. Only supported
@@ -282,20 +284,19 @@ RLM_ASSUME_NONNULL_BEGIN
  Implement to return an array of property names that should not allow storing nil.
 
  By default, all properties of a type that support storing nil are considered optional properties.
- To require that an object in a Realm always have a non-nil value for a property, add the name of the property to the array returned from this method.
-
- Currently only String, Data, and Object properties support storing nil, and all other properties are implicitly treated as if they were required properties.
- Support for additional types will come in the future.
+ To require that an object in a Realm always have a non-nil value for a property,
+ add the name of the property to the array returned from this method.
  
+ Currently Object properties cannot be required. Array and NSNumber properties
+ can, but it makes little sense to do so: arrays do not support storing nil, and
+ if you want a non-optional number you should instead use the primitive type.
+
  @return    NSArray of property names that are required.
  */
 + (NSArray *)requiredProperties;
 
 
-/**---------------------------------------------------------------------------------------
- *  @name Getting & Querying Objects from the Default Realm
- *  ---------------------------------------------------------------------------------------
- */
+#pragma mark - Getting & Querying Objects from the Default Realm
 
 /**
  Get all objects of this type from the default Realm.
@@ -338,10 +339,7 @@ RLM_ASSUME_NONNULL_BEGIN
 + (nullable instancetype)objectForPrimaryKey:(nullable id)primaryKey;
 
 
-/**---------------------------------------------------------------------------------------
- *  @name Querying Specific Realms
- *  ---------------------------------------------------------------------------------------
- */
+#pragma mark - Querying Specific Realms
 
 /**
  Get all objects of this type from the specified Realm.
@@ -386,6 +384,8 @@ RLM_ASSUME_NONNULL_BEGIN
  */
 + (nullable instancetype)objectInRealm:(RLMRealm *)realm forPrimaryKey:(nullable id)primaryKey;
 
+#pragma mark - Other Instance Methods
+
 /**
  Get an `NSArray` of objects of type `className` which have this object as the given property value. This can
  be used to get the inverse relatshionship value for `RLMObject` and `RLMArray` properties.
@@ -408,28 +408,18 @@ RLM_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)isEqualToObject:(RLMObject *)object;
 
-#pragma mark -
+#pragma mark - Dynamic Accessors
 
-//---------------------------------------------------------------------------------------
-// @name Dynamic Accessors
-//---------------------------------------------------------------------------------------
-//
-// Properties on RLMObjects can be accessed and set using keyed subscripting.
-// ie. rlmObject[@"propertyName"] = object;
-//     id object = rlmObject[@"propertyName"];
-//
-
+/// :nodoc:
 - (nullable id)objectForKeyedSubscript:(NSString *)key;
-- (void)setObject:(nullable id)obj forKeyedSubscript:(NSString *)key;
 
-#pragma mark -
+/// :nodoc:
+- (void)setObject:(nullable id)obj forKeyedSubscript:(NSString *)key;
 
 @end
 
-/**---------------------------------------------------------------------------------------
- *  @name RLMArray Property Declaration
- *  ---------------------------------------------------------------------------------------
- */
+#pragma mark - RLMArray Property Declaration
+
 /**
  Properties on RLMObjects of type RLMArray must have an associated type. A type is associated
  with an RLMArray property by defining a protocol for the object type which the RLMArray will

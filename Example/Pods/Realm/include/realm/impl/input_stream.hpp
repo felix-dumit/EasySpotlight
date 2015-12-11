@@ -45,13 +45,13 @@ public:
     /// availble.
     virtual size_t read(char* buffer, size_t size) = 0;
 
-    virtual ~InputStream() REALM_NOEXCEPT {}
+    virtual ~InputStream() noexcept {}
 };
 
 
 class SimpleInputStream: public InputStream {
 public:
-    SimpleInputStream(const char* data, std::size_t size) REALM_NOEXCEPT:
+    SimpleInputStream(const char* data, size_t size) noexcept:
         m_ptr(data),
         m_end(data + size)
     {
@@ -80,13 +80,13 @@ public:
     /// contiguous memory chunk.
     virtual size_t next_block(const char*& begin, const char*& end) = 0;
 
-    virtual ~NoCopyInputStream() REALM_NOEXCEPT {}
+    virtual ~NoCopyInputStream() noexcept {}
 };
 
 
 class NoCopyInputStreamAdaptor: public NoCopyInputStream {
 public:
-    NoCopyInputStreamAdaptor(InputStream& in, char* buffer, size_t buffer_size) REALM_NOEXCEPT:
+    NoCopyInputStreamAdaptor(InputStream& in, char* buffer, size_t buffer_size) noexcept:
         m_in(in),
         m_buffer(buffer),
         m_buffer_size(buffer_size)
@@ -108,17 +108,17 @@ private:
 
 class SimpleNoCopyInputStream: public NoCopyInputStream {
 public:
-    SimpleNoCopyInputStream(const char* data, std::size_t size):
+    SimpleNoCopyInputStream(const char* data, size_t size):
         m_data(data),
         m_size(size)
     {
     }
 
-    std::size_t next_block(const char*& begin, const char*& end) override
+    size_t next_block(const char*& begin, const char*& end) override
     {
         if (m_size == 0)
             return 0;
-        std::size_t size = m_size;
+        size_t size = m_size;
         begin = m_data;
         end = m_data + size;
         m_size = 0;
@@ -127,7 +127,7 @@ public:
 
 private:
     const char* m_data;
-    std::size_t m_size;
+    size_t m_size;
 };
 
 class MultiLogNoCopyInputStream: public NoCopyInputStream {

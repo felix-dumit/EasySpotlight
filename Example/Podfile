@@ -3,13 +3,12 @@ use_frameworks!
 
 target 'EasySpotlight_Example', :exclusive => true do
   pod "EasySpotlight", :path => "../"
-  pod 'Realm', :git => 'https://github.com/realm/realm-cocoa', :branch => 'swift-2.0'
-  pod 'RealmSwift', :git => 'https://github.com/realm/realm-cocoa', :branch => 'swift-2.0'
+  pod 'Realm'
+  pod 'RealmSwift'
 end
 
 target 'EasySpotlight_Tests', :exclusive => true do
   pod "EasySpotlight", :path => "../"
-
-pod 'Quick', :git => "https://github.com/Quick/Quick"
-pod 'Nimble', :git => "https://github.com/Quick/Nimble"
+  pod 'Quick'
+  pod 'Nimble'
 end
