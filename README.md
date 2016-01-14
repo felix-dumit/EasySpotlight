@@ -112,9 +112,6 @@ func application(application: UIApplication, continueUserActivity userActivity: 
 
 See the included example application for a sample that indexes and retrieves objects from `Realm`.
 
-## Todo
-Verify tests are passing on Travis once they support iOS9.
-
 ## Feedback
 New feature ideas, suggestions, or any general feedback is greatly appreciated.
 
