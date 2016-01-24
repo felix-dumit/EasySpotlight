@@ -1,6 +1,0 @@
-framework module EasySpotlight {
-  umbrella header "EasySpotlight-umbrella.h"
-
-  export *
-  module * { export * }
-}
