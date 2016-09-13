@@ -55,7 +55,7 @@ public protocol SpotlightConvertable:SpotlightIndexable {
 ```
 
 
-Here is a simple exable of a struct that implements the protocol and becomes indexable. Note also that arrays of `[SpotlightConvertable]` also conform to `SpotlightIndexable`
+Here is a simple example of a struct that implements the protocol and becomes indexable. Note also that arrays of `[SpotlightConvertable]` also conform to `SpotlightIndexable`
 
 ```swift 
 struct SimpleStruct:SpotlightConvertable {
@@ -100,7 +100,7 @@ EasySpotlight.registerIndexableHandler(SimpleStruct.self) { item in
 }
 ```
 
-Now all that is left is to implement the function called when the app opens from a spotlight: 
+Now all that is left is to implement the function called when the app opens from a spotlight search: 
 
 ```swift
 func application(application: UIApplication, continueUserActivity userActivity: NSUserActivity, restorationHandler: ([AnyObject]?) -> Void) -> Bool {
