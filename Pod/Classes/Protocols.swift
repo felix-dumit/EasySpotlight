@@ -7,7 +7,7 @@
 //
 import CoreSpotlight
 
-public typealias SpotlightCompletion = ((NSError?) -> Void)?
+public typealias SpotlightCompletion = ((Error?) -> Void)?
 
 /**
 *  Methods given for free when implementing :SpotlightConvertable:
@@ -19,21 +19,21 @@ public protocol SpotlightIndexable {
     
     - parameter completion: block called when indexing finishes
     */
-    func addToSpotlightIndex(completion:SpotlightCompletion)
+    func addToSpotlightIndex(_ completion:SpotlightCompletion)
     
     /**
     Remove the item to spotlight search
     
     - parameter completion: block called when indexing finishes
     */
-    func removeFromSpotlightIndex(completion:SpotlightCompletion)
+    func removeFromSpotlightIndex(_ completion:SpotlightCompletion)
     
     /**
     Remove all objects of Type to spotlight search
     
     - parameter completion: block called when indexing finishes
     */
-    static func removeAllFromSpotlightIndex(completion:SpotlightCompletion)
+    static func removeAllFromSpotlightIndex(_ completion:SpotlightCompletion)
 }
 
 @available(iOS 9.0, *)
@@ -49,12 +49,12 @@ public protocol SpotlightConvertable:SpotlightIndexable {
     var contentDescription:String? {get}
     
     /// unique idenfitier
-    var identifier:String {get}
+    var identifier:StringLiteralType {get}
     
     //optional
     var itemType:String {get}
     var thumbnailImage:UIImage? {get}
-    func configureSearchableItem(item:CSSearchableItem)
+    func configure(searchableItem item:CSSearchableItem)
 }
 
 /**
@@ -68,5 +68,5 @@ public protocol SpotlightRetrievable:SpotlightConvertable {
     
     - returns: retrieved item
     */
-    static func itemWithIdentifier(identifier: String) -> Self?
+    static func item(with identifier: String) -> Self?
 }

@@ -8,14 +8,14 @@
 
 Pod::Spec.new do |s|
   s.name             = "EasySpotlight"
-  s.version          = "0.2.3"
+  s.version          = "0.3.0"
   s.summary          = "Easy way to add content to core spotlight "
 
 # This description is used to generate tags and improve search results.
 #   * Think: What does it do? Why did you write it? What is the focus?
 #   * Try to keep it short, snappy and to the point.
 #   * Write the description between the DESC delimiters below.
-#   * Finally, don't worry about the indent, CocoaPods strips it!  
+#   * Finally, don't worry about the indent, CocoaPods strips it!
   s.description      = <<-DESC
 Easily index your classes and structs to CoreSpotlight by adopting to this simple protocol.
                        DESC
@@ -31,11 +31,7 @@ Easily index your classes and structs to CoreSpotlight by adopting to this simpl
   s.requires_arc = true
 
   s.source_files = 'Pod/Classes/**/*'
-  s.resource_bundles = {
-    'EasySpotlight' => ['Pod/Assets/*.png']
-  }
-
-  # s.public_header_files = 'Pod/Classes/**/*.h'
-  # s.frameworks = 'UIKit', 'MapKit'
-  # s.dependency 'AFNetworking', '~> 2.3'
+  # s.resource_bundles = {
+    # 'EasySpotlight' => ['Pod/Assets/*.png']
+  # }
 end

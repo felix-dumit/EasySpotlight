@@ -18,7 +18,8 @@ public struct EasySpotlight {
     
     - returns: true if it was handled correctly and activitytype was `CSSearchableItemActionType`
     */
-    public static func handleActivity(activity:NSUserActivity?) -> Bool{
+    @discardableResult
+    public static func handle(activity:NSUserActivity?) -> Bool{
         guard activity?.activityType == CSSearchableItemActionType else {
             return false
         }
@@ -27,13 +28,13 @@ public struct EasySpotlight {
             return false
         }
         
-        let ids = decomposeIdentifier(idDomain)
+        let ids = decompose(composite: idDomain)
         
         guard let (objType, block) = typeDict[ids.domain] else { return false }
         
-        let item = objType.itemWithIdentifier(ids.identifier)
+        let item = objType.item(with: ids.identifier)
         
-        block(value: item)
+        block(item)
         return true
     }
     
@@ -43,7 +44,7 @@ public struct EasySpotlight {
     - parameter type:  type being registered
     - parameter block: block executed when app is opened
     */
-    public static func registerIndexableHandler<T:SpotlightRetrievable>(type:T.Type, block:(T -> Void)) {
+    public static func registerIndexableHandler<T:SpotlightRetrievable>(_ type:T.Type, block:@escaping ((T) -> Void)) {
         let specializedCallback = { (value: T?) -> Void in
             if let v = value {
                 block(v)
@@ -55,17 +56,17 @@ public struct EasySpotlight {
     
     internal static let separator = "|__|"
     
-    internal static func compositeIdentifier(identifier:String, domain:String) -> String {
+    internal static func composite(identifier:String, domain:String) -> String {
         return "\(domain)\(separator)\(identifier)"
     }
     
-    internal static func decomposeIdentifier(composite:String) -> (domain:String, identifier:String) {
-        let comps = composite.componentsSeparatedByString(separator)
+    internal static func decompose(composite:String) -> (domain:String, identifier:String) {
+        let comps = composite.components(separatedBy: separator)
         return (comps[0], comps[1])
     }
     
     private typealias EasySpotlightRegister = (SpotlightRetrievable.Type, GenericCallbackType)
     private static var typeDict:[String:EasySpotlightRegister] = [:]
-    public static var searchableIndex = CSSearchableIndex.defaultSearchableIndex()
+    public static var searchableIndex = CSSearchableIndex.default()
 }
 

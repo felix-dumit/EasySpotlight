@@ -12,7 +12,7 @@ class TableOfContentsSpec: QuickSpec {
         EasySpotlight.searchableIndex = index
         
         let items = ["andy", "bob", "carol", "derek"].flatMap {
-            SimpleStruct.itemWithIdentifier($0)
+            SimpleStruct.item(with: $0)
         }
         
         describe("these will test saving and removing to index") {
@@ -60,7 +60,7 @@ class TableOfContentsSpec: QuickSpec {
                 
                 let item = items[0]
                 
-                EasySpotlight.handleActivity(item.userActivityWhenOpened)
+                EasySpotlight.handle(activity:item.userActivityWhenOpened)
                 
                 expect(itemReturned) == item
                 

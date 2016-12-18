@@ -45,12 +45,12 @@ public protocol SpotlightIndexable {
 // implement to enable indexing methods
 public protocol SpotlightConvertable:SpotlightIndexable {
     var title:String? {get}
-    var identifier:String {get}
+    var identifier:StringLiteralType {get}
     
     //optional
     var itemType:String {get}
     var thumbnailImage:UIImage? {get}
-    func configureSearchableItem(item:CSSearchableItem)
+    func configure(searchableItem item:CSSearchableItem)
 }
 ```
 
@@ -86,7 +86,7 @@ In order to easily handle when the app is opened via a spotlight search, you mus
 
 ```swift 
 public protocol SpotlightRetrievable:SpotlightConvertable {
-    static func itemWithIdentifier(identifier: String) -> Self?
+    static func item(with identifier: String) -> Self?
 }
 ```
 
@@ -104,7 +104,7 @@ Now all that is left is to implement the function called when the app opens from
 
 ```swift
 func application(application: UIApplication, continueUserActivity userActivity: NSUserActivity, restorationHandler: ([AnyObject]?) -> Void) -> Bool {
-     return EasySpotlight.handleActivity(userActivity) || handleOtherUserActivities(userActivity)
+     return EasySpotlight.handle(activity: userActivity) || handleOtherUserActivities(userActivity)
 }
 ```
 

@@ -30,19 +30,20 @@ extension SpotlightConvertable {
 class MockSearchableIndex:CSSearchableIndex {
     var indexedItems = [CSSearchableItem]()
     
-    override func indexSearchableItems(items: [CSSearchableItem], completionHandler: ((NSError?) -> Void)?) {
-        indexedItems.appendContentsOf(items)
+    
+    override func indexSearchableItems(_ items: [CSSearchableItem], completionHandler: ((Error?) -> Void)? = nil) {
+        indexedItems.append(contentsOf: items)
         completionHandler?(nil)
     }
     
-    override func deleteSearchableItemsWithDomainIdentifiers(domainIdentifiers: [String], completionHandler: ((NSError?) -> Void)?) {
+    override func deleteSearchableItems(withDomainIdentifiers domainIdentifiers: [String], completionHandler: ((Error?) -> Void)? = nil) {
         indexedItems = indexedItems.filter {
             !domainIdentifiers.contains($0.domainIdentifier ?? "")
         }
         completionHandler?(nil)
     }
     
-    override func deleteSearchableItemsWithIdentifiers(identifiers: [String], completionHandler: ((NSError?) -> Void)?) {
+    override func deleteSearchableItems(withIdentifiers identifiers: [String], completionHandler: ((Error?) -> Void)? = nil) {
         indexedItems = indexedItems.filter {
             !identifiers.contains($0.uniqueIdentifier)
         }

@@ -13,30 +13,31 @@ import RealmSwift
 class SimpleRealmClass: Object {
     dynamic var name = ""
     dynamic var longDescription = ""
-    dynamic var id = 0
+    dynamic var identifier = ""
     
     override static func primaryKey() -> String? {
-        return "id"
+        return "identifier"
     }
     
     required convenience init(name:String, longDescription:String) {
         self.init()
         self.name = name
         self.longDescription = longDescription
-        self.id = name.hashValue
+        self.identifier = name.hashValue.description
     }
     
 }
 
 extension SimpleRealmClass:SpotlightConvertable {
+    /// unique idenfitier
+
     var title:String? { return name }
     var contentDescription:String? { return longDescription }
-    var identifier:String { return "\(id)" }
 }
 
 extension SimpleRealmClass:SpotlightRetrievable {
-    static func itemWithIdentifier(identifier: String) -> Self? {
+    static func item(with identifier: String) -> Self? {
         let realm = try! Realm()
-        return realm.objectForPrimaryKey(self, key: Int(identifier)!)
+        return realm.object(ofType: self, forPrimaryKey: identifier as AnyObject)
     }
 }

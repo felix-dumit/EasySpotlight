@@ -1,12 +1,12 @@
 PODS:
-  - EasySpotlight (0.2.2)
-  - Nimble (3.0.0)
-  - Quick (0.8.0)
-  - Realm (0.96.3):
-    - Realm/Headers (= 0.96.3)
-  - Realm/Headers (0.96.3)
-  - RealmSwift (0.96.3):
-    - Realm (= 0.96.3)
+  - EasySpotlight (0.2.3)
+  - Nimble (5.1.1)
+  - Quick (1.0.0)
+  - Realm (2.1.1):
+    - Realm/Headers (= 2.1.1)
+  - Realm/Headers (2.1.1)
+  - RealmSwift (2.1.1):
+    - Realm (= 2.1.1)
 
 DEPENDENCIES:
   - EasySpotlight (from `../`)
@@ -20,10 +20,12 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  EasySpotlight: d6bda82ee71477816f1803b82a5b605fc8679c0d
-  Nimble: 4c353d43735b38b545cbb4cb91504588eb5de926
-  Quick: 563d0f6ec5f72e394645adb377708639b7dd38ab
-  Realm: 145d3cdf78a03aee71bde5381ad7e542bd541720
-  RealmSwift: aab84968aad662f61f36473d1aea019f63481505
+  EasySpotlight: 9c9b87d9997da632325112c8cf4cb3b102fcdfde
+  Nimble: 415e3aa3267e7bc2c96b05fa814ddea7bb686a29
+  Quick: 8024e4a47e6cc03a9d5245ef0948264fc6d27cff
+  Realm: a55959c0b171a5fe5267406d17f314fec3cefaae
+  RealmSwift: 749fd955bf8d6471c21d218b9389a47aaeccfe3f
 
-COCOAPODS: 0.39.0
+PODFILE CHECKSUM: c5ea00b3d25e4de6d2307e951a41d01e869ffb5c
+
+COCOAPODS: 1.2.0.beta.1

@@ -17,7 +17,7 @@ struct SimpleStruct:SpotlightConvertable {
 
 extension SimpleStruct:SpotlightRetrievable {
 
-    static func itemWithIdentifier(identifier: String) -> SimpleStruct? {
+    static func item(with identifier: String) -> SimpleStruct? {
         //query your DB or network
         return SimpleStruct(title: "item_\(identifier)", contentDescription: "cool", identifier: identifier)
     }

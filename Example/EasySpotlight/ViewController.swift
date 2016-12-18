@@ -16,7 +16,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     
     func reloadItems() {
-        items = try? Realm().objects(SimpleRealmClass)
+        items = try? Realm().objects(SimpleRealmClass.self)
         tableView.reloadData()
     }
     
@@ -27,11 +27,11 @@ class ViewController: UIViewController {
     }
     
     //MARK: Outlets
-    @IBAction func addNewElement(sender: UIBarButtonItem) {
+    @IBAction func addNewElement(_ sender: UIBarButtonItem) {
         
-        let alert = UIAlertController(title: "New Element", message: "enter title", preferredStyle: .Alert)
+        let alert = UIAlertController(title: "New Element", message: "enter title", preferredStyle: .alert)
         
-        let action = UIAlertAction(title: "OK", style: .Default){ _ in
+        let action = UIAlertAction(title: "OK", style: .default){ _ in
             
             if let txt = alert.textFields?[0].text {
 
@@ -48,41 +48,41 @@ class ViewController: UIViewController {
         
         alert.addAction(action)
 
-        alert.addTextFieldWithConfigurationHandler(nil)
+        alert.addTextField(configurationHandler: nil)
         
-        self.presentViewController(alert, animated: true, completion:nil)
+        self.present(alert, animated: true, completion:nil)
     }
     
-    @IBAction func removeAllElements(sender: UIBarButtonItem) {
+    @IBAction func removeAllElements(_ sender: UIBarButtonItem) {
         SimpleRealmClass.removeAllFromSpotlightIndex()
         //or items.removeFromSpotlightIndex()
     }
 
-    @IBAction func addAllElements(sender: UIBarButtonItem) {
+    @IBAction func addAllElements(_ sender: UIBarButtonItem) {
         items?.addToSpotlightIndex()
     }
 }
 
 extension ViewController:UITableViewDataSource {
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return (items?.count ?? 0)
     }
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: .Default, reuseIdentifier: "cellOk")
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = UITableViewCell(style: .default, reuseIdentifier: "cellOk")
      
-        cell.textLabel?.text = items?[indexPath.row].name
+        cell.textLabel?.text = items?[(indexPath as NSIndexPath).row].name
         
         return cell
     }
     
-    func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         return true
     }
     
-    func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        guard editingStyle == .Delete else { return }
-        guard let item = items?[indexPath.row] else { return }
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        guard editingStyle == .delete else { return }
+        guard let item = items?[(indexPath as NSIndexPath).row] else { return }
         
         item.removeFromSpotlightIndex { error in
             print("got error: \(error)")
@@ -94,7 +94,7 @@ extension ViewController:UITableViewDataSource {
         }
         
         tableView.beginUpdates()
-        tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
+        tableView.deleteRows(at: [indexPath], with: .automatic)
         tableView.endUpdates()
         
     }
@@ -102,7 +102,7 @@ extension ViewController:UITableViewDataSource {
 
 
 extension ViewController:UITableViewDelegate {
-    func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle {
-        return .Delete
+    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCellEditingStyle {
+        return .delete
     }
 }

@@ -9,19 +9,19 @@
 import Foundation
 
 //http://stackoverflow.com/questions/29512583/casting-closures-in-swift
-internal typealias GenericCallbackType = (value: Any?) -> Void
+internal typealias GenericCallbackType = (_ value: Any?) -> Void
 
 internal final class GenericCallback<T> {
     
-    func executeCallback(value: Any?) -> Void {
+    func executeCallback(_ value: Any?) -> Void {
         if let specificValue = value as? T {
-            specificCallback( value: specificValue )
+            specificCallback( specificValue )
         }
     }
     
-    init(callback:(value: T?)->Void ) {
+    init(callback:@escaping (_ value: T?)->Void ) {
         self.specificCallback = callback
     }
     
-    private let specificCallback:(value: T?)->Void
+    fileprivate let specificCallback:(_ value: T?)->Void
 }

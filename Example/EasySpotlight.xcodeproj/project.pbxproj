@@ -7,19 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		538AF83364988FE41EA0235E /* Pods_SharedPods_EasySpotlight_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 931053E14094E4D7812B14C7 /* Pods_SharedPods_EasySpotlight_Tests.framework */; };
+		5406F9023DA4ABFE49B33A33 /* Pods_SharedPods_EasySpotlight_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 746B8DE477DB82B26F990D33 /* Pods_SharedPods_EasySpotlight_Example.framework */; };
 		607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD51AFB9204008FA782 /* AppDelegate.swift */; };
 		607FACD81AFB9204008FA782 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD71AFB9204008FA782 /* ViewController.swift */; };
 		607FACDB1AFB9204008FA782 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 607FACD91AFB9204008FA782 /* Main.storyboard */; };
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		607FACEC1AFB9204008FA782 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACEB1AFB9204008FA782 /* Tests.swift */; };
-		6F68D305CF067256782892CA /* Pods_EasySpotlight_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 469989FB03648059EA1E1E55 /* Pods_EasySpotlight_Example.framework */; };
 		D5614AC01BD1778100268AFA /* SimpleStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D83A521BA277CE00171595 /* SimpleStruct.swift */; };
-		D5614AC11BD1778400268AFA /* SimpleRealmClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5CF45D61BB2037400A8E6CC /* SimpleRealmClass.swift */; };
 		D5614AC41BD18E1A00268AFA /* MockSearchableIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5614AC21BD1793B00268AFA /* MockSearchableIndex.swift */; };
 		D5CF45D71BB2037400A8E6CC /* SimpleRealmClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5CF45D61BB2037400A8E6CC /* SimpleRealmClass.swift */; };
 		D5D83A531BA277CE00171595 /* SimpleStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D83A521BA277CE00171595 /* SimpleStruct.swift */; };
-		E18E70AD7F2DF5FBD2131B72 /* Pods_EasySpotlight_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7734F894D6D8D75A5D23DD29 /* Pods_EasySpotlight_Tests.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,9 +33,6 @@
 
 /* Begin PBXFileReference section */
 		2310569CEEA81C548A7AE8C2 /* EasySpotlight.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = EasySpotlight.podspec; path = ../EasySpotlight.podspec; sourceTree = "<group>"; };
-		397EC3F9D928FCC4CC5D7FFB /* Pods-EasySpotlight_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EasySpotlight_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-EasySpotlight_Example/Pods-EasySpotlight_Example.release.xcconfig"; sourceTree = "<group>"; };
-		469989FB03648059EA1E1E55 /* Pods_EasySpotlight_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_EasySpotlight_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		5CFBB2D4E66AB95C0CEF3B32 /* Pods-EasySpotlight_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EasySpotlight_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-EasySpotlight_Tests/Pods-EasySpotlight_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		607FACD01AFB9204008FA782 /* EasySpotlight_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EasySpotlight_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACD41AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		607FACD51AFB9204008FA782 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -47,14 +43,20 @@
 		607FACE51AFB9204008FA782 /* EasySpotlight_Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EasySpotlight_Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACEA1AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		607FACEB1AFB9204008FA782 /* Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests.swift; sourceTree = "<group>"; };
-		68EA33198B63C8F6B1A6B5AC /* Pods-EasySpotlight_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EasySpotlight_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-EasySpotlight_Tests/Pods-EasySpotlight_Tests.release.xcconfig"; sourceTree = "<group>"; };
-		7734F894D6D8D75A5D23DD29 /* Pods_EasySpotlight_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_EasySpotlight_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		61811CF58C6F4BA636230702 /* Pods-SharedPods-EasySpotlight_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SharedPods-EasySpotlight_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-SharedPods-EasySpotlight_Example/Pods-SharedPods-EasySpotlight_Example.release.xcconfig"; sourceTree = "<group>"; };
+		7380911BC4C2A67D90208A19 /* Pods-EasySpotlight_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EasySpotlight_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-EasySpotlight_Tests/Pods-EasySpotlight_Tests.release.xcconfig"; sourceTree = "<group>"; };
+		746B8DE477DB82B26F990D33 /* Pods_SharedPods_EasySpotlight_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SharedPods_EasySpotlight_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		7724F902C09A05AD34C5BF8A /* Pods-SharedPods-EasySpotlight_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SharedPods-EasySpotlight_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-SharedPods-EasySpotlight_Tests/Pods-SharedPods-EasySpotlight_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		7E596DC037A0B3AE0EB49E1B /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
+		931053E14094E4D7812B14C7 /* Pods_SharedPods_EasySpotlight_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SharedPods_EasySpotlight_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A979F062293EA6607D69495B /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
-		C355538071D0A17E4962C1AA /* Pods-EasySpotlight_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EasySpotlight_Example.debug.xcconfig"; path = "Pods/Target Support Files/Pods-EasySpotlight_Example/Pods-EasySpotlight_Example.debug.xcconfig"; sourceTree = "<group>"; };
+		B7FFA46A7E11E838A98964B8 /* Pods-EasySpotlight_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EasySpotlight_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-EasySpotlight_Tests/Pods-EasySpotlight_Tests.debug.xcconfig"; sourceTree = "<group>"; };
+		C31457FF36D5287540E2D5E7 /* Pods_EasySpotlight_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_EasySpotlight_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D5614AC21BD1793B00268AFA /* MockSearchableIndex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockSearchableIndex.swift; sourceTree = "<group>"; };
 		D5CF45D61BB2037400A8E6CC /* SimpleRealmClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SimpleRealmClass.swift; sourceTree = "<group>"; };
 		D5D83A521BA277CE00171595 /* SimpleStruct.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SimpleStruct.swift; sourceTree = "<group>"; };
+		E081EA44A2AE05619780CF06 /* Pods-SharedPods-EasySpotlight_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SharedPods-EasySpotlight_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SharedPods-EasySpotlight_Tests/Pods-SharedPods-EasySpotlight_Tests.debug.xcconfig"; sourceTree = "<group>"; };
+		F79910D85286FD9EC11E5BD1 /* Pods-SharedPods-EasySpotlight_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SharedPods-EasySpotlight_Example.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SharedPods-EasySpotlight_Example/Pods-SharedPods-EasySpotlight_Example.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,7 +64,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6F68D305CF067256782892CA /* Pods_EasySpotlight_Example.framework in Frameworks */,
+				5406F9023DA4ABFE49B33A33 /* Pods_SharedPods_EasySpotlight_Example.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -70,20 +72,22 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E18E70AD7F2DF5FBD2131B72 /* Pods_EasySpotlight_Tests.framework in Frameworks */,
+				538AF83364988FE41EA0235E /* Pods_SharedPods_EasySpotlight_Tests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		3788B0FEBBC2B0BB3AC82239 /* Pods */ = {
+		299073C488269C476E4FD591 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				C355538071D0A17E4962C1AA /* Pods-EasySpotlight_Example.debug.xcconfig */,
-				397EC3F9D928FCC4CC5D7FFB /* Pods-EasySpotlight_Example.release.xcconfig */,
-				5CFBB2D4E66AB95C0CEF3B32 /* Pods-EasySpotlight_Tests.debug.xcconfig */,
-				68EA33198B63C8F6B1A6B5AC /* Pods-EasySpotlight_Tests.release.xcconfig */,
+				B7FFA46A7E11E838A98964B8 /* Pods-EasySpotlight_Tests.debug.xcconfig */,
+				7380911BC4C2A67D90208A19 /* Pods-EasySpotlight_Tests.release.xcconfig */,
+				F79910D85286FD9EC11E5BD1 /* Pods-SharedPods-EasySpotlight_Example.debug.xcconfig */,
+				61811CF58C6F4BA636230702 /* Pods-SharedPods-EasySpotlight_Example.release.xcconfig */,
+				E081EA44A2AE05619780CF06 /* Pods-SharedPods-EasySpotlight_Tests.debug.xcconfig */,
+				7724F902C09A05AD34C5BF8A /* Pods-SharedPods-EasySpotlight_Tests.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -95,8 +99,8 @@
 				607FACD21AFB9204008FA782 /* Example for EasySpotlight */,
 				607FACE81AFB9204008FA782 /* Tests */,
 				607FACD11AFB9204008FA782 /* Products */,
-				3788B0FEBBC2B0BB3AC82239 /* Pods */,
-				BD0832BDF164B5553608A001 /* Frameworks */,
+				299073C488269C476E4FD591 /* Pods */,
+				C9EBB348963E848FD2EBB5CA /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -161,11 +165,12 @@
 			name = "Podspec Metadata";
 			sourceTree = "<group>";
 		};
-		BD0832BDF164B5553608A001 /* Frameworks */ = {
+		C9EBB348963E848FD2EBB5CA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				469989FB03648059EA1E1E55 /* Pods_EasySpotlight_Example.framework */,
-				7734F894D6D8D75A5D23DD29 /* Pods_EasySpotlight_Tests.framework */,
+				C31457FF36D5287540E2D5E7 /* Pods_EasySpotlight_Tests.framework */,
+				746B8DE477DB82B26F990D33 /* Pods_SharedPods_EasySpotlight_Example.framework */,
+				931053E14094E4D7812B14C7 /* Pods_SharedPods_EasySpotlight_Tests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -177,12 +182,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 607FACEF1AFB9204008FA782 /* Build configuration list for PBXNativeTarget "EasySpotlight_Example" */;
 			buildPhases = (
-				F3C8FC66CD2F420631A57560 /* Check Pods Manifest.lock */,
+				DDC9B61F2D6E27367B2AF270 /* [CP] Check Pods Manifest.lock */,
 				607FACCC1AFB9204008FA782 /* Sources */,
 				607FACCD1AFB9204008FA782 /* Frameworks */,
 				607FACCE1AFB9204008FA782 /* Resources */,
-				8D1F04CC1083DC6A4A1DA398 /* Embed Pods Frameworks */,
-				593D82D0783EA13401609E3B /* Copy Pods Resources */,
+				E966C1B3874E64B8224FACFC /* [CP] Embed Pods Frameworks */,
+				3AC2BE1415CAFC9DE3881730 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -197,12 +202,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 607FACF21AFB9204008FA782 /* Build configuration list for PBXNativeTarget "EasySpotlight_Tests" */;
 			buildPhases = (
-				7C709939B9FB325FF37A5100 /* Check Pods Manifest.lock */,
+				6CCB467AA36E7AB46077C000 /* [CP] Check Pods Manifest.lock */,
 				607FACE11AFB9204008FA782 /* Sources */,
 				607FACE21AFB9204008FA782 /* Frameworks */,
 				607FACE31AFB9204008FA782 /* Resources */,
-				03E7058765B83A11CF40F99D /* Embed Pods Frameworks */,
-				DBA6A8E76D080976FEE49972 /* Copy Pods Resources */,
+				899BF6228C9C1C3FB6E263A4 /* [CP] Embed Pods Frameworks */,
+				12F0B592568B40A078CEDB56 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -221,14 +226,18 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0700;
-				LastUpgradeCheck = 0700;
+				LastUpgradeCheck = 0820;
 				ORGANIZATIONNAME = CocoaPods;
 				TargetAttributes = {
 					607FACCF1AFB9204008FA782 = {
 						CreatedOnToolsVersion = 6.3.1;
+						DevelopmentTeam = 5T4R8F8RP9;
+						LastSwiftMigration = 0800;
 					};
 					607FACE41AFB9204008FA782 = {
 						CreatedOnToolsVersion = 6.3.1;
+						DevelopmentTeam = 5T4R8F8RP9;
+						LastSwiftMigration = 0800;
 						TestTargetID = 607FACCF1AFB9204008FA782;
 					};
 				};
@@ -273,94 +282,94 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		03E7058765B83A11CF40F99D /* Embed Pods Frameworks */ = {
+		12F0B592568B40A078CEDB56 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Embed Pods Frameworks";
+			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-EasySpotlight_Tests/Pods-EasySpotlight_Tests-frameworks.sh\"\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SharedPods-EasySpotlight_Tests/Pods-SharedPods-EasySpotlight_Tests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		593D82D0783EA13401609E3B /* Copy Pods Resources */ = {
+		3AC2BE1415CAFC9DE3881730 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Copy Pods Resources";
+			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-EasySpotlight_Example/Pods-EasySpotlight_Example-resources.sh\"\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SharedPods-EasySpotlight_Example/Pods-SharedPods-EasySpotlight_Example-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		7C709939B9FB325FF37A5100 /* Check Pods Manifest.lock */ = {
+		6CCB467AA36E7AB46077C000 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Check Pods Manifest.lock";
+			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		8D1F04CC1083DC6A4A1DA398 /* Embed Pods Frameworks */ = {
+		899BF6228C9C1C3FB6E263A4 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Embed Pods Frameworks";
+			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-EasySpotlight_Example/Pods-EasySpotlight_Example-frameworks.sh\"\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SharedPods-EasySpotlight_Tests/Pods-SharedPods-EasySpotlight_Tests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		DBA6A8E76D080976FEE49972 /* Copy Pods Resources */ = {
+		DDC9B61F2D6E27367B2AF270 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Copy Pods Resources";
+			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-EasySpotlight_Tests/Pods-EasySpotlight_Tests-resources.sh\"\n";
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		F3C8FC66CD2F420631A57560 /* Check Pods Manifest.lock */ = {
+		E966C1B3874E64B8224FACFC /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Check Pods Manifest.lock";
+			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SharedPods-EasySpotlight_Example/Pods-SharedPods-EasySpotlight_Example-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -382,7 +391,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				D5614AC41BD18E1A00268AFA /* MockSearchableIndex.swift in Sources */,
-				D5614AC11BD1778400268AFA /* SimpleRealmClass.swift in Sources */,
 				D5614AC01BD1778100268AFA /* SimpleStruct.swift in Sources */,
 				607FACEC1AFB9204008FA782 /* Tests.swift in Sources */,
 			);
@@ -431,8 +439,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -477,8 +487,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
@@ -498,44 +510,54 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
 		607FACF01AFB9204008FA782 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C355538071D0A17E4962C1AA /* Pods-EasySpotlight_Example.debug.xcconfig */;
+			baseConfigurationReference = F79910D85286FD9EC11E5BD1 /* Pods-SharedPods-EasySpotlight_Example.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = 5T4R8F8RP9;
 				INFOPLIST_FILE = EasySpotlight/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MODULE_NAME = ExampleApp;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
 		607FACF11AFB9204008FA782 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 397EC3F9D928FCC4CC5D7FFB /* Pods-EasySpotlight_Example.release.xcconfig */;
+			baseConfigurationReference = 61811CF58C6F4BA636230702 /* Pods-SharedPods-EasySpotlight_Example.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				DEVELOPMENT_TEAM = 5T4R8F8RP9;
+				ENABLE_TESTABILITY = NO;
 				INFOPLIST_FILE = EasySpotlight/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MODULE_NAME = ExampleApp;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
 		607FACF31AFB9204008FA782 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5CFBB2D4E66AB95C0CEF3B32 /* Pods-EasySpotlight_Tests.debug.xcconfig */;
+			baseConfigurationReference = E081EA44A2AE05619780CF06 /* Pods-SharedPods-EasySpotlight_Tests.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = 5T4R8F8RP9;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -548,16 +570,19 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/EasySpotlight_Example.app/EasySpotlight_Example";
 			};
 			name = Debug;
 		};
 		607FACF41AFB9204008FA782 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 68EA33198B63C8F6B1A6B5AC /* Pods-EasySpotlight_Tests.release.xcconfig */;
+			baseConfigurationReference = 7724F902C09A05AD34C5BF8A /* Pods-SharedPods-EasySpotlight_Tests.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				DEVELOPMENT_TEAM = 5T4R8F8RP9;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -566,6 +591,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/EasySpotlight_Example.app/EasySpotlight_Example";
 			};
 			name = Release;
