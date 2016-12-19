@@ -54,8 +54,9 @@ public extension SpotlightConvertable/*:SpotlightIndexable*/ {
 
     - parameter completion: block called when indexing finishes
     */
+    @available(*, deprecated, message: "Use EasySpotlight.index instead")
     func addToSpotlightIndex(_ completion:SpotlightCompletion = nil) {
-        [self].addToSpotlightIndex(completion)
+        EasySpotlight.index(self, completion: completion)
     }
 
     /**
@@ -63,8 +64,9 @@ public extension SpotlightConvertable/*:SpotlightIndexable*/ {
 
     - parameter completion: block called when indexing finishes
     */
+    @available(*, deprecated, message: "Use EasySpotlight.deIndex instead")
     func removeFromSpotlightIndex(_ completion:SpotlightCompletion = nil) {
-        [self].removeFromSpotlightIndex(completion)
+        EasySpotlight.deIndex(self, completion: completion)
     }
 
     /**
@@ -72,8 +74,9 @@ public extension SpotlightConvertable/*:SpotlightIndexable*/ {
 
     - parameter completion: block called when indexing finishes
     */
+    @available(*, deprecated, message: "Use EasySpotlight.deIndexAll instead")
     static func removeAllFromSpotlightIndex(_ completion:SpotlightCompletion = nil) {
-        EasySpotlight.searchableIndex.deleteSearchableItems(withDomainIdentifiers: [domainIdentifier], completionHandler: completion)
+        EasySpotlight.deIndexAll(of: self, completion: completion)
     }
 }
 
@@ -85,9 +88,9 @@ public extension Collection/*:SpotlightIndexable*/ where Iterator.Element:Spotli
 
     - parameter completion: block called when indexing finishes
     */
+    @available(*, deprecated, message: "Use EasySpotlight.index instead")
     func addToSpotlightIndex(_ completion:SpotlightCompletion = nil){
-        let items = self.map{ $0.indexableItem() }
-        EasySpotlight.searchableIndex.indexSearchableItems(items, completionHandler: completion)
+        EasySpotlight.index(Array(self), completion: completion)
     }
 
     /**
@@ -95,17 +98,8 @@ public extension Collection/*:SpotlightIndexable*/ where Iterator.Element:Spotli
 
     - parameter completion: block called when indexing finishes
     */
+    @available(*, deprecated, message: "Use EasySpotlight.deIndex instead")
     func removeFromSpotlightIndex(_ completion:SpotlightCompletion = nil) {
-        let ids = self.map { $0.uniqueIdentifier }
-        EasySpotlight.searchableIndex.deleteSearchableItems(withIdentifiers: ids, completionHandler: completion)
-    }
-
-    /**
-    Remove every single object from spotlight search
-
-    - parameter completion: block called when indexing finishes
-    */
-    static func removeAllFromSpotlightIndex(_ completion:SpotlightCompletion = nil) {
-        EasySpotlight.searchableIndex.deleteAllSearchableItems(completionHandler: completion)
+        EasySpotlight.deIndex(Array(self), completion: completion)
     }
 }

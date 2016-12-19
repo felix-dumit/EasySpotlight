@@ -19,7 +19,7 @@ class TableOfContentsSpec: QuickSpec {
             
             it("can index a single element") {
                 let item = items[0]
-                item.addToSpotlightIndex() { _ in
+                EasySpotlight.index(item) { _ in
                     expect(index.indexedItems.count) == 1
                     expect(index.indexedItems.first!.uniqueIdentifier) == item.uniqueIdentifier
                 }
@@ -27,13 +27,13 @@ class TableOfContentsSpec: QuickSpec {
             
             it("will deIndex a single element") {
                 let item = items[0]
-                item.removeFromSpotlightIndex() { _ in
+                EasySpotlight.deIndex(item) { _ in
                     expect(index.indexedItems).to(beEmpty())
                 }
             }
             
             it("will index an array of elements"){
-                items.addToSpotlightIndex() { _ in
+                EasySpotlight.index(items) { _ in
                     expect(index.indexedItems.count) == items.count
                     expect(index.indexedItems.map{$0.uniqueIdentifier}) == items.map{$0.uniqueIdentifier}
                 }
@@ -42,7 +42,7 @@ class TableOfContentsSpec: QuickSpec {
             it("will deinxed of a specific type"){
                 let newItem = CSSearchableItem()
                 index.indexedItems.append(newItem)
-                SimpleStruct.removeAllFromSpotlightIndex(){ _ in
+                EasySpotlight.deIndexAll(of: SimpleStruct.self) { _ in
                     expect(index.indexedItems.count) == 1
                     expect(index.indexedItems.first!) === newItem
                     index.indexedItems.removeAll()

@@ -28,18 +28,8 @@ github "felix-dumit/EasySpotlight"
 
 ## Saving content to Spotlight
 
-To use simply create a struct or class that implements the `SpotlightConvertable` protocol, and you will get the methods defined in `SpotlightIndexable` for free.
-Both protocols are copied **verbatum** below.
-
+To use simply create a struct or class that implements the `SpotlightConvertable` protocol.
 ```swift 
-public typealias SpotlightCompletion = ((NSError?) -> Void)?
-
-//methods given for free
-public protocol SpotlightIndexable {
-    func addToSpotlightIndex(completion:SpotlightCompletion)
-    func removeFromSpotlightIndex(completion:SpotlightCompletion)
-    static func removeAllFromSpotlightIndex(completion:SpotlightCompletion)
-}
 
 @available(iOS 9.0, *)
 // implement to enable indexing methods
@@ -55,8 +45,7 @@ public protocol SpotlightConvertable:SpotlightIndexable {
 ```
 
 
-Here is a simple example of a struct that implements the protocol and becomes indexable. Note also that arrays of `[SpotlightConvertable]` also conform to `SpotlightIndexable`
-
+Here is a simple example of a struct that implements the protocol and becomes indexable.
 ```swift 
 struct SimpleStruct:SpotlightConvertable {
     var title:String? = nil
@@ -68,14 +57,12 @@ You can now use all of the following methods:
 
 ```swift
 let x = SimpleStruct(title:"Bob", identifier:"identifier")
-
-x.addToSpotlightIndex() { error in 
+EasySpotlight.index(x) { error in 
 	handleError(error)
 }
-x.removeFromSpotlightIndex()
-SimpleStruct.removeAllFromSpotlightIndex()
-[x].addToSpotlightIndex()
-
+EasySpotlight.deIndex(x)
+EasySpotlight.deIndexAll(of: SimpleStruct.self)
+EasySpotlight.index([x])
 ```
 
 If you want to further configure the `CSSearchableItem` and `CSSearchbleAttributeItemSet` properties you can implement the `configureSeachableItem` method in the protocol.

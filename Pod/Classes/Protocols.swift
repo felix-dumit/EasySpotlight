@@ -7,11 +7,10 @@
 //
 import CoreSpotlight
 
-public typealias SpotlightCompletion = ((Error?) -> Void)?
-
 /**
 *  Methods given for free when implementing :SpotlightConvertable:
 */
+@available(*, deprecated, message: "Use EasySpotlight methods instead")
 public protocol SpotlightIndexable {
     
     /**
@@ -19,6 +18,7 @@ public protocol SpotlightIndexable {
     
     - parameter completion: block called when indexing finishes
     */
+    
     func addToSpotlightIndex(_ completion:SpotlightCompletion)
     
     /**

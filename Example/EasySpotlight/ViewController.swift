@@ -8,6 +8,7 @@
 
 import UIKit
 import RealmSwift
+import EasySpotlight
 
 class ViewController: UIViewController {
 
@@ -41,7 +42,7 @@ class ViewController: UIViewController {
                     realm.add(item)
                 }
                 
-                item.addToSpotlightIndex()
+                EasySpotlight.index(item)
                 self.reloadItems()
             }
         }
@@ -54,12 +55,13 @@ class ViewController: UIViewController {
     }
     
     @IBAction func removeAllElements(_ sender: UIBarButtonItem) {
-        SimpleRealmClass.removeAllFromSpotlightIndex()
-        //or items.removeFromSpotlightIndex()
+        EasySpotlight.deIndexAll(of: SimpleRealmClass.self)
     }
 
     @IBAction func addAllElements(_ sender: UIBarButtonItem) {
-        items?.addToSpotlightIndex()
+        if let items = items {
+            EasySpotlight.index(Array(items))
+        }
     }
 }
 
@@ -84,7 +86,7 @@ extension ViewController:UITableViewDataSource {
         guard editingStyle == .delete else { return }
         guard let item = items?[(indexPath as NSIndexPath).row] else { return }
         
-        item.removeFromSpotlightIndex { error in
+        EasySpotlight.deIndex(item) { error in
             print("got error: \(error)")
         }
         

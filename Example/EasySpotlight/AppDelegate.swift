@@ -34,7 +34,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
         }
         
-        SimpleStruct(title: "Struct Item", contentDescription: "this is a struct", identifier: "simple_struct").addToSpotlightIndex()
+        let ss = SimpleStruct(title: "Struct Item", contentDescription: "this is a struct", identifier: "simple_struct")
+        EasySpotlight.index(ss)
         
         return true
     }
