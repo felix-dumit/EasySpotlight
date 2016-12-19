@@ -1,5 +1,5 @@
 PODS:
-  - EasySpotlight (0.2.3)
+  - EasySpotlight (0.3.0)
   - Nimble (5.1.1)
   - Quick (1.0.0)
   - Realm (2.1.1):
@@ -20,7 +20,7 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  EasySpotlight: 9c9b87d9997da632325112c8cf4cb3b102fcdfde
+  EasySpotlight: 4465d02fb20e69b9af6b2f0f37ea82d658ca6605
   Nimble: 415e3aa3267e7bc2c96b05fa814ddea7bb686a29
   Quick: 8024e4a47e6cc03a9d5245ef0948264fc6d27cff
   Realm: a55959c0b171a5fe5267406d17f314fec3cefaae
