@@ -1,7 +1,6 @@
 ![Image](http://i.imgur.com/wwmRaRR.png)
 
-[![CI Status](http://img.shields.io/travis/felix-dumit/EasySpotlight.svg?style=flat)](https://travis-ci.org/felix-dumit/EasySpotlight)
-[![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
+[![BuddyBuild](https://dashboard.buddybuild.com/api/statusImage?appID=58c8e0590b654b0100584133&branch=master&build=latest)](https://dashboard.buddybuild.com/apps/58c8e0590b654b0100584133/build/latest?branch=master)[![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![Version](https://img.shields.io/cocoapods/v/EasySpotlight.svg?style=flat)](http://cocoapods.org/pods/EasySpotlight)
 [![License](https://img.shields.io/cocoapods/l/EasySpotlight.svg?style=flat)](http://cocoapods.org/pods/EasySpotlight)
 [![Platform](https://img.shields.io/cocoapods/p/EasySpotlight.svg?style=flat)](http://cocoapods.org/pods/EasySpotlight)
