@@ -66,7 +66,7 @@ EasySpotlight.index([x])
 
 If you want to further configure the `CSSearchableItem` and `CSSearchbleAttributeItemSet` properties you can implement the `configureSeachableItem` method in the protocol.
 
-##Retrieving content
+## Retrieving content
 
 In order to easily handle when the app is opened via a spotlight search, you must implement the `SpotlightRetrievable` protocol: 
 
