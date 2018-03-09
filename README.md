@@ -1,6 +1,8 @@
 ![Image](http://i.imgur.com/wwmRaRR.png)
 
-[![BuddyBuild](https://dashboard.buddybuild.com/api/statusImage?appID=58c8e0590b654b0100584133&branch=master&build=latest)](https://dashboard.buddybuild.com/apps/58c8e0590b654b0100584133/build/latest?branch=master)[![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
+[![Build Status](https://www.bitrise.io/app/7cfe2324a3f61aa9/status.svg?token=sw2NmI0eMdHcrDKjTBhSLA&branch=master)](https://www.bitrise.io/app/7cfe2324a3f61aa9)
+[![codecov](https://codecov.io/gh/felix-dumit/EasySpotlight/branch/master/graph/badge.svg)](https://codecov.io/gh/felix-dumit/EasySpotlight)
+[![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![Version](https://img.shields.io/cocoapods/v/EasySpotlight.svg?style=flat)](http://cocoapods.org/pods/EasySpotlight)
 [![License](https://img.shields.io/cocoapods/l/EasySpotlight.svg?style=flat)](http://cocoapods.org/pods/EasySpotlight)
 [![Platform](https://img.shields.io/cocoapods/p/EasySpotlight.svg?style=flat)](http://cocoapods.org/pods/EasySpotlight)
