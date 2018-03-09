@@ -2,6 +2,7 @@
 
 [![Build Status](https://www.bitrise.io/app/7cfe2324a3f61aa9/status.svg?token=sw2NmI0eMdHcrDKjTBhSLA&branch=master)](https://www.bitrise.io/app/7cfe2324a3f61aa9)
 [![codecov](https://codecov.io/gh/felix-dumit/EasySpotlight/branch/master/graph/badge.svg)](https://codecov.io/gh/felix-dumit/EasySpotlight)
+[![codebeat badge](https://codebeat.co/badges/faffeda9-779c-41fc-a0d4-00c295a7abdc)](https://codebeat.co/projects/github-com-felix-dumit-easyspotlight-master)
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![Version](https://img.shields.io/cocoapods/v/EasySpotlight.svg?style=flat)](http://cocoapods.org/pods/EasySpotlight)
 [![License](https://img.shields.io/cocoapods/l/EasySpotlight.svg?style=flat)](http://cocoapods.org/pods/EasySpotlight)
