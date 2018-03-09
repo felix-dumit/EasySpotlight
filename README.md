@@ -93,14 +93,14 @@ extension SimpleStruct: SpotlightSyncRetrievable {
 ```
 The method will be called in a background queue and then your registered handler will be called in the registered queue.
 
-### Async
+### Async / Not thread safe
 But if you are using something like Realm to save your objects (not thread safe), you need something like:
 
 ```swift
 
 extension SimpleRealmClass: SpotlightRetrievable {
     static func retrieveItem(with identifier: String) throws -> (() throws -> SimpleRealmClass?) {
-        let obj = try Realm().object(ofType: self, forPrimaryKey: identifier as AnyObject)
+        let obj = try Realm().object(ofType: self, forPrimaryKey: identifier)
         let safe = obj.map { ThreadSafeReference(to: $0) }
         return {
             guard let safe = safe else { return nil }
