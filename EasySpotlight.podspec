@@ -35,4 +35,11 @@ Easily index your classes and structs to CoreSpotlight by adopting to this simpl
   # s.resource_bundles = {
     # 'EasySpotlight' => ['Pod/Assets/*.png']
   # }
+
+  s.test_spec 'Tests' do |test_spec|
+    test_spec.source_files = ['Example/Tests/**/*', 'Example/EasySpotlight/SimpleStruct.swift']
+    test_spec.dependency 'Quick'
+    test_spec.dependency 'Nimble'
+  end
+
 end

@@ -7,7 +7,7 @@
       buildImplicitDependencies = "YES">
       <BuildActionEntries>
          <BuildActionEntry
-            buildForTesting = "YES"
+            buildForTesting = "NO"
             buildForRunning = "YES"
             buildForProfiling = "YES"
             buildForArchiving = "YES"
@@ -23,15 +23,15 @@
          <BuildActionEntry
             buildForTesting = "YES"
             buildForRunning = "YES"
-            buildForProfiling = "NO"
-            buildForArchiving = "NO"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "607FACE41AFB9204008FA782"
-               BuildableName = "EasySpotlight_Tests.xctest"
-               BlueprintName = "EasySpotlight_Tests"
-               ReferencedContainer = "container:EasySpotlight.xcodeproj">
+               BlueprintIdentifier = "8E580CBA8DD1110ED7BEF0B86831645D"
+               BuildableName = "EasySpotlight-Unit-Tests.xctest"
+               BlueprintName = "EasySpotlight-Unit-Tests"
+               ReferencedContainer = "container:Pods/Pods.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -48,10 +48,10 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "607FACE41AFB9204008FA782"
-               BuildableName = "EasySpotlight_Tests.xctest"
-               BlueprintName = "EasySpotlight_Tests"
-               ReferencedContainer = "container:EasySpotlight.xcodeproj">
+               BlueprintIdentifier = "8E580CBA8DD1110ED7BEF0B86831645D"
+               BuildableName = "EasySpotlight-Unit-Tests.xctest"
+               BlueprintName = "EasySpotlight-Unit-Tests"
+               ReferencedContainer = "container:Pods/Pods.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>

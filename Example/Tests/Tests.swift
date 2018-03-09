@@ -5,7 +5,7 @@ import Nimble
 import CoreSpotlight
 @testable import EasySpotlight
 
-class TableOfContentsSpec: QuickSpec {
+class EasySpotlighTests: QuickSpec {
     override func spec() {
 
         let index = MockSearchableIndex()
