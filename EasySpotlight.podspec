@@ -27,8 +27,9 @@ Easily index your classes and structs to CoreSpotlight by adopting to this simpl
   s.source           = { :git => "https://github.com/felix-dumit/EasySpotlight.git", :tag => s.version.to_s }
   # s.social_media_url = 'https://twitter.com/felix_dumit'
 
-  s.platform     = :ios, '9.0'
-  s.requires_arc = true
+  s.platform      = :ios, '9.0'
+  s.swift_version = '4.0'
+  s.requires_arc  = true
 
   s.source_files = 'Pod/Classes/**/*'
   # s.resource_bundles = {

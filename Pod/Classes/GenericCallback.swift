@@ -12,16 +12,16 @@ import Foundation
 internal typealias GenericCallbackType = (_ value: Any?) -> Void
 
 internal final class GenericCallback<T> {
-    
-    func executeCallback(_ value: Any?) -> Void {
+
+    func executeCallback(_ value: Any?) {
         if let specificValue = value as? T {
             specificCallback( specificValue )
         }
     }
-    
-    init(callback:@escaping (_ value: T?)->Void ) {
+
+    init(callback:@escaping (_ value: T?) -> Void ) {
         self.specificCallback = callback
     }
-    
-    fileprivate let specificCallback:(_ value: T?)->Void
+
+    fileprivate let specificCallback:(_ value: T?) -> Void
 }

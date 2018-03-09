@@ -9,17 +9,27 @@
 import Foundation
 import EasySpotlight
 
-struct SimpleStruct:SpotlightConvertable {
-    var title:String? = nil
-    var contentDescription:String? = nil
-    var identifier:String
+struct SimpleStruct: SpotlightConvertable {
+
+    var title: String?
+    var contentDescription: String?
+    var identifier: String
+
 }
 
-extension SimpleStruct:SpotlightRetrievable {
+extension SimpleStruct: SpotlightSyncRetrievable {
 
-    static func item(with identifier: String) -> SimpleStruct? {
-        //query your DB or network
+    static func retrieveItem(with identifier: String) throws -> SimpleStruct? {
         return SimpleStruct(title: "item_\(identifier)", contentDescription: "cool", identifier: identifier)
     }
 
+}
+
+extension SimpleStruct: Equatable {
+
+    static func == (lhs: SimpleStruct, rhs: SimpleStruct) -> Bool {
+        return lhs.title == rhs.title &&
+            lhs.contentDescription == rhs.contentDescription &&
+            lhs.identifier == rhs.identifier
+    }
 }

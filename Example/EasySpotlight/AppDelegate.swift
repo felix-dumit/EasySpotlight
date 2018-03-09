@@ -9,6 +9,8 @@
 import UIKit
 import EasySpotlight
 
+//swiftlint:disable line_length
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
@@ -16,27 +18,28 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        
-        EasySpotlight.registerIndexableHandler(SimpleStruct.self) { bobber in
+
+        EasySpotlight.registerIndexableHandler(SimpleStruct.self, queue: .main) { item in
             // handle when item is opened from spotlight
-            print("started with struct: \(bobber.identifier)")
+            print("started with struct: \(item.identifier)")
         }
-        
+
         EasySpotlight.registerIndexableHandler(SimpleRealmClass.self) { obj in
             print("started with object: \(obj)")
-            
-            if let nav = application.keyWindow?.rootViewController as? UINavigationController, let vc = nav.topViewController as? ViewController {
+
+            if let nav = application.keyWindow?.rootViewController as? UINavigationController,
+                let vc = nav.topViewController as? ViewController {
                 if let idx = vc.items?.index(of: obj) {
                     let ip = IndexPath(row: idx, section: 0)
                     vc.tableView.selectRow(at: ip, animated: true, scrollPosition: .top)
                 }
             }
-            
+
         }
-        
+
         let ss = SimpleStruct(title: "Struct Item", contentDescription: "this is a struct", identifier: "simple_struct")
         EasySpotlight.index(ss)
-        
+
         return true
     }
 
@@ -61,9 +64,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
-    
+
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([Any]?) -> Void) -> Bool {
         return EasySpotlight.handle(activity: userActivity)
     }
 }
-

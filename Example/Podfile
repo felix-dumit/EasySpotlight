@@ -2,9 +2,10 @@ source 'https://github.com/CocoaPods/Specs.git'
 use_frameworks!
 
 abstract_target 'SharedPods' do
-  pod "EasySpotlight", :path => "../"
+  pod 'EasySpotlight', :path => '../'
   pod 'Realm'
   pod 'RealmSwift'
+  pod 'SwiftLint'
   target 'EasySpotlight_Example'
   target 'EasySpotlight_Tests' do
   	pod 'Quick'

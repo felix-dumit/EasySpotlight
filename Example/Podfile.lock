@@ -1,12 +1,13 @@
 PODS:
-  - EasySpotlight (0.3.0)
-  - Nimble (5.1.1)
-  - Quick (1.0.0)
-  - Realm (2.1.1):
-    - Realm/Headers (= 2.1.1)
-  - Realm/Headers (2.1.1)
-  - RealmSwift (2.1.1):
-    - Realm (= 2.1.1)
+  - EasySpotlight (1.0.0)
+  - Nimble (7.0.3)
+  - Quick (1.2.0)
+  - Realm (3.1.1):
+    - Realm/Headers (= 3.1.1)
+  - Realm/Headers (3.1.1)
+  - RealmSwift (3.1.1):
+    - Realm (= 3.1.1)
+  - SwiftLint (0.25.0)
 
 DEPENDENCIES:
   - EasySpotlight (from `../`)
@@ -14,18 +15,20 @@ DEPENDENCIES:
   - Quick
   - Realm
   - RealmSwift
+  - SwiftLint
 
 EXTERNAL SOURCES:
   EasySpotlight:
-    :path: "../"
+    :path: ../
 
 SPEC CHECKSUMS:
-  EasySpotlight: 4465d02fb20e69b9af6b2f0f37ea82d658ca6605
-  Nimble: 415e3aa3267e7bc2c96b05fa814ddea7bb686a29
-  Quick: 8024e4a47e6cc03a9d5245ef0948264fc6d27cff
-  Realm: a55959c0b171a5fe5267406d17f314fec3cefaae
-  RealmSwift: 749fd955bf8d6471c21d218b9389a47aaeccfe3f
+  EasySpotlight: 00556b7d303e9e4e4927ea16496d6484241c7b17
+  Nimble: 7f5a9c447a33002645a071bddafbfb24ea70e0ac
+  Quick: 58d203b1c5e27fff7229c4c1ae445ad7069a7a08
+  Realm: 42d1c38a5b1bbcc828b48a7ce702cb86fc68adf4
+  RealmSwift: d31937ca6a6ee54acde64ec839523c0a3c04924b
+  SwiftLint: e14651157288e9e01d6e1a71db7014fb5744a8ea
 
-PODFILE CHECKSUM: c5ea00b3d25e4de6d2307e951a41d01e869ffb5c
+PODFILE CHECKSUM: 4909c2dc47a4d43a74561ffdf8fef6aba5cbc902
 
-COCOAPODS: 1.2.0.beta.1
+COCOAPODS: 1.4.0

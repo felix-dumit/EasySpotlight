@@ -10,34 +10,38 @@ import EasySpotlight
 import RealmSwift
 
 // Dog model
-class SimpleRealmClass: Object {
-    dynamic var name = ""
-    dynamic var longDescription = ""
-    dynamic var identifier = ""
-    
+final class SimpleRealmClass: Object {
+    @objc dynamic var name = ""
+    @objc dynamic var longDescription = ""
+    @objc dynamic var identifier = ""
+
     override static func primaryKey() -> String? {
         return "identifier"
     }
-    
-    required convenience init(name:String, longDescription:String) {
+
+    required convenience init(name: String, longDescription: String) {
         self.init()
         self.name = name
         self.longDescription = longDescription
         self.identifier = name.hashValue.description
     }
-    
+
 }
 
-extension SimpleRealmClass:SpotlightConvertable {
+extension SimpleRealmClass: SpotlightConvertable {
     /// unique idenfitier
-
-    var title:String? { return name }
-    var contentDescription:String? { return longDescription }
+    var title: String? { return name }
+    var contentDescription: String? { return longDescription }
 }
 
-extension SimpleRealmClass:SpotlightRetrievable {
-    static func item(with identifier: String) -> Self? {
-        let realm = try! Realm()
-        return realm.object(ofType: self, forPrimaryKey: identifier as AnyObject)
+extension SimpleRealmClass: SpotlightRetrievable {
+
+    static func retrieveItem(with identifier: String) throws -> (() throws -> SimpleRealmClass?) {
+        let obj = try Realm().object(ofType: self, forPrimaryKey: identifier)
+        let safe = obj.map { ThreadSafeReference(to: $0) }
+        return {
+            guard let safe = safe else { return nil }
+            return try Realm().resolve(safe)
+        }
     }
 }

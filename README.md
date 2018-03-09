@@ -28,25 +28,34 @@ github "felix-dumit/EasySpotlight"
 ## Saving content to Spotlight
 
 To use simply create a struct or class that implements the `SpotlightConvertable` protocol.
-```swift 
 
-@available(iOS 9.0, *)
-// implement to enable indexing methods
-public protocol SpotlightConvertable:SpotlightIndexable {
-    var title:String? {get}
-    var identifier:StringLiteralType {get}
-    
-    //optional
-    var itemType:String {get}
-    var thumbnailImage:UIImage? {get}
-    func configure(searchableItem item:CSSearchableItem)
+```swift 
+/**
+*  Protocol that enables types to be saved to spotlight search
+*/
+public protocol SpotlightConvertable {
+
+/// title displayed in search
+var title: String? {get}
+
+/// content description displayed in search
+var contentDescription: String? {get}
+
+/// unique idenfitier
+var identifier: String {get}
+
+//optional
+var itemType: String {get}
+var thumbnailImage: UIImage? {get}
+func configure(searchableItem item: CSSearchableItem)
 }
 ```
 
 
 Here is a simple example of a struct that implements the protocol and becomes indexable.
+
 ```swift 
-struct SimpleStruct:SpotlightConvertable {
+struct SimpleStruct: SpotlightConvertable {
     var title:String? = nil
     var identifier:String
 }
@@ -68,24 +77,54 @@ If you want to further configure the `CSSearchableItem` and `CSSearchbleAttribut
 
 ## Retrieving content
 
-In order to easily handle when the app is opened via a spotlight search, you must implement the `SpotlightRetrievable` protocol: 
+In order to easily handle when the app is opened via a spotlight search, you must implement the `SpotlightRetrievable` protocol.
 
-```swift 
-public protocol SpotlightRetrievable:SpotlightConvertable {
-    static func item(with identifier: String) -> Self?
+There is also a helper `SpotlightSyncRetrievable` protocol in case your retrieval code is thread safe and you do not need the retrieving code to be executed on the same queue as the fetched item will be consumed on or not.
+
+### Sync / Thread Safe
+Here is the simple example:
+
+```swift
+extension SimpleStruct: SpotlightSyncRetrievable {
+    static func retrieveItem(with identifier: String) throws -> SimpleStruct? {
+        return SimpleStruct(title: "item_\(identifier)", contentDescription: "cool", identifier: identifier)
+    }
 }
 ```
+The method will be called in a background queue and then your registered handler will be called in the registered queue.
 
+### Async
+But if you are using something like Realm to save your objects (not thread safe), you need something like:
+
+```swift
+
+extension SimpleRealmClass: SpotlightRetrievable {
+    static func retrieveItem(with identifier: String) throws -> (() throws -> SimpleRealmClass?) {
+        let obj = try Realm().object(ofType: self, forPrimaryKey: identifier as AnyObject)
+        let safe = obj.map { ThreadSafeReference(to: $0) }
+        return {
+            guard let safe = safe else { return nil }
+            return try Realm().resolve(safe)
+        }
+    }
+}
+```
+The method is still called in a background queue, but the returned closure will be executed in the same queue as the registered handler.
+
+
+### Register handler
 Now you have to register a handler for that type in `application:didFinishLaunchingWithOptions:`:
 
 ```swift
-EasySpotlight.registerIndexableHandler(SimpleStruct.self) { item in
+EasySpotlight.registerIndexableHandler(SimpleStruct.self, queue: .main) { item in
    // handle when item is opened from spotlight
    assert(item is SimpleStruct)
    print("started with: \(item)")
 }
 ```
+The queue parameter is optional and defaults to `.main`
 
+### Handle UserActivity
 Now all that is left is to implement the function called when the app opens from a spotlight search: 
 
 ```swift

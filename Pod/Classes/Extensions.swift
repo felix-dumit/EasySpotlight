@@ -6,14 +6,14 @@ import CoreSpotlight
 public extension SpotlightConvertable {
 
     /// Thumbnail image displayed in search results
-    var thumbnailImage:UIImage? { return nil }
+    var thumbnailImage: UIImage? { return nil }
 
     /**
     Customize the attributes of :CSSearchableItem: before saving to spotlight
 
     - parameter item: item to configure that will be saved
     */
-    func configure(searchableItem item:CSSearchableItem) {
+    func configure(searchableItem item: CSSearchableItem) {
         // 100 years default expiration date
         item.expirationDate = Date(timeIntervalSinceNow: 60 * 60 * 24 * 30 * 12 * 10)
     }
@@ -22,12 +22,12 @@ public extension SpotlightConvertable {
 @available(iOS 9.0, *)
 public extension SpotlightConvertable {
 
-    var itemType:String { return kUTTypeImage as String }
+    var itemType: String { return kUTTypeImage as String }
 
-    static var domainIdentifier:String { return "\(Self.self)"}
+    static var domainIdentifier: String { return "\(Self.self)"}
 
-    internal var uniqueIdentifier:String {
-        return EasySpotlight.composite(identifier: identifier.description, domain: Self.domainIdentifier)
+    internal var uniqueIdentifier: String {
+        return IdentifierGenerator.combineIntoUniqueIdentifier(identifier.description, domain: Self.domainIdentifier)
     }
 
     internal func indexableItem() -> CSSearchableItem {
@@ -38,7 +38,9 @@ public extension SpotlightConvertable {
             set.thumbnailData = UIImageJPEGRepresentation(img, 0.9)
         }
 
-        let item = CSSearchableItem(uniqueIdentifier: uniqueIdentifier, domainIdentifier: Self.domainIdentifier, attributeSet: set)
+        let item = CSSearchableItem(uniqueIdentifier: uniqueIdentifier,
+                                    domainIdentifier: Self.domainIdentifier,
+                                    attributeSet: set)
 
         configure(searchableItem: item)
 
@@ -46,60 +48,9 @@ public extension SpotlightConvertable {
     }
 }
 
-@available(iOS 9.0, *)
-public extension SpotlightConvertable/*:SpotlightIndexable*/ {
-
-    /**
-    Add the item to spotlight search
-
-    - parameter completion: block called when indexing finishes
-    */
-    @available(*, deprecated, message: "Use EasySpotlight.index instead")
-    func addToSpotlightIndex(_ completion:SpotlightCompletion = nil) {
-        EasySpotlight.index(self, completion: completion)
-    }
-
-    /**
-    Removes item from spotlight search
-
-    - parameter completion: block called when indexing finishes
-    */
-    @available(*, deprecated, message: "Use EasySpotlight.deIndex instead")
-    func removeFromSpotlightIndex(_ completion:SpotlightCompletion = nil) {
-        EasySpotlight.deIndex(self, completion: completion)
-    }
-
-    /**
-    Removes all objects of the Type from spotlight search
-
-    - parameter completion: block called when indexing finishes
-    */
-    @available(*, deprecated, message: "Use EasySpotlight.deIndexAll instead")
-    static func removeAllFromSpotlightIndex(_ completion:SpotlightCompletion = nil) {
-        EasySpotlight.deIndexAll(of: self, completion: completion)
-    }
-}
-
-@available(iOS 9.0, *)
-public extension Collection/*:SpotlightIndexable*/ where Iterator.Element:SpotlightConvertable {
-
-    /**
-    Add all objects in collection to spotlight
-
-    - parameter completion: block called when indexing finishes
-    */
-    @available(*, deprecated, message: "Use EasySpotlight.index instead")
-    func addToSpotlightIndex(_ completion:SpotlightCompletion = nil){
-        EasySpotlight.index(Array(self), completion: completion)
-    }
-
-    /**
-    Removes all objects in collection from spotlight
-
-    - parameter completion: block called when indexing finishes
-    */
-    @available(*, deprecated, message: "Use EasySpotlight.deIndex instead")
-    func removeFromSpotlightIndex(_ completion:SpotlightCompletion = nil) {
-        EasySpotlight.deIndex(Array(self), completion: completion)
+public extension SpotlightSyncRetrievable {
+    static func retrieveItem(with identifier: String) throws -> (() throws -> Self?) {
+        let item = try retrieveItem(with: identifier)
+        return { item }
     }
 }
