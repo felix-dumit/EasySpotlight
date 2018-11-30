@@ -11,7 +11,7 @@ class EasySpotlighTests: QuickSpec {
         let index = MockSearchableIndex()
         EasySpotlight.searchableIndex = index
 
-        let items = ["andy", "bob", "carol", "derek"].flatMap {
+        let items = ["andy", "bob", "carol", "derek"].compactMap {
             //swiftlint:disable:next force_try
             try! SimpleStruct.retrieveItem(with: $0)()
         }
@@ -53,7 +53,7 @@ class EasySpotlighTests: QuickSpec {
 
         describe("these will test registering and handling user") {
             it("will register a handler") {
-                var itemReturned: SimpleStruct? = nil
+                var itemReturned: SimpleStruct?
 
                 EasySpotlight.registerIndexableHandler(SimpleStruct.self) {
                     itemReturned = $0

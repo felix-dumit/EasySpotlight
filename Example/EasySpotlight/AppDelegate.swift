@@ -28,17 +28,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             print("started with object: \(obj)")
 
             if let nav = application.keyWindow?.rootViewController as? UINavigationController,
-                let vc = nav.topViewController as? ViewController {
-                if let idx = vc.items?.index(of: obj) {
-                    let ip = IndexPath(row: idx, section: 0)
-                    vc.tableView.selectRow(at: ip, animated: true, scrollPosition: .top)
+                let topVC = nav.topViewController as? ViewController {
+                if let idx = topVC.items?.index(of: obj) {
+                    let indexPath = IndexPath(row: idx, section: 0)
+                    topVC.tableView.selectRow(at: indexPath, animated: true, scrollPosition: .top)
                 }
             }
 
         }
 
-        let ss = SimpleStruct(title: "Struct Item", contentDescription: "this is a struct", identifier: "simple_struct")
-        EasySpotlight.index(ss)
+        let simpleStruct = SimpleStruct(title: "Struct Item", contentDescription: "this is a struct", identifier: "simple_struct")
+        EasySpotlight.index(simpleStruct)
 
         return true
     }

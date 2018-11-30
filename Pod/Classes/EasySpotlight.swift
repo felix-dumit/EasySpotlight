@@ -99,8 +99,8 @@ public struct EasySpotlight {
                                                                          queue: DispatchQueue = .main,
                                                                          block:@escaping ((T) -> Void)) {
         let specializedCallback = { (value: T?) -> Void in
-            if let v = value {
-                block(v)
+            if let value = value {
+                block(value)
             }
         }
 
